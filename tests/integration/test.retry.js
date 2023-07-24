@@ -217,76 +217,57 @@ adapters.forEach(function (adapters) {
     it('target doesn\'t leak "destroyed" event', function () {
 
       var db = new PouchDB(dbs.name);
+      const originalNumListeners = db.listeners('destroyed').length;
+
       var remote = new PouchDB(dbs.remote);
       var Promise = testUtils.Promise;
 
       var remoteBulkGet = remote.bulkGet;
       var i = 0;
       remote.bulkGet = function () {
-        // Reject three times, every 5th time
-        if ((++i % 5 === 0) && i <= 15) {
+        // Reject every 5th time
+        if (++i % 5 === 0) {
           return Promise.reject(new Error('flunking you'));
         }
         return remoteBulkGet.apply(remote, arguments);
       };
 
-      var rep = db.replicate.from(remote, {
-        live: true,
-        retry: true,
-        back_off_function: function () { return 0; }
-      });
+      var rep = db.replicate.from(remote, { live:true, retry:true, back_off_function:() => 1 });
 
-      var numDocsToWrite = 10;
+      var numDocsToWrite = 50;
 
       return remote.post({}).then(function () {
-        var originalNumListeners;
         var posted = 0;
 
         return new Promise(function (resolve, reject) {
 
           var error;
           function cleanup(err) {
-            if (err) {
-              error = err;
-            }
+            if (err) { error = err; }
             rep.cancel();
           }
-          function finish() {
-            if (error) {
-              return reject(error);
+          const finish = () => {
+            if (error) { return reject(error); }
+            try {
+              const finalNumListeners = db.listeners('destroyed').length;
+              finalNumListeners.should.equal(originalNumListeners + 1); // constructor destroy listener; unclear why it isn't included in finalNumListeners
+              resolve();
+            } catch (err) {
+              reject(err);
             }
-            resolve();
-          }
+          };
 
-          rep.on('complete', finish).on('error', cleanup);
+          rep.on('complete', finish);
+          rep.on('error', cleanup);
           rep.on('change', function () {
             if (++posted < numDocsToWrite) {
               remote.post({}).catch(cleanup);
             } else {
-              db.info().then(function (info) {
-                if (info.doc_count === numDocsToWrite) {
-                  cleanup();
-                }
-              }).catch(cleanup);
-            }
-
-            try {
-              var numListeners = remote.listeners('destroyed').length;
-              if (typeof originalNumListeners !== 'number') {
-                originalNumListeners = numListeners;
-              } else {
-                // special case for "destroy" - because there are
-                // two Changes() objects for local databases,
-                // there can briefly be one extra listener or one
-                // fewer listener. The point of this test is to ensure
-                // that the listeners don't grow out of control.
-                numListeners.should.be.within(
-                  originalNumListeners - 1,
-                  originalNumListeners + 1,
-                  'numListeners should never increase by +1/-1');
-              }
-            } catch (err) {
-              cleanup(err);
+              db.info()
+                .then(info => {
+                  if (info.doc_count === numDocsToWrite) { cleanup(); }
+                })
+                .catch(cleanup);
             }
           });
         });
