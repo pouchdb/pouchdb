@@ -9,7 +9,7 @@ var results = {
   tests: {}
 };
 
-// Capture test events for selenium output
+// Capture test events for test runner output
 var testEventsBuffer = [];
 
 global.testEvents = function () {
