@@ -217,14 +217,16 @@ adapters.forEach(function (adapters) {
     it('target doesn\'t leak "destroyed" event listener', function () {
 
       var db = new PouchDB(dbs.name);
+      const originalNumListeners = db.listeners('destroyed').length;
+
       var remote = new PouchDB(dbs.remote);
       var Promise = testUtils.Promise;
 
       var remoteBulkGet = remote.bulkGet;
       var i = 0;
       remote.bulkGet = function () {
-        // Reject three times, every 5th time
-        if ((++i % 5 === 0) && i <= 15) {
+        // Reject every 5th time
+        if (++i % 5 === 0) {
           return Promise.reject(new Error('flunking you'));
         }
         return remoteBulkGet.apply(remote, arguments);
@@ -236,10 +238,9 @@ adapters.forEach(function (adapters) {
         back_off_function: function () { return 0; }
       });
 
-      var numDocsToWrite = 10;
+      var numDocsToWrite = 50;
 
       return remote.post({}).then(function () {
-        var originalNumListeners;
         var posted = 0;
 
         return new Promise(function (resolve, reject) {
@@ -255,7 +256,13 @@ adapters.forEach(function (adapters) {
             if (error) {
               return reject(error);
             }
-            resolve();
+            try {
+              const finalNumListeners = db.listeners('destroyed').length;
+              finalNumListeners.should.equal(originalNumListeners + 1); // constructor destroy listener is still there
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
           }
 
           rep.on('complete', finish).on('error', cleanup);
@@ -272,19 +279,15 @@ adapters.forEach(function (adapters) {
 
             try {
               var numListeners = remote.listeners('destroyed').length;
-              if (typeof originalNumListeners !== 'number') {
-                originalNumListeners = numListeners;
-              } else {
-                // special case for "destroy" - because there are
-                // two Changes() objects for local databases,
-                // there can briefly be one extra listener or one
-                // fewer listener. The point of this test is to ensure
-                // that the listeners don't grow out of control.
-                numListeners.should.be.within(
-                  originalNumListeners - 1,
-                  originalNumListeners + 1,
-                  'numListeners should never increase by +1/-1');
-              }
+              // special case for "destroy" - because there are
+              // two Changes() objects for local databases,
+              // there can briefly be a few too many or one
+              // fewer listener. The point of this test is to ensure
+              // that the listeners don't grow out of control.
+              numListeners.should.be.within(
+                originalNumListeners - 1,
+                originalNumListeners + 3,
+                'numListeners should never increase by +3/-1');
             } catch (err) {
               cleanup(err);
             }
