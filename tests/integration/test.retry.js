@@ -232,7 +232,11 @@ adapters.forEach(function (adapters) {
         return remoteBulkGet.apply(remote, arguments);
       };
 
-      var rep = db.replicate.from(remote, { live:true, retry:true, back_off_function:() => 1 });
+      var rep = db.replicate.from(remote, {
+        live: true,
+        retry: true,
+        back_off_function: function () { return 0; }
+      });
 
       var numDocsToWrite = 50;
 
@@ -243,11 +247,15 @@ adapters.forEach(function (adapters) {
 
           var error;
           function cleanup(err) {
-            if (err) { error = err; }
+            if (err) {
+              error = err;
+            }
             rep.cancel();
           }
-          const finish = () => {
-            if (error) { return reject(error); }
+          function finish() {
+            if (error) {
+              return reject(error);
+            }
             try {
               const finalNumListeners = db.listeners('destroyed').length;
               finalNumListeners.should.equal(originalNumListeners + 1); // constructor destroy listener; unclear why it isn't included in finalNumListeners
@@ -257,17 +265,16 @@ adapters.forEach(function (adapters) {
             }
           };
 
-          rep.on('complete', finish);
-          rep.on('error', cleanup);
+          rep.on('complete', finish).on('error', cleanup);
           rep.on('change', function () {
             if (++posted < numDocsToWrite) {
               remote.post({}).catch(cleanup);
             } else {
-              db.info()
-                .then(info => {
-                  if (info.doc_count === numDocsToWrite) { cleanup(); }
-                })
-                .catch(cleanup);
+              db.info().then(function (info) {
+                if (info.doc_count === numDocsToWrite) {
+                  cleanup();
+                }
+              }).catch(cleanup);
             }
           });
         });
