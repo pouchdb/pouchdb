@@ -15,11 +15,9 @@ on:
 
 env:
   NODE_VERSION: 16
-  SELENIUM_HUB_HOST: hub
   TEST_HOST: localhost
 
 jobs:
-
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -38,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        couchdb: ['2.3', '3.1']
+        couchdb: ["2.3", "3.1"]
         node: [16, 18, 20]
         cmd:
           - npm test
@@ -74,17 +72,11 @@ jobs:
 
   couchdb-browser:
     needs: lint
-    services:
-      hub:
-        image: selenium/hub:3.141.59-gold
-      firefox:
-        image: selenium/node-firefox:3.141.59-gold
-        env: { HUB_HOST: hub, HUB_PORT: 4444 }
     strategy:
       fail-fast: false
       matrix:
-        couchdb: ['2.3','3.1']
-        client: ['selenium:firefox', 'selenium:chrome']
+        couchdb: ["2.3", "3.1"]
+        client: ["firefox", "chromium"]
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -124,7 +116,7 @@ jobs:
       fail-fast: false
       matrix:
         node: [16, 18, 20]
-        adapter: ['leveldb', 'memory']
+        adapter: ["leveldb", "memory"]
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find npm test
@@ -156,17 +148,11 @@ jobs:
 
   browser-adapter:
     needs: lint
-    services:
-      hub:
-        image: selenium/hub:3.141.59-gold
-      firefox:
-        image: selenium/node-firefox:3.141.59-gold
-        env: { HUB_HOST: hub, HUB_PORT: 4444 }
     strategy:
       fail-fast: false
       matrix:
-        client: ['selenium:firefox', 'selenium:chrome']
-        adapter: ['idb', 'indexeddb', 'memory']
+        client: ["firefox", "chromium"]
+        adapter: ["idb", "indexeddb", "memory"]
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find npm test
@@ -201,16 +187,10 @@ jobs:
 
   pouchdb-server:
     needs: lint
-    services:
-      hub:
-        image: selenium/hub:3.141.59-gold
-      firefox:
-        image: selenium/node-firefox:3.141.59-gold
-        env: { HUB_HOST: hub, HUB_PORT: 4444 }
     strategy:
       fail-fast: false
       matrix:
-        client: ['node', 'selenium:firefox', 'selenium:chrome']
+        client: ["node", "firefox", "chromium"]
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -246,7 +226,7 @@ jobs:
       matrix:
         node: [16, 18, 20]
         cmd:
-          - CLIENT=selenium:firefox npm run test-webpack
+          - CLIENT=firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
           - PERF=1 npm test
           - npm run test-unit
@@ -266,8 +246,8 @@ jobs:
       - name: First retry
         id: retry
         if: steps.test.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
         continue-on-error: true
       - name: Second retry
         if: steps.retry.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
