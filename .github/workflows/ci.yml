@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        couchdb: ["2.3", "3.1"]
+        couchdb: ['2.3', '3.1']
         node: [16, 18, 20]
         cmd:
           - npm test
@@ -75,8 +75,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        couchdb: ["2.3", "3.1"]
-        client: ["firefox", "chromium"]
+        couchdb: ['2.3', '3.1']
+        client: ['firefox', 'chromium']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -116,7 +116,7 @@ jobs:
       fail-fast: false
       matrix:
         node: [16, 18, 20]
-        adapter: ["leveldb", "memory"]
+        adapter: ['leveldb', 'memory']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find npm test
@@ -151,8 +151,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        client: ["firefox", "chromium"]
-        adapter: ["idb", "indexeddb", "memory"]
+        client: ['firefox', 'chromium']
+        adapter: ['idb', 'indexeddb', 'memory']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find npm test
@@ -190,7 +190,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        client: ["node", "firefox", "chromium"]
+        client: ['node', 'firefox', 'chromium']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
