@@ -1,34 +1,28 @@
 #!/usr/bin/env node
 'use strict';
 
-var wd = require('wd');
-wd.configureHttp({timeout: 180000}); // 3 minutes
+const playwright = require('playwright');
 
-var selenium = require('selenium-standalone');
 var querystring = require("querystring");
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
 
 var devserver = require('./dev-server.js');
 
-var testTimeout = 30 * 60 * 1000;
-
-var SELENIUM_VERSION = process.env.SELENIUM_VERSION || '3.141.0';
-var CHROME_BIN = process.env.CHROME_BIN;
-var FIREFOX_BIN = process.env.FIREFOX_BIN;
-
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
-// process.env.CLIENT is a colon separated list of
-// selenium:browserName:browserVerion:platform
-var tmp = (process.env.CLIENT || 'selenium:firefox').split(':');
-var client = {
-  runner: tmp[0] || 'selenium',
-  browser: tmp[1] || 'firefox',
-  version: tmp[2] || null, // Latest
-  platform: tmp[3] || null
-};
+// Playwright BrowserType whitelist.
+// See: https://playwright.dev/docs/api/class-playwright
+const SUPPORTED_BROWSERS = [ 'chromium', 'firefox', 'webkit' ];
+const browserName = process.env.CLIENT || 'firefox';
+if (!SUPPORTED_BROWSERS.includes(browserName)) {
+  console.log(`
+    !!! Requested browser not supported: '${browserName}'.
+    !!! Available browsers: ${SUPPORTED_BROWSERS.map(b => `'${b}'`).join(', ')}
+  `);
+  process.exit(1);
+}
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
 var testUrl;
@@ -45,9 +39,6 @@ if (process.env.PERF) {
 }
 
 var qs = { remote: 1 };
-
-var seleniumClient;
-var tunnelId = process.env.TRAVIS_JOB_NUMBER || 'tunnel-' + Date.now();
 
 if (process.env.INVERT) {
   qs.invert = process.env.INVERT;
@@ -85,36 +76,6 @@ if (process.env.ITERATIONS) {
 
 testUrl += '?';
 testUrl += querystring.stringify(qs);
-
-function testError(e) {
-  console.error(e);
-  console.error('Doh, tests failed');
-
-  closeClient(function () {
-    process.exit(3);
-  });
-}
-
-function startSelenium(callback) {
-  // Start selenium
-  var opts = {version: SELENIUM_VERSION};
-  selenium.install(opts, function (err) {
-    if (err) {
-      console.error('Failed to install selenium');
-      process.exit(1);
-    }
-    selenium.start(opts, function () {
-      seleniumClient = wd.promiseChainRemote();
-      callback();
-    });
-  });
-}
-
-function closeClient(callback) {
-  seleniumClient.quit().then(function () {
-    callback();
-  });
-}
 
 class RemoteRunner {
   constructor() {
@@ -181,91 +142,60 @@ function BenchmarkReporter(runner) {
   });
 }
 
-function startTest() {
+async function startTest() {
 
-  console.log('Starting', client, 'on', testUrl);
+  console.log('Starting', browserName, 'on', testUrl);
 
-  var opts = {
-    browserName: client.browser,
-    version: client.version,
-    platform: client.platform,
-    tunnelTimeout: testTimeout,
-    name: client.browser + ' - ' + tunnelId,
-    'max-duration': 60 * 45,
-    'command-timeout': 599,
-    'idle-timeout': 599,
-    'tunnel-identifier': tunnelId
-  };
-  if (CHROME_BIN) {
-    opts.chromeOptions = {
-      binary: CHROME_BIN,
-      args: ['--headless', '--disable-gpu', '--no-sandbox', '--disable-setuid-sandbox']
-    };
-  }
-  if (FIREFOX_BIN) {
-    opts.firefox_binary = FIREFOX_BIN;
-  }
-
-  var runner = new RemoteRunner();
+  const runner = new RemoteRunner();
   new MochaSpecReporter(runner);
   new BenchmarkReporter(runner);
 
-  seleniumClient.init(opts, function (err) {
-    if (err) {
-      testError(err);
-      return;
-    }
-    console.log('Initialized');
-
-    seleniumClient.get(testUrl, function (err) {
-      if (err) {
-        testError(err);
-        return;
-      }
-      console.log('Successfully started');
-
-      seleniumClient.eval('navigator.userAgent', function (err, userAgent) {
-        if (err) {
-          testError(err);
-        } else {
-          console.log('Testing on:', userAgent);
-
-          /* jshint evil: true */
-          var interval = setInterval(function () {
-            seleniumClient.eval('window.testEvents()', function (err, events) {
-                if (err) {
-                  clearInterval(interval);
-                  testError(err);
-                } else if (events) {
-                  runner.handleEvents(events);
-
-                  if (runner.completed || (runner.failed && bail)) {
-                    if (!runner.completed && runner.failed) {
-                      try {
-                        runner.bail();
-                      } catch (e) {
-                        // Temporary debugging of bailing failure
-                        console.log('An error occurred while bailing:');
-                        console.log(e);
-                      }
-                    }
-
-                    clearInterval(interval);
-
-                    closeClient(function () {
-                      process.exit(!process.env.PERF && runner.failed ? 1 : 0);
-                    });
-                  }
-                }
-            });
-          }, 10 * 1000);
-
-        }
-      });
+  const options = {
+    headless: true,
+  };
+  const browser = await playwright[browserName].launch(options);
+  const page = await browser.newPage();
+  if (process.env.BROWSER_CONSOLE) {
+    page.on('console', message => {
+      const { url, lineNumber } = message.location();
+      console.log('BROWSER', message.type().toUpperCase(), `${url}:${lineNumber}`, message.text());
     });
-  });
+  }
+  await page.goto(testUrl);
+
+  const userAgent = await page.evaluate('navigator.userAgent');
+  console.log('Testing on:', userAgent);
+
+  const interval = setInterval(async () => {
+    try {
+      const events = await page.evaluate('window.testEvents()');
+      runner.handleEvents(events);
+
+      if (runner.completed || (runner.failed && bail)) {
+        if (!runner.completed && runner.failed) {
+          try {
+            runner.bail();
+          } catch (e) {
+            // Temporary debugging of bailing failure
+            console.log('An error occurred while bailing:');
+            console.log(e);
+          }
+        }
+
+        clearInterval(interval);
+        await browser.close();
+        process.exit(!process.env.PERF && runner.failed ? 1 : 0);
+      }
+    } catch (e) {
+      console.error('Tests failed:', e);
+
+      clearInterval(interval);
+      await browser.close();
+      process.exit(3);
+    }
+  }, 1000);
 }
 
 devserver.start(function () {
-  startSelenium(startTest);
+  startTest();
 });

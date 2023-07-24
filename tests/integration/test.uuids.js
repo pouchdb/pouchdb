@@ -1,5 +1,4 @@
 'use strict';
-/* jshint maxlen: false */
 var rfcRegexp = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
 function makeUuids(count, length, radix) {
