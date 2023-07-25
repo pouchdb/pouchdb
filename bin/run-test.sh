@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 # Run tests against a local setup of pouchdb-express-router
 # by default unless COUCH_HOST is specified.
