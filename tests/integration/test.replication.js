@@ -4261,7 +4261,8 @@ describe('suite2 test.replication.js-down-test', function () {
 
   it('replicate from down server test', async () => {
     const source = new PouchDB('http://10.1.1.1:1234/store', {
-      ajax: {timeout: 10}
+      ajax: {timeout: 10},
+      timeout: 10,
     });
     const target = new PouchDB(dbs.name);
     await source.replicate.to(target).should.be
