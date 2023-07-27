@@ -4264,7 +4264,8 @@ describe('suite2 test.replication.js-down-test', function () {
       ajax: {timeout: 10}
     });
     const target = new PouchDB(dbs.name);
-    await source.replicate.to(target).should.be.rejectedWith(/^Failed to fetch$/);
+    await source.replicate.to(target).should.be
+      .rejectedWith(/(^(Failed to fetch|NetworkError when attempting to fetch resource\.)$)|ECONNREFUSED/);
   });
 });
 
