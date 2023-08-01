@@ -1,5 +1,12 @@
 #!/bin/bash -e
 
+cleanup() {
+  if [[ ! -z $SERVER_PID ]]; then
+    kill $SERVER_PID
+  fi
+}
+trap cleanup EXIT
+
 # Run tests against a local setup of pouchdb-express-router
 # by default unless COUCH_HOST is specified.
 [ -z "$COUCH_HOST" -a -z "$SERVER"  ] && SERVER="pouchdb-express-router"
@@ -135,9 +142,3 @@ elif [ "$CLIENT" == "dev" ]; then
 else
     npm run test-browser
 fi
-
-EXIT_STATUS=$?
-if [[ ! -z $SERVER_PID ]]; then
-  kill $SERVER_PID
-fi
-exit $EXIT_STATUS
