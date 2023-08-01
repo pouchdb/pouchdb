@@ -136,7 +136,7 @@ Committers!
 
 With great power comes great responsibility yada yada yada:
 
- * Code is peer reviewed, you should (almost) never push your own code.
+ * Code is peer reviewed, you should not merge un-reviewed code.
  * Pushing to `master` is blocked by GitHub.
  * Cherry Pick / Rebase commits, **don't use merge commits**, see below for instructions on how to
  merge a pull request.
