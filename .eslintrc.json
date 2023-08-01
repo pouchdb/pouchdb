@@ -33,8 +33,10 @@
   },
 
   "rules": {
+    "eol-last": "error",
     "no-empty": "off",
     "no-console": "off",
+    "no-trailing-spaces": "error",
     "semi": ["error", "always"],
     "curly": ["error", "all"],
     "space-unary-ops": ["error", {"words": true}],

@@ -243,7 +243,7 @@ describe('test.fields.js', function () {
       ]);
     });
   });
-  
+
   it('does return all fields of overlapping paths', function () {
     var db = context.db;
     return db.bulkDocs([

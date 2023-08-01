@@ -89,7 +89,7 @@ adapters.forEach(function (adapters) {
         });
       });
     });
-    
+
     it('#5710 Test pending property support', function (done) {
 
       var db = new PouchDB(dbs.name);
@@ -118,7 +118,7 @@ adapters.forEach(function (adapters) {
             }
           }
         });
-        
+
         repl.on('complete', function () {
           if (pendingSum > 0) {
             pendingSum.should.equal(numDocs);
@@ -308,7 +308,7 @@ adapters.forEach(function (adapters) {
             dest = new PouchDB(dbs.remote);
             securedDbs.push(source);
           }
-  
+
           if (adapters[1] === 'http') {
             source = new PouchDB(dbs.name);
             dest = new PouchDB(dbs.remote, {
@@ -319,7 +319,7 @@ adapters.forEach(function (adapters) {
             securedDbs.push(dest);
           }
         });
-  
+
         function attachHandlers(replication) {
           var invokedHandlers = [];
           ['change', 'complete', 'paused', 'active', 'denied', 'error'].forEach(function (type) {
@@ -329,60 +329,60 @@ adapters.forEach(function (adapters) {
           });
           return invokedHandlers;
         }
-  
+
         it('from or to a secured database, using live replication', function () {
           if (adapters[0] === 'local' && adapters[1] === 'local') {
             return;
           }
-  
+
           var replication = source.replicate.to(dest, {live: true});
           var invokedHandlers = attachHandlers(replication);
-  
+
           return replication.then(function () {
             throw new Error('Resulting promise should be rejected');
           }, function () {
             invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
           });
         });
-  
+
         it('from or to a secured database, using live replication with checkpoint', function () {
           if (adapters[0] === 'local' && adapters[1] === 'local') {
             return;
           }
-  
+
           var replication = source.replicate.to(dest, {live: true, since: 1234});
           var invokedHandlers = attachHandlers(replication);
-  
+
           return replication.then(function () {
             throw new Error('Resulting promise should be rejected');
           }, function () {
             invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
           });
         });
-  
+
         it('from or to a secured database, using live replication with retrying', function () {
           if (adapters[0] === 'local' && adapters[1] === 'local') {
             return;
           }
-  
+
           var replication = source.replicate.to(dest, {live: true, retry: true});
           var invokedHandlers = attachHandlers(replication);
-  
+
           return replication.then(function () {
             throw new Error('Resulting promise should be rejected');
           }, function () {
             invokedHandlers.should.be.eql(['error'], 'incorrect handler was invoked');
           });
         });
-  
+
         it('from or to a secured database, using one-shot replication', function () {
           if (adapters[0] === 'local' && adapters[1] === 'local') {
             return;
           }
-  
+
           var replication = source.replicate.to(dest);
           var invokedHandlers = attachHandlers(replication);
-  
+
           return replication.then(function () {
             throw new Error('Resulting promise should be rejected');
           }, function () {
