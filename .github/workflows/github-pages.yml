@@ -33,6 +33,7 @@ jobs:
       - run: sudo gem install bundler
       - run: sudo ./bin/install-jekyll.sh
       - run: BUILD=1 ./bin/build-site.js
+      - run: mv ./docs/_site ./_site
       - name: upload artifact
         uses: actions/upload-pages-artifact@v2
 
