@@ -1,5 +1,6 @@
 name: GitHub Pages Deploy
 
+# TODO change branch to master, or to match release tags
 on:
   push:
     branches: ["gh-pages"]
