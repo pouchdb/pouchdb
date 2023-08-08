@@ -14,12 +14,14 @@ var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
 process.chdir('docs');
 
 function checkJekyll() {
+  console.log('checkJekyll()');
   return exec('bundle check').catch(function () {
     throw new Error('Jekyll is not installed.  You need to do: npm run install-jekyll');
   });
 }
 
 function buildCSS() {
+  console.log('buildCSS()');
   mkdirp.sync(__dirname + '/../docs/static/css');
   var cmd = __dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS;
   return exec(cmd).then(function (child) {
@@ -30,6 +32,7 @@ function buildCSS() {
 }
 
 function buildJekyll(path) {
+  console.log('buildJekyll()');
   // Dont rebuild on website artifacts being written
   if (path && /^_site/.test(path.relative)) {
     return;
@@ -43,6 +46,7 @@ function buildJekyll(path) {
 }
 
 function highlightEs6() {
+  console.log('highlightEs6()');
   var path = require('path').resolve(__dirname, '../docs/_site');
 
   // TODO: this is a fragile and hacky way to get
@@ -62,6 +66,7 @@ function onError(err) {
 }
 
 function buildEverything() {
+  console.log('buildEverything()');
   return Promise.resolve()
     .then(checkJekyll)
     .then(buildCSS)
