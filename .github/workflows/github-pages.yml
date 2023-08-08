@@ -30,9 +30,9 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - run: sudo gem install bundler
-      - run: ./bin/install-jekyll.sh
+      - run: sudo ./bin/install-jekyll.sh
       - run: ./bin/build-site.js
-      - name: Upload artifact
+      - name: upload artifact
         uses: actions/upload-pages-artifact@v2
 
   # Deployment job
