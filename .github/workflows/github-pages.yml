@@ -32,7 +32,7 @@ jobs:
       - uses: ./.github/actions/install-deps
       - run: sudo gem install bundler
       - run: sudo ./bin/install-jekyll.sh
-      - run: ./bin/build-site.js
+      - run: BUILD=1 ./bin/build-site.js
       - name: upload artifact
         uses: actions/upload-pages-artifact@v2
 
