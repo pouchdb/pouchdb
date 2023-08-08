@@ -36,6 +36,7 @@ jobs:
       - run: mv ./docs/_site ./_site
       - run: ls ./_site
       - run: ls ./_site/static
+      - run: mv ./docs/static ./static
       - name: upload artifact
         uses: actions/upload-pages-artifact@v2
 
