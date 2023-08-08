@@ -46,13 +46,11 @@ Filters in CouchDB are like filters as higher-order functions: they take some ar
 
 {% include alert/start.html variant="info" %}
 
-{% markdown %}
 
 While in these examples I'm using a filter, the rest of this post will hold if you decide to use a view instead.
 
 At this point you might be wondering about the difference between a view and a filter. My reason for using filters is easy: I want to emit the whole document, and I want to emit documents according to a parameter provided by the client. While you could create a view that emits the whole document, taking parameters becomes [a bit too complicated for my taste](http://guide.couchdb.org/editions/1/en/cookbook.html). 
 
-{% endmarkdown %}
 
 {% include alert/end.html %}
 

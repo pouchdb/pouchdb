@@ -225,7 +225,6 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    redcarpet (3.6.0)
     rexml (3.2.6)
     rouge (3.26.0)
     ruby2_keywords (0.0.5)
@@ -259,7 +258,6 @@ DEPENDENCIES
   github-pages
   jekyll-paginate
   json
-  redcarpet
 
 BUNDLED WITH
    2.1.4

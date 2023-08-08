@@ -1,7 +1,6 @@
 name: PouchDB
 description: PouchDB, the JavaScript Database that Syncs!
 url: http://pouchdb.com
-markdown: redcarpet
 baseurl:
 version: 8.0.1
 paginate: 5
@@ -11,3 +10,4 @@ github:
 collections:
   guides:
     output: true
+markdown: kramdown

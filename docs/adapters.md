@@ -72,9 +72,7 @@ PouchDB also offers separate browser plugins that use backends other than Indexe
 * [pouchdb.localstorage.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.js) (Minified: [pouchdb.localstorage.min.js](https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb.localstorage.min.js))
 
 {% include alert/start.html variant="warning"%}
-{% markdown %}
 These plugins add a hefty footprint due to external dependencies, so take them with a grain of salt.
-{% endmarkdown %}
 {% include alert/end.html%}
 
 #### In-memory adapter

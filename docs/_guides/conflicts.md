@@ -102,11 +102,9 @@ For instance, imagine the `doc` returned is the following:
 Here we have two separate revisions (`2-x` and `2-y`) written by two separate databases, and one database's revision (`2-x`) has arbitrarily won.
 
 {% include alert/start.html variant="warning" %}
-{% markdown %}
 
 Normally, `_rev`s look more like `2-c1592ce7b31cc26e91d2f2029c57e621`, i.e. a digit followed by a very long hash. In these examples, `x` and `y` are used in place of the hash, for simplicity's sake.
 
-{% endmarkdown %}
 {% include alert/end.html %}
 
 Notice that the document's current revision starts with `2-`, and the conflicting version also starts with `2-`, indicating that they're both at the same level of the revision tree. (Revision hashes start with `1-`, `2-`, `3-`, etc., which indicates their distance from the first, "root" revision. The root always starts with `1-`.)

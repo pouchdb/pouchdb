@@ -26,11 +26,9 @@ function(error, result) { /* ... */ }
 If you don't specify a `callback`, then the API returns a [promise][]. In [supported browsers](http://caniuse.com/#feat=promises) or Node.js, native promises are used, falling back to the minimal library [lie][] as needed.
 
 {% include alert/start.html variant="info"%}
-{% markdown %}
 
 **Using Ionic/AngularJS?**  You can wrap PouchDB promises in [`$q.when()`](https://docs.angularjs.org/api/ng/service/$q#when). This will notify AngularJS to update the UI when the PouchDB promise has resolved.
 
-{% endmarkdown %}
 {% include alert/end.html%}
 
 To use a custom promise implementation with PouchDB, you must redefine a global `Promise` object before loading PouchDB:

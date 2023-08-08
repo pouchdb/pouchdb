@@ -9,14 +9,12 @@ Invoke a map/reduce function, which allows you to perform more complex queries o
 Since views perform a full scan of all documents, this method may be slow, unless you first save your view in a design document. Read the [query guide](/guides/queries.html) for a good tutorial.
 
 {% include alert/start.html variant="warning"%}
-{% markdown %}
 
 **Warning: advanced API.** The map/reduce API is designed for cases that are too complex for Mango queries, which are described in
 [createIndex()](#create_index), [find()](#query_index), [listIndexes()](#list_indexes), and [deleteIndex()](#delete_index).
 
 Under the hood, Mango indexes are the same as map/reduce indexes. The Mango API is just a simplified user-facing API on top of map/reduce.
 
-{% endmarkdown %}
 {% include alert/end.html%}
 
 ### Options
