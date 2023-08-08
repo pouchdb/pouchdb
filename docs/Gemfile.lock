@@ -257,6 +257,7 @@ PLATFORMS
 
 DEPENDENCIES
   github-pages
+  jekyll-paginate
   json
   redcarpet
 
