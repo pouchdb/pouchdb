@@ -35,6 +35,7 @@ jobs:
       - run: BUILD=1 ./bin/build-site.js
       - run: mv ./docs/_site ./_site
       - run: ls ./_site
+      - run: ls ./_site/static
       - name: upload artifact
         uses: actions/upload-pages-artifact@v2
 
