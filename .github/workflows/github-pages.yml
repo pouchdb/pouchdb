@@ -32,7 +32,7 @@ jobs:
         with:
           ruby-version: '2.7'
           bundler-cache: true
-      #- run: sudo gem install bundler -v 2.1.4
+      - run: sudo gem install bundler -v 2.1.4
       # TODO use npm run install-jekyll?
       - run: sudo ./bin/install-jekyll.sh
       # TODO use npm run build-site?
