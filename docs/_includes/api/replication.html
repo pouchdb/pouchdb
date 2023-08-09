@@ -169,9 +169,11 @@ You should also beware trying to use filtered replication to enforce security, e
 
 {% include alert/start.html variant="warning" %}
 
+{% markdown %}
 
 **Deleting filtered docs**: When you use filtered replication, you should avoid using `remove()` to delete documents, because that removes all their fields as well, which means they might not pass the filter function anymore, causing the deleted revision to not be replicated. Instead, set the `doc._deleted` flag to `true` and then use `put()` or `bulkDocs()`.
 
+{% endmarkdown %}
 
 {% include alert/end.html %}
 

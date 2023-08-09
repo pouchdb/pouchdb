@@ -22,10 +22,12 @@ Prebuilt SQLite files
 ---
 
 {% include alert/start.html variant="info" %}
+{% markdown %}
 
 **Note:** this method only works for hybrid apps, i.e. apps built with tools like Cordova,
 PhoneGap, and Ionic.
 
+{% endmarkdown %}
 {% include alert/end.html %}
 
 The advantage of bundling a SQLite file with your app is that the database is instantly
@@ -122,11 +124,13 @@ Next, we'll want to copy the `turtles.db` into the `www/` directory. This will e
 is bundled with the app.
 
 {% include alert/start.html variant="warning" %}
+{% markdown %}
 
 **PouchDB 5.x instructions:** Before PouchDB 6, SQLite databases need to be
 prefixed with `_pouch_` in order to be located. So you would need to rename
 `turtles.db` to `_pouch_turtles.db`. This is not necessary in PouchDB 6+.
 
+{% endmarkdown %}
 {% include alert/end.html %}
 
 At this point, we'll also need to install some plugins for our Cordova app. In particular, we'll need the [File Plugin](https://github.com/apache/cordova-plugin-file)
@@ -194,9 +198,11 @@ To include this plugin, either `npm install pouchdb-adapter-cordova-sqlite` or [
 ```
 
 {% include alert/start.html variant="info" %}
+{% markdown %}
 
 **PouchDB 5.x instructions:** Before PouchDB 6, the WebSQL adapter would automatically fall back to SQLite if it detected it was running in a Cordova environment and the Cordova SQLite plugin was installed. This behavior [was removed](https://github.com/pouchdb/pouchdb/wiki/Breaking-changes) because it was difficult to maintain and configure.
 
+{% endmarkdown %}
 {% include alert/end.html %}
 
 Next, let's write the code to call this function and then print the contents of our preloaded PouchDB. Add this code to `www/js/index.js`, ensuring that it runs after the `deviceready` event:
@@ -234,9 +240,11 @@ If all goes well, you should see the following screens for Android and iOS:
 The text in the background indicates that the database was preloaded and ready to go!
 
 {% include alert/start.html variant="info" %}
+{% markdown %}
 
 **The full source code** for this example is available [on Github](https://github.com/nolanlawson/pouchdb-prebuilt-demo).
 
+{% endmarkdown %}
 {% include alert/end.html %}
 
 Loading from a dump file
@@ -266,11 +274,13 @@ Now that we have a `turtles.txt` file, we can use the [pouchdb-load](https://git
 plugin to load it into our database.
 
 {% include alert/start.html variant="info" %}
+{% markdown %}
 
 **Note:** if you'd like to make this dump file even smaller, you can use [short-revs](https://github.com/nolanlawson/short-revs)
 to shorten all of the revision strings to `1-A`, `1-B`, `2-A`, etc. Be forewarned that this will
 make it incompatible with the source database, though, so you won't be able to replicate it back!
 
+{% endmarkdown %}
 {% include alert/end.html %}
 
 Assuming the dump file is hosted on our web site, we can then load it using `db.load()`:
@@ -307,9 +317,11 @@ If this works, you should see the four turtle documents printed to the screen, s
 were successfully loaded from the dump file.
 
 {% include alert/start.html variant="info" %}
+{% markdown %}
 
 **The full source code** for this example is available in [this Gist](https://gist.github.com/nolanlawson/5100ca90dc1028d811a2b5c73119e323). And here's [a live version](http://bl.ocks.org/nolanlawson/5100ca90dc1028d811a2b5c73119e323).
 
+{% endmarkdown %}
 {% include alert/end.html %}
 
 Wrapping up

@@ -15,6 +15,7 @@ Some packages are included by default in the main `pouchdb` package, whereas
 others (including third-party packages) must be installed separately.
 
 {% include alert/start.html variant="warning"%}
+{% markdown %}
 
 Custom builds require an [npm][]-based build system, using a bundler
 like [Browserify][], [Webpack][], [SystemJS][], [Rollup][], or [JSPM][]. Tools like
@@ -28,6 +29,7 @@ like [Browserify][], [Webpack][], [SystemJS][], [Rollup][], or [JSPM][]. Tools l
 [npm]: http://npmjs.com/
 [Bower]: http://bower.io
 
+{% endmarkdown %}
 {% include alert/end.html%}
 
 PouchDB packages come in three flavors: *presets*, *plugins*, and
@@ -280,9 +282,11 @@ console.log(db.adapter); // 'websql'
 ### pouchdb-adapter-indexeddb
 
 {% include alert/start.html variant="warning"%}
+{% markdown %}
 
 **Warning: experimental.** You probably don't want to use this yet. &#x1F609;
 
+{% endmarkdown %}
 {% include alert/end.html%}
 
 An experimental next-generation IndexedDB adapter, also known as "idb-next". Currently not shipped as part of PouchDB. The adapter name is `'indexeddb'`.
@@ -357,6 +361,7 @@ Most of these are internal, and the APIs are not thoroughly documented. You will
 most likely need to read the source code to understand how they work.
 
 {% include alert/start.html variant="warning"%}
+{% markdown %}
 
 **Warning:** you are entering a semver-free zone.
 
@@ -364,6 +369,7 @@ In contrast to the presets and plugins listed above, **none of the following pac
 follow semver**. Their versions are pinned to PouchDB's, and may change at any time
 without warning. You are strongly recommended to **use exact versions** when installing these packages.
 
+{% endmarkdown %}
 {% include alert/end.html%}
 
 ### pouchdb-abstract-mapreduce

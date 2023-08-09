@@ -7,10 +7,12 @@ db.createIndex(index [, callback])
 Create an index if it doesn't exist, or do nothing if it already exists.
 
 {% include alert/start.html variant="info"%}
+{% markdown %}
 
 **pouchdb-find plugin needed:** This API requires the `pouchdb-find` plugin. See
 [Mango queries](/guides/mango-queries.html) for installation instructions.
 
+{% endmarkdown %}
 {% include alert/end.html%}
 
 #### Example Usage:
@@ -211,12 +213,14 @@ db.createIndex({
 If you want to index a subset of the documents in the database, you can use `partial_filter_selector`. This has the same syntax as the selector you'd pass to `find()`, and only documents matching the selector will be included in the index.
 
 {% include alert/start.html variant="warning"%}
+{% markdown %}
 
 **When using _pouchdb-adapter-indexeddb:_** On the `indexeddb`-adapter, indexes with
 a`partial_filter_selector` will fall back to using [map-reduce](#query_database),
 instead of the native indexes, negating all index performance gains from the
 `indexeddb`-adapter over the `idb`-adapter.
 
+{% endmarkdown %}
 {% include alert/end.html%}
 
 {% include code/start.html id="create_idx5" type="callback" %}

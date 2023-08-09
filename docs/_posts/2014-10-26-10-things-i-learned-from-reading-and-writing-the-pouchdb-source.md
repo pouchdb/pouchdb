@@ -233,9 +233,11 @@ This also heavily influenced our design for [persistent map/reduce](http://pouch
 
 {% include alert/start.html variant="info" %}
 
+{% markdown %}
 
 **Update:** it turned out I just misunderstood the IndexedDB spec. You can actually swap the start and end in the `IDBKeyRange`, and that allows you to iterate backwards in all browsers. [We updated PouchDB accordingly](https://github.com/pouchdb/pouchdb/issues/3488).
 
+{% endmarkdown %}
 
 {% include alert/end.html %}
 
