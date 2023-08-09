@@ -21,7 +21,6 @@
     "prepublish": "npm run build",
     "release": "./bin/release.sh",
     "install-jekyll": "./bin/install-jekyll.sh",
-    "publish-site": "./bin/publish-site.sh",
     "build-site": "node ./bin/build-site.js",
     "test-coverage": "./bin/test-coverage.sh",
     "coverage": "COVERAGE=1 SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find ./bin/test-coverage.sh",
