@@ -28,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
-      - run: apt-get install -y ruby
+      - run: apt-get install -y ruby2.2
       - run: sudo gem install bundler -v 2.1.4
       # TODO use npm run install-jekyll?
       - run: sudo ./bin/install-jekyll.sh
