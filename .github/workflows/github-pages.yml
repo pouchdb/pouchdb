@@ -28,16 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
-      # install rvm and ruby 2.2
-      - run: sudo apt-get -y install software-properties-common
-      - run: sudo apt-add-repository -y ppa:rael-gc/rvm
-      - run: sudo apt-get update
-      - run: sudo apt-get install rvm
-      - run: sudo usermod -a -G rvm $USER
-      - run: . /etc/profile.d/rvm.sh
-      - run: rvm install 2.2
-      - run: rvm use 2.2
-      - run: sudo gem install bundler -v 2.1.4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.2'
+          bundler-cache: true
+      #- run: sudo gem install bundler -v 2.1.4
       # TODO use npm run install-jekyll?
       - run: sudo ./bin/install-jekyll.sh
       # TODO use npm run build-site?
