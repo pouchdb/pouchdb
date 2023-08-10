@@ -30,7 +30,7 @@ jobs:
       - uses: ./.github/actions/install-deps
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7
+          ruby-version: 3
           bundler-cache: true
       - run: sudo gem install bundler -v 2.1.4
       - run: npm run install-jekyll
@@ -40,7 +40,6 @@ jobs:
         with:
           path: docs/_site
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
