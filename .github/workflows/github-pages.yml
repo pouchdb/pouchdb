@@ -30,7 +30,7 @@ jobs:
       - uses: ./.github/actions/install-deps
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3
+          ruby-version: 2.7
           bundler-cache: true
       - run: sudo gem install bundler -v 2.1.4
       - run: npm run install-jekyll
