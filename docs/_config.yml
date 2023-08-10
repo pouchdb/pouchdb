@@ -1,6 +1,6 @@
 name: PouchDB
 description: PouchDB, the JavaScript Database that Syncs!
-url:
+url: https://alxndrsn.github.io/pouchdb/
 markdown: redcarpet
 baseurl: https://alxndrsn.github.io/pouchdb/
 version: 8.0.1
