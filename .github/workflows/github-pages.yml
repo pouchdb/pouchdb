@@ -34,8 +34,7 @@ jobs:
           bundler-cache: true
       - run: sudo gem install bundler -v 2.1.4
       - run: npm run install-jekyll
-      # TODO use npm run build-site?
-      - run: BUILD=1 ./bin/build-site.js
+      - run: BUILD=1 npm run build-site
       - run: mv ./docs/_site ./_site
       - run: ls ./_site
       - run: ls ./_site/static
