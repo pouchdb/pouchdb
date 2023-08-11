@@ -47,7 +47,7 @@ var PouchDB = require('pouchdb-browser');
 var db = new PouchDB('my_database');
 {% endhighlight %}
 
-See [custom builds](http://pouchdb.com/custom.html) for more options.
+See [custom builds]({{ site.baseurl }}/custom.html) for more options.
 
 {% include anchor.html class="h3" title="CDNs" hash="cdn" %}
 
@@ -69,7 +69,7 @@ For third-party plugins, see the [plugins page](/external.html).
 
 {% include anchor.html class="h3" title="Custom builds" hash="custom" %}
 
-For custom builds and first-party plugins, see the [custom builds](http://pouchdb.com/custom.html) page.
+For custom builds and first-party plugins, see the [custom builds]({{ site.baseurl }}/custom.html) page.
 
 [latest]: https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.js
 [latest-min]: https://github.com/pouchdb/pouchdb/releases/download/{{ site.version }}/pouchdb-{{ site.version }}.min.js

@@ -219,7 +219,7 @@ pouch.query(myMapReduceFun, {
 });
 ```
 
-If you're adventurous, though, you should check out the [CouchDB documentation](http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html) or the [PouchDB documentation](http://pouchdb.com/api.html#query_database) for details on reduce functions.
+If you're adventurous, though, you should check out the [CouchDB documentation](http://couchdb.readthedocs.org/en/latest/couchapp/views/intro.html) or the [PouchDB documentation]({{ site.baseurl }}/api.html#query_database) for details on reduce functions.
 
 {% include anchor.html title="Avoiding map/reduce" hash="avoiding-map-reduce" %}
 
