@@ -120,7 +120,7 @@ You can see **[a live example](http://bl.ocks.org/nolanlawson/8f58dbc360348a4c95
 
 Far too many developers overlook this valuable API, because they misunderstand it. When a developer says "my PouchDB app is slow!", it is usually because they are using the slow `query()` API when they should be using the fast `allDocs()` API.
 
-For details on how to effectively use `allDocs()`, you are strongly recommended to read ["Pagination strategies with PouchDB"](http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html). For 99% of your applications, you should be able to use `allDocs()` for all the pagination/sorting/searching functionality that you need.
+For details on how to effectively use `allDocs()`, you are strongly recommended to read ["Pagination strategies with PouchDB"]({{ site.baseurl }}/2014/04/14/pagination-strategies-with-pouchdb.html). For 99% of your applications, you should be able to use `allDocs()` for all the pagination/sorting/searching functionality that you need.
 
 {% include anchor.html title="Related API documentation" hash="related-api-documentation" %}
 

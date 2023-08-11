@@ -214,7 +214,7 @@ The symptoms for this issues are:
 
 Chances are that your server runs inside a virtual machine. The host system, or hypervisor, imposes limits on how much data each virtual machine can use for networking. If you are on a cheap virtual server, it is possible, that the default settings for PouchDB pull-replication (10 parallel batches of 100 documents each) exhaust the narrow limit of your server. Even a single client can cause this.
 
-The solution is to move to a better server, but if that is not an immediate option, a workaround would be reducing the `options.batch_size` and `options.batches_limit` [replication options](http://pouchdb.com/api.html#replication).
+The solution is to move to a better server, but if that is not an immediate option, a workaround would be reducing the `options.batch_size` and `options.batches_limit` [replication options]({{ site.baseurl }}/api.html#replication).
 
 To find optimal values, start by setting them both to 1 (meaning that PouchDB should download one document after the other) and increase from there and stop when the symptoms begin again. Note that multiple concurrent clients can still cause an issue, if you get too many. If all your documents have one or more attachments (e.g. a photos database), setting both options to `1` is probably a good idea.
 
@@ -277,7 +277,7 @@ If you are using Couchbase Lite to sync with PouchDB then you cannot use capital
 
 {% include anchor.html class="h3" title="Live changes pass undetected (Web Extension)" hash="webextension_live_changes" %}
 
-When using PouchDB in a WebExtension (at least in Chromium 55 and Firefox 50), but apparently only if the `manifest.json` contains the `store` permission, a [live changes feed](https://pouchdb.com/guides/changes.html#live-changes-feed) in one tab or background process may not detect changes made in another tab/process. It will of course still report those changes upon the next change that it does detect.
+When using PouchDB in a WebExtension (at least in Chromium 55 and Firefox 50), but apparently only if the `manifest.json` contains the `store` permission, a [live changes feed]({{ site.baseurl }}/guides/changes.html#live-changes-feed) in one tab or background process may not detect changes made in another tab/process. It will of course still report those changes upon the next change that it does detect.
 Minimal code to reproduce this can be found [here](https://gist.github.com/Treora/150dca4b57b1b881bd049303e82c5ced).
 
 {% include anchor.html class="h3" title="PouchDB install errors on Windows" hash="pouchdb_install_errors_windows" %}
