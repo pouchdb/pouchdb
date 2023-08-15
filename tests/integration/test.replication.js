@@ -4268,7 +4268,7 @@ describe('suite2 test.replication.js-down-test', function () {
     });
     const target = new PouchDB(dbs.name);
     await source.replicate.to(target).should.be
-      .rejectedWith(/(^(Failed to fetch|NetworkError when attempting to fetch resource\.)$)|ECONNREFUSED|EHOSTUNREACH/);
+      .rejectedWith(/(^(Failed to fetch|NetworkError when attempting to fetch resource\.)$)|ECONNREFUSED|EHOSTUNREACH|ETIMEDOUT/);
   });
 });
 
