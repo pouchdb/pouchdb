@@ -143,7 +143,7 @@ $ cordova plugin add cordova-plugin-sqlite-2 --save
 
 (For Ionic, you can also do `ionic plugin add`, and it will have the same effect.)
 
-We'll also need PouchDB itself. For expediency, let's just [download PouchDB](http://pouchdb.com/download.html)
+We'll also need PouchDB itself. For expediency, let's just [download PouchDB]({{ site.baseurl }}/download.html)
 and include `pouchdb.js` in the app, under `www/js`. Then we'll add it to `index.html`:
 
 ```html
