@@ -4248,7 +4248,7 @@ adapters.forEach(function (adapters) {
 // This test only needs to run for one configuration, and it slows stuff
 // down
 describe('suite2 test.replication.js-down-test', function () {
-  this.timeout(360000);
+  this.timeout(120000);
 
   let dbs = {};
 
