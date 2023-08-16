@@ -2,9 +2,7 @@
 
 'use strict';
 
-var http_server = require('http-server');
 var fs = require('fs');
-var watchGlob = require('watch-glob');
 var replace = require('replace');
 var exec = require('child-process-promise').exec;
 var mkdirp = require('mkdirp');
@@ -72,6 +70,9 @@ function buildEverything() {
 }
 
 if (!process.env.BUILD) {
+  const http_server = require('http-server');
+  const watchGlob = require('watch-glob');
+
   watchGlob('**', buildJekyll);
   watchGlob('docs/static/less/*/*.less', buildCSS);
   http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
