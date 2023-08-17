@@ -1,13 +1,14 @@
 name: GitHub Pages Deploy
 
+# TODO change branch to master, or to match release tags
 on:
   push:
-    tags:
-      - '\d+\.\d+\.\d+'
-  # Allow running workflow manually from Actions tab
+    branches: ["gh-pages"]
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Set permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -20,6 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Build job
   build:
     runs-on: ubuntu-20.04
     steps:
