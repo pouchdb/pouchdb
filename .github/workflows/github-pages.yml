@@ -1,8 +1,7 @@
 name: GitHub Pages Deploy
 
 # Only run workflow when triggered manually from Actions tab
-on:
-  workflow_dispatch:
+on: workflow_dispatch
 
 # Set permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
