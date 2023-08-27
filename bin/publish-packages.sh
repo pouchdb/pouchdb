@@ -1,6 +1,4 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
 
 publish_packages () {
   local root_dir="$PWD"

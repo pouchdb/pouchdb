@@ -27,13 +27,13 @@ As noted above, `db.info()` now provides adapter-specific debugging info, such a
 
 * `idb_attachment_format`: (IndexedDB) either `'base64'` or `'binary'`, depending on whether the browser [supports binary blobs](/faq.html#data_types).
 * `sqlite_plugin`: (WebSQL) true if the [SQLite Plugin][] is being used.
-* `websql_encoding`: (WebSQL) either `'UTF-8'` or `'UTF-16'`, depending on the [WebSQL implementation](http://pouchdb.com/faq.html#data_types)
+* `websql_encoding`: (WebSQL) either `'UTF-8'` or `'UTF-16'`, depending on the [WebSQL implementation]({{ site.baseurl }}/faq.html#data_types)
 
 This should not be considered a stable API, since it's only for debugging and could change at any time.
 
 ### RSS feed
 
-Thanks to Nick Colley, the PouchDB blog is now available as an RSS feed! Point your RSS reader over to [pouchdb.com/feed.xml](http://pouchdb.com/feed.xml) and get notified whenever a new PouchDB version is released.
+Thanks to Nick Colley, the PouchDB blog is now available as an RSS feed! Point your RSS reader over to [pouchdb.com/feed.xml]({{ site.baseurl }}/feed.xml) and get notified whenever a new PouchDB version is released.
 
 ### Couchbase Sync Gateway
 

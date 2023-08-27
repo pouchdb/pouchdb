@@ -17,7 +17,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Create a pouch without new keyword', function () {
-      /* jshint newcap:false */
       var db = PouchDB(dbs.name);
       db.should.be.an.instanceof(PouchDB);
     });
@@ -1048,7 +1047,6 @@ adapters.forEach(function (adapter) {
 
     it('3968, keeps all object fields', function () {
       var db =  new PouchDB(dbs.name);
-      /* jshint -W001 */
       var doc = {
         _id: "x",
         type: "testdoc",
