@@ -54,7 +54,7 @@ adapters.forEach(function (adapter) {
       return new PouchDB(dbs.name).destroy({});
     });
 
-    it('4339 throw useful error if method called on stale instance', function () {
+    it('4339 throw useful error if method called on stale instance', function (done) {
       var db = new PouchDB(dbs.name);
 
       return db.put({
@@ -67,6 +67,7 @@ adapters.forEach(function (adapter) {
         throw new Error('.get should return an error');
       }, function (err) {
         should.equal(err instanceof Error, true, 'should be an error');
+        done();
       });
     });
 
