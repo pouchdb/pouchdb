@@ -1205,10 +1205,23 @@ adapters.forEach(function (adapter) {
        });
     }
 
-    it('#8594 Plugins can override core methods', function () {
-      PouchDB.plugin({bulkDocs: function () {return true;}});
-      var db = new PouchDB("test");
-      db.bulkDocs().should.equal(true);
+    it('8594, PouchDB.plugin() can override core methods', function (done) {
+      const pouchBulkDocs = PouchDB.prototype.bulkDocs; // original bulkDocs
+      let called = false;
+      PouchDB.plugin({  // override
+        bulkDocs: function (docs, options, callback) {
+          called = true;
+          return pouchBulkDocs.call(this, docs, options, callback);
+        }
+      });
+      const db = new PouchDB("test");
+      // will error, but we don't care about the error
+      // just checking if called === true so that
+      // bulkDocs indeed got overridden
+      db.bulkDocs().catch(function () {
+        called.should.equal(true);
+        done();
+      });
     });
 
     if (typeof process !== 'undefined' && !process.browser) {
