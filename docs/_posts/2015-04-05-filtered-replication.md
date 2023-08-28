@@ -56,7 +56,7 @@ At this point you might be wondering about the difference between a view and a f
 
 {% include alert/end.html %}
 
-We'll come back to this design document later. Now it's time to implement our client-side logic. By reading the awesome [API docs](http://pouchdb.com/api.html#replication), we see that `sync` has various options:
+We'll come back to this design document later. Now it's time to implement our client-side logic. By reading the awesome [API docs]({{ site.baseurl }}/api.html#replication), we see that `sync` has various options:
 
 * `filter`: can take either the string corresponding to the filter function (see example below), or a JS function (for client-side filtering).
 * `query_params`: takes a JS object. This object is what we find in the `req.query` object inside the design document function. Just what we need!

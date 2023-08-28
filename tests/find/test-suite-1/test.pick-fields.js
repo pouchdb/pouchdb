@@ -28,7 +28,7 @@ describe('test.pick-fields.js', function () {
         { name: 'Jigglypuff' } ]);
     });
   });
-  
+
   it('should pick deep fields', function () {
     var db = context.db;
     return db.bulkDocs([

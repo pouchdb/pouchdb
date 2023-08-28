@@ -31,7 +31,7 @@ commonUtils.adapters = function () {
 };
 
 commonUtils.viewAdapters = function () {
-  var viewAdapters = commonUtils.isNode() ? 
+  var viewAdapters = commonUtils.isNode() ?
     process.env.VIEW_ADAPTERS : commonUtils.params().viewAdapters;
   return viewAdapters ? viewAdapters.split(',') : [];
 };
@@ -148,11 +148,6 @@ commonUtils.asyncLoadScript = function (url) {
 };
 
 commonUtils.couchHost = function () {
-  if (typeof window !== 'undefined' && window.cordova) {
-    // magic route to localhost on android emulator
-    return 'http://10.0.2.2:5984';
-  }
-
   if (typeof window !== 'undefined' && window.COUCH_HOST) {
     return window.COUCH_HOST;
   }

@@ -180,7 +180,7 @@ adapters.forEach(function (adapter) {
 
       db.info(function (err, info) {
         var update_seq = info.update_seq;
-        
+
         testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
           function () {
           db.get('1', function (err, doc) {
@@ -209,8 +209,8 @@ adapters.forEach(function (adapter) {
 
       db.info(function (err, info) {
         var update_seq = info.update_seq;
-        
-        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), 
+
+        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
           function () {
           db.get('3', function (err, doc) {
             doc.updated = 'totally';
@@ -778,7 +778,7 @@ adapters.forEach(function (adapter) {
         should.not.exist(result.rows[0].doc._conflicts);
       });
     });
-    
+
     it('#6230 Test allDocs opts update_seq: false', function () {
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(origDocs).then(function () {
@@ -790,8 +790,8 @@ adapters.forEach(function (adapter) {
         should.not.exist(result.update_seq);
       });
     });
-    
-    
+
+
     it('#6230 Test allDocs opts update_seq: true', function () {
 
       var db = new PouchDB(dbs.name);

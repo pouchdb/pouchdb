@@ -7,10 +7,6 @@ var adapters = [
   ['local', 'local']
 ];
 
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
-
 adapters.forEach(function (adapters) {
   var suiteName = 'test.retry.js-' + adapters[0] + '-' + adapters[1];
   describe(suiteName, function () {
@@ -146,7 +142,7 @@ adapters.forEach(function (adapters) {
       remote.put({_id: 'hazaa'});
     });
 
-    it('source doesn\'t leak "destroyed" event', function () {
+    it('source doesn\'t leak "destroyed" event listener', function () {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -218,7 +214,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('target doesn\'t leak "destroyed" event', function () {
+    it('target doesn\'t leak "destroyed" event listener', function () {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
@@ -301,7 +297,7 @@ adapters.forEach(function (adapters) {
       'complete', 'error', 'paused', 'active',
       'change', 'cancel'
     ].forEach(function (event) {
-      it('returnValue doesn\'t leak "' + event + '" event', function () {
+      it('returnValue doesn\'t leak "' + event + '" event listener', function () {
 
         var db = new PouchDB(dbs.name);
         var remote = new PouchDB(dbs.remote);
@@ -377,7 +373,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('returnValue doesn\'t leak "change" event w/ onChange', function () {
+    it('returnValue doesn\'t leak "change" event listener w/ onChange', function () {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);

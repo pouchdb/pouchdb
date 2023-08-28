@@ -5,6 +5,7 @@ var autoCompactionAdapters = ['local'];
 
 adapters.forEach(function (adapter) {
   describe('suite2 test.compaction.js-' + adapter, function () {
+    this.timeout(120000); // 2 mins - these tests can take a while!
 
     var dbs = {};
 
@@ -444,7 +445,6 @@ adapters.forEach(function (adapter) {
       var otherPromises = [];
 
       for (var i = 0; i < 50; i++) {
-        /* jshint loopfunc:true */
         queue = queue.then(function () {
           return db.get('doc').then(function (doc) {
             doc._attachments = doc._attachments || {};
@@ -480,7 +480,6 @@ adapters.forEach(function (adapter) {
       var compactQueue = testUtils.Promise.resolve();
 
       for (var i = 0; i < 50; i++) {
-        /* jshint loopfunc:true */
         queue = queue.then(function () {
           return db.get('doc').then(function (doc) {
             doc._attachments = doc._attachments || {};
@@ -1471,7 +1470,6 @@ adapters.forEach(function (adapter) {
         var updatePromise = testUtils.Promise.resolve();
 
         for (var i  = 0; i < 20; i++) {
-          /* jshint loopfunc: true */
           updatePromise = updatePromise.then(function () {
             return db.put(doc).then(function (res) {
               doc._rev = res.rev;
@@ -1481,7 +1479,6 @@ adapters.forEach(function (adapter) {
 
         var tasks = [updatePromise];
         for (var ii = 0; ii < 300; ii++) {
-          /* jshint loopfunc: true */
           var task = db.get('foo');
           for (var j =0; j < 10; j++) {
             task = task.then(function () {
@@ -1510,7 +1507,6 @@ adapters.forEach(function (adapter) {
         var updatePromise = testUtils.Promise.resolve();
 
         for (var i  = 0; i < 20; i++) {
-          /* jshint loopfunc: true */
           updatePromise = updatePromise.then(function () {
             return db.put(doc).then(function (res) {
               doc._rev = res.rev;
@@ -1520,7 +1516,6 @@ adapters.forEach(function (adapter) {
 
         var tasks = [updatePromise];
         for (var ii = 0; ii < 300; ii++) {
-          /* jshint loopfunc: true */
           var task = db.allDocs({key: 'foo', include_docs: true});
           for (var j =0; j < 10; j++) {
             task = task.then(function () {
@@ -1553,7 +1548,6 @@ adapters.forEach(function (adapter) {
         var updatePromise = testUtils.Promise.resolve();
 
         for (var i  = 0; i < 20; i++) {
-          /* jshint loopfunc: true */
           updatePromise = updatePromise.then(function () {
             return db.put(doc).then(function (res) {
               doc._rev = res.rev;
@@ -1563,7 +1557,6 @@ adapters.forEach(function (adapter) {
 
         var tasks = [updatePromise];
         for (var ii = 0; ii < 300; ii++) {
-          /* jshint loopfunc: true */
           var task = db.changes({include_docs: true});
           for (var j =0; j < 10; j++) {
             task = task.then(function () {

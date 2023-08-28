@@ -1,6 +1,4 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
 
 if [ ! -z $DRY_RUN ]; then
   echo "Doing a dry run release..."
@@ -27,7 +25,7 @@ node bin/update-package-json-for-publish.js
 
 # Publish all modules with Lerna
 ls packages/node_modules > release-todo.txt
-sh bin/publish-packages.sh
+./bin/publish-packages.sh
 
 # Create git tag, which is also the Bower/Github release
 rm -fr lib src dist bower.json component.json package.json

@@ -1,6 +1,6 @@
 /* global PouchDBVersion110, PouchDBVersion200,
    PouchDBVersion220, PouchDBVersion306, PouchDBVersion320,
-   PouchDBVersion360 */
+   PouchDBVersion360, PouchDBVersion731, PouchDBVersion801 */
 'use strict';
 
 describe('migration', function () {
@@ -19,6 +19,8 @@ describe('migration', function () {
     'PouchDB v3.0.6',
     'PouchDB v3.2.0',
     'PouchDB v3.6.0',
+    'PouchDB v7.3.1',
+    'PouchDB v8.0.1',
     'websql'
   ];
 
@@ -67,6 +69,8 @@ describe('migration', function () {
     delete window.PouchDBVersion306;
     delete window.PouchDBVersion320;
     delete window.PouchDBVersion360;
+    delete window.PouchDBVersion731;
+    delete window.PouchDBVersion801;
   });
 
   scenarios.forEach(function (scenario) {
@@ -80,19 +84,27 @@ describe('migration', function () {
             'PouchDB v2.2.0',
             'PouchDB v3.0.6',
             'PouchDB v3.2.0',
-            'PouchDB v3.6.0'
+            'PouchDB v3.6.0',
+            'PouchDB v7.3.1',
+            'PouchDB v8.0.1',
           ].indexOf(scenario) !== -1;
       var post306 = [
             'PouchDB v3.0.6',
             'PouchDB v3.2.0',
-            'PouchDB v3.6.0'
+            'PouchDB v3.6.0',
+            'PouchDB v7.3.1',
+            'PouchDB v8.0.1',
           ].indexOf(scenario) !== -1;
       var post320 = [
             'PouchDB v3.2.0',
-            'PouchDB v3.6.0'
+            'PouchDB v3.6.0',
+            'PouchDB v7.3.1',
+            'PouchDB v8.0.1',
           ].indexOf(scenario) !== -1;
       var post360 = [
-            'PouchDB v3.6.0'
+            'PouchDB v3.6.0',
+            'PouchDB v7.3.1',
+            'PouchDB v8.0.1',
           ].indexOf(scenario) !== -1;
 
       beforeEach(function (done) {
@@ -107,6 +119,8 @@ describe('migration', function () {
           'PouchDB v3.0.6': PouchDBVersion306,
           'PouchDB v3.2.0': PouchDBVersion320,
           'PouchDB v3.6.0': PouchDBVersion360,
+          'PouchDB v7.3.1': PouchDBVersion731,
+          'PouchDB v8.0.1': PouchDBVersion801,
           PouchDB: PouchDB
         };
 

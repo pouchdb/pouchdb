@@ -8,11 +8,11 @@ runs:
   using: composite
 
   steps:
-    - uses: actions/setup-node@v2
+    - uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       with:
         path: ~/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -25,3 +25,6 @@ runs:
     - uses: iamssen/couchdb-github-action@master
       with:
         couchdb-version: ${{ inputs.couchdb-version }}
+
+    - run: sudo npx playwright install-deps
+      shell: bash

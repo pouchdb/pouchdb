@@ -31,6 +31,7 @@ This method creates a database or opens an existing one. If you use a URL like `
 1. In IndexedDB PouchDB will use `_pouch_` to prefix the internal database names. Do not manually create databases with the same prefix.
 2. When acting as a client on Node, any other options given will be passed to [request][].
 3. When using the `'leveldb'` adapter (the default on Node), any other options given will be passed to [levelup][].
+4. If you are using the jwt auth handler, please use the fetch option to add the required headers and handle connected logic like token refreshes.
 
 [request]: https://github.com/mikeal/request
 [levelup]: https://github.com/rvagg/node-levelup
