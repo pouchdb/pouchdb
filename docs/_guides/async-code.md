@@ -50,7 +50,7 @@ If you already understand promises, you can [skip to the next section](updating-
 {% markdown %}
 
 **What about async/await?**  Async functions are an experimental ES7 syntax that enhances promise-based APIs by adding
-the `async` and `await` keywords. For more information about `async`/`await`, read [our introductory blog post](http://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html).
+the `async` and `await` keywords. For more information about `async`/`await`, read [our introductory blog post]({{ site.baseurl }}/2015/03/05/taming-the-async-beast-with-es7.html).
 
 {% endmarkdown %}
 {% include alert/end.html%}

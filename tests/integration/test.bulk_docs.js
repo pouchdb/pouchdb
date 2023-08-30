@@ -10,7 +10,6 @@ function makeDocs(start, end, templateDoc) {
   }
   var docs = [];
   for (var i = start; i < end; i++) {
-    /*jshint evil:true */
     var newDoc = eval('(' + templateDocSrc + ')');
     newDoc._id = i.toString();
     newDoc.integer = i;

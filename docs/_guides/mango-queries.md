@@ -105,7 +105,7 @@ db.find({
 });
 ```
 
-In this case, we only get 10 documents back, but they are the first 10 documents, sorted by name. This means that we have only read 10 documents out of the database into memory, which can be used for [efficient pagination](http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html).
+In this case, we only get 10 documents back, but they are the first 10 documents, sorted by name. This means that we have only read 10 documents out of the database into memory, which can be used for [efficient pagination]({{ site.baseurl }}/2014/04/14/pagination-strategies-with-pouchdb.html).
 
 For instance, if we are displaying the first 10 results on a single page, and the user clicks "next" to see the next page, we can restructure our query based on the last result, to continue the pagination. Let's imagine the first 10 documents' `name`s are:
 

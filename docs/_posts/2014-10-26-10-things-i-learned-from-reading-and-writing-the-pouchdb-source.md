@@ -39,7 +39,7 @@ User agent sniffing! Yes, we should be ashamed of ourselves. But here's why we d
 
 * In modern **Chrome** and **Android 4.4+**, the size is simply ignored. The browser calculates the remaining size on disk and sets a limit based on that.
 * Aha, but in **Android < 4.4**, this is actually a hard limit! So if you ask for 5000000, you'll only ever get 5 MB.
-* Oh, but in **Safari/iOS**, it gets trickier. If you ask for > 5000000, then it will show an [annoying popup](http://pouchdb.com/errors.html#not_enough_space) when the app is first loaded, which is a great way to spook your users. But if you ask for less, then there's another popup when the database reaches 5MB, and  beyond that there's a bug in iOS 7.1 where the browser will no longer show any more popups, so you're forever capped at 10MB. To store more than 10MB, you need to ask for more than 10MB up-front.
+* Oh, but in **Safari/iOS**, it gets trickier. If you ask for > 5000000, then it will show an [annoying popup]({{ site.baseurl }}/errors.html#not_enough_space) when the app is first loaded, which is a great way to spook your users. But if you ask for less, then there's another popup when the database reaches 5MB, and  beyond that there's a bug in iOS 7.1 where the browser will no longer show any more popups, so you're forever capped at 10MB. To store more than 10MB, you need to ask for more than 10MB up-front.
 * Additionally, if you specify anywhere between 0 and 5000000, Safari and iOS will use that size as a hint for when, precisely, to show the popup. And in the case of PouchDB, we need to avoid the popup in our automated tests, because Selenium doesn't give us a way to press the "OK" button, meaning our tests would just fail if we request too much. So the ideal size to request is 0.
 * However, in **PhantomJS** and older WebKit (Safari ~5), if you request 0, then it will blow up.
 
@@ -226,7 +226,7 @@ var seqCursor = index.openCursor(range);
 
 Did we mess up? Nope, it's intentional: we concatenate the strings together, because [IE does not support complex keys](https://connect.microsoft.com/IE/feedbackdetail/view/866474).
 
-This also heavily influenced our design for [persistent map/reduce](http://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html), because instead of assuming the underlying database can sort by more than one value, we invented [a toIndexableString() function](https://github.com/pouchdb/collate/blob/0e22e6e833e24ee5d677d73df2620c20b58aba1f/lib/index.js#L116-L165) that converts any JSON object into a big CouchDB-collation-ordered string. Yeah, we went there.
+This also heavily influenced our design for [persistent map/reduce]({{ site.baseurl }}/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html), because instead of assuming the underlying database can sort by more than one value, we invented [a toIndexableString() function](https://github.com/pouchdb/collate/blob/0e22e6e833e24ee5d677d73df2620c20b58aba1f/lib/index.js#L116-L165) that converts any JSON object into a big CouchDB-collation-ordered string. Yeah, we went there.
 
 
 ### 6. IndexedDB throws an error if you try to iterate backwards with start/end keys
@@ -415,7 +415,7 @@ What's more intriguing is that you can even find [the influence of CouchDB](http
 
 In a sense, this statement may be the earliest expression of what eventually became PouchDB!
 
-Furthermore, Google went on to create LevelDB as their implementation of the IndexedDB spec, which is currently enjoying [enormous popularity in the Node.js ecosystem](http://dailyjs.com/2013/04/19/leveldb-and-node-1/), especially thanks to [the LevelUP project](https://github.com/rvagg/node-levelup). PouchDB itself [has hopped on the LevelUP bandwagon](http://pouchdb.com/2014/07/25/pouchdb-levels-up.html), and today we have PouchDB Server, which is a nearly-complete implementation of CouchDB's HTTP API, but based on Node.js and LevelDB. 
+Furthermore, Google went on to create LevelDB as their implementation of the IndexedDB spec, which is currently enjoying [enormous popularity in the Node.js ecosystem](http://dailyjs.com/2013/04/19/leveldb-and-node-1/), especially thanks to [the LevelUP project](https://github.com/rvagg/node-levelup). PouchDB itself [has hopped on the LevelUP bandwagon]({{ site.baseurl }}/2014/07/25/pouchdb-levels-up.html), and today we have PouchDB Server, which is a nearly-complete implementation of CouchDB's HTTP API, but based on Node.js and LevelDB. 
 
 So from the earliest discussions of IndexedDB, influenced as it was by CouchDB and Web SQL, through LevelDB and the LevelUP ecosystem, we now have a database that unites them all: PouchDB.
 

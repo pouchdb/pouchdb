@@ -15,7 +15,6 @@ on:
 
 env:
   NODE_VERSION: 14
-  SELENIUM_HUB_HOST: hub
   TEST_HOST: localhost
 
 jobs:
@@ -23,7 +22,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -39,7 +38,7 @@ jobs:
       fail-fast: false
       matrix:
         couchdb: ['2.3', '3.1']
-        node: [14]
+        node: [14, 16]
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -51,7 +50,7 @@ jobs:
       COUCH_HOST: http://admin:password@127.0.0.1:5984
       SKIP_MIGRATION: 1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
@@ -74,17 +73,11 @@ jobs:
 
   couchdb-browser:
     needs: lint
-    services:
-      hub:
-        image: selenium/hub:3.141.59-gold
-      firefox:
-        image: selenium/node-firefox:3.141.59-gold
-        env: { HUB_HOST: hub, HUB_PORT: 4444 }
     strategy:
       fail-fast: false
       matrix:
         couchdb: ['2.3','3.1']
-        client: ['selenium:firefox', 'selenium:chrome']
+        client: ['firefox', 'chromium']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -97,7 +90,7 @@ jobs:
       COUCH_HOST: http://admin:password@127.0.0.1:5984
       SKIP_MIGRATION: 1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -123,7 +116,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [14]
+        node: [14, 16]
         adapter: ['leveldb', 'memory']
         cmd:
           - npm test
@@ -134,7 +127,7 @@ jobs:
       CLIENT: node
       ADAPTERS: ${{ matrix.adapter }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
@@ -156,16 +149,10 @@ jobs:
 
   browser-adapter:
     needs: lint
-    services:
-      hub:
-        image: selenium/hub:3.141.59-gold
-      firefox:
-        image: selenium/node-firefox:3.141.59-gold
-        env: { HUB_HOST: hub, HUB_PORT: 4444 }
     strategy:
       fail-fast: false
       matrix:
-        client: ['selenium:firefox', 'selenium:chrome']
+        client: ['firefox', 'chromium']
         adapter: ['idb', 'indexeddb', 'memory']
         cmd:
           - npm test
@@ -177,7 +164,7 @@ jobs:
       CLIENT: ${{ matrix.client }}
       ADAPTERS: ${{ matrix.adapter }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -201,16 +188,10 @@ jobs:
 
   pouchdb-server:
     needs: lint
-    services:
-      hub:
-        image: selenium/hub:3.141.59-gold
-      firefox:
-        image: selenium/node-firefox:3.141.59-gold
-        env: { HUB_HOST: hub, HUB_PORT: 4444 }
     strategy:
       fail-fast: false
       matrix:
-        client: ['node', 'selenium:firefox', 'selenium:chrome']
+        client: ['node', 'firefox', 'chromium']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -220,7 +201,7 @@ jobs:
       CLIENT: ${{ matrix.client }}
       SERVER: pouchdb-server
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -244,9 +225,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [14]
+        node: [14, 16]
         cmd:
-          - CLIENT=selenium:firefox npm run test-webpack
+          - CLIENT=firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
           - PERF=1 npm test
           - npm run test-unit
@@ -256,7 +237,7 @@ jobs:
           - npm run verify-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
@@ -266,8 +247,8 @@ jobs:
       - name: First retry
         id: retry
         if: steps.test.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
         continue-on-error: true
       - name: Second retry
         if: steps.retry.outcome == 'failure'
-        run: ${{ matrix.cmd }}
+        run: git reset --hard && ${{ matrix.cmd }}
