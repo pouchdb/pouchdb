@@ -58,15 +58,15 @@ jobs:
           couchdb-version: ${{ matrix.couchdb }}
       - id: test
         run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: First retry
-      #  id: retry
-      #  if: steps.test.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: Second retry
-      #  if: steps.retry.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: First retry
+        id: retry
+        if: steps.test.outcome == 'failure'
+        run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: Second retry
+        if: steps.retry.outcome == 'failure'
+        run: ${{ matrix.cmd }}
 
   # Run the integration, find and mapreduce tests against CouchDB in the
   # browser. This should be run against every version of CouchDB we support and
@@ -104,15 +104,15 @@ jobs:
           couchdb-version: ${{ matrix.couchdb }}
       - id: test
         run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: First retry
-      #  id: retry
-      #  if: steps.test.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: Second retry
-      #  if: steps.retry.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: First retry
+        id: retry
+        if: steps.test.outcome == 'failure'
+        run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: Second retry
+        if: steps.retry.outcome == 'failure'
+        run: ${{ matrix.cmd }}
 
   # Run the integration, find and mapreduce tests against all the Node.js
   # PouchDB adapters. This should be run for every adapter on every version of
@@ -140,15 +140,15 @@ jobs:
           node-version: ${{ matrix.node }}
       - id: test
         run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: First retry
-      #  id: retry
-      #  if: steps.test.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: Second retry
-      #  if: steps.retry.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: First retry
+        id: retry
+        if: steps.test.outcome == 'failure'
+        run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: Second retry
+        if: steps.retry.outcome == 'failure'
+        run: ${{ matrix.cmd }}
 
   # Run the integration, find and mapreduce tests against all the browser-based
   # adapters. PouchDB adapters. This should be run for every adapter on every
@@ -183,15 +183,15 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - id: test
         run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: First retry
-      #  id: retry
-      #  if: steps.test.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: Second retry
-      #  if: steps.retry.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: First retry
+        id: retry
+        if: steps.test.outcome == 'failure'
+        run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: Second retry
+        if: steps.retry.outcome == 'failure'
+        run: ${{ matrix.cmd }}
 
   # Run the integration, find and mapreduce tests using pouchdb-server as the
   # remote adapter. This checks that pouchdb-server works with the current
@@ -226,15 +226,15 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - id: test
         run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: First retry
-      #  id: retry
-      #  if: steps.test.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: Second retry
-      #  if: steps.retry.outcome == 'failure'
-      #  run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: First retry
+        id: retry
+        if: steps.test.outcome == 'failure'
+        run: ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: Second retry
+        if: steps.retry.outcome == 'failure'
+        run: ${{ matrix.cmd }}
 
   # Run all the other testing tasks -- unit tests, and so on. These should be
   # run on every version of Node.js that we support.
@@ -262,12 +262,12 @@ jobs:
           node-version: ${{ matrix.node }}
       - id: test
         run: ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: First retry
-      #  id: retry
-      #  if: steps.test.outcome == 'failure'
-      #  run: git reset --hard && ${{ matrix.cmd }}
-      #  continue-on-error: true
-      #- name: Second retry
-      #  if: steps.retry.outcome == 'failure'
-      #  run: git reset --hard && ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: First retry
+        id: retry
+        if: steps.test.outcome == 'failure'
+        run: git reset --hard && ${{ matrix.cmd }}
+        continue-on-error: true
+      - name: Second retry
+        if: steps.retry.outcome == 'failure'
+        run: git reset --hard && ${{ matrix.cmd }}
