@@ -263,7 +263,7 @@ adapters.forEach(function (adapters) {
             } catch (err) {
               reject(err);
             }
-          };
+          }
 
           rep.on('complete', finish).on('error', cleanup);
           rep.on('change', function () {
