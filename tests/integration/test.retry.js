@@ -258,7 +258,7 @@ adapters.forEach(function (adapters) {
             }
             try {
               const finalNumListeners = db.listeners('destroyed').length;
-              finalNumListeners.should.equal(originalNumListeners + 1); // constructor destroy listener; unclear why it isn't included in finalNumListeners
+              finalNumListeners.should.equal(originalNumListeners + 1); // constructor destroy listener is still there
               resolve();
             } catch (err) {
               reject(err);
