@@ -42,8 +42,8 @@ jobs:
         node: [14, 16]
         cmd:
           - npm test
-          #- TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
-          #- TYPE=mapreduce ADAPTERS=http npm test
+          - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
+          - TYPE=mapreduce ADAPTERS=http npm test
     runs-on: ubuntu-latest
     env:
       CLIENT: node
@@ -87,8 +87,8 @@ jobs:
         client: ['selenium:firefox', 'selenium:chrome']
         cmd:
           - npm test
-          #- TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
-          #- TYPE=mapreduce ADAPTERS=http npm test
+          - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
+          - TYPE=mapreduce ADAPTERS=http npm test
     runs-on: ubuntu-latest
     env:
       POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
@@ -127,8 +127,8 @@ jobs:
         adapter: ['leveldb', 'memory']
         cmd:
           - npm test
-          #- TYPE=find PLUGINS=pouchdb-find npm test
-          #- TYPE=mapreduce npm test
+          - TYPE=find PLUGINS=pouchdb-find npm test
+          - TYPE=mapreduce npm test
     runs-on: ubuntu-latest
     env:
       CLIENT: node
@@ -169,8 +169,8 @@ jobs:
         adapter: ['idb', 'indexeddb', 'memory']
         cmd:
           - npm test
-          #- TYPE=find PLUGINS=pouchdb-find npm test
-          #- TYPE=mapreduce npm test
+          - TYPE=find PLUGINS=pouchdb-find npm test
+          - TYPE=mapreduce npm test
     runs-on: ubuntu-latest
     env:
       POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
@@ -213,8 +213,8 @@ jobs:
         client: ['node', 'selenium:firefox', 'selenium:chrome']
         cmd:
           - npm test
-          #- TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
-          #- TYPE=mapreduce ADAPTERS=http npm test
+          - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
+          - TYPE=mapreduce ADAPTERS=http npm test
     runs-on: ubuntu-latest
     env:
       CLIENT: ${{ matrix.client }}
@@ -248,12 +248,12 @@ jobs:
         cmd:
           - CLIENT=selenium:firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
-          #- PERF=1 npm test
-          #- npm run test-unit
-          #- npm run test-component
-          #- npm run test-fuzzy
-          ## - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage
-          #- npm run verify-build
+          - PERF=1 npm test
+          - npm run test-unit
+          - npm run test-component
+          - npm run test-fuzzy
+          # - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage
+          - npm run verify-build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
