@@ -241,6 +241,7 @@ adapters.forEach(function (adapters) {
       var numDocsToWrite = 50;
 
       return remote.post({}).then(function () {
+        let lastNumListeners;
         var posted = 0;
 
         return new Promise(function (resolve, reject) {
@@ -279,15 +280,19 @@ adapters.forEach(function (adapters) {
 
             try {
               var numListeners = remote.listeners('destroyed').length;
-              // special case for "destroy" - because there are
-              // two Changes() objects for local databases,
-              // there can briefly be a few too many or one
-              // fewer listener. The point of this test is to ensure
-              // that the listeners don't grow out of control.
-              numListeners.should.be.within(
-                originalNumListeners - 1,
-                originalNumListeners + 3,
-                'numListeners should never increase by +3/-1');
+              if (typeof lastNumListeners !== 'number') {
+                lastNumListeners = numListeners;
+              } else {
+                // special case for "destroy" - because there are
+                // two Changes() objects for local databases,
+                // there can briefly be a few too many or one
+                // fewer listener. The point of this test is to ensure
+                // that the listeners don't grow out of control.
+                numListeners.should.be.within(
+                  lastNumListeners - 1,
+                  lastNumListeners + 3,
+                  'numListeners should never increase by +3/-1');
+              }
             } catch (err) {
               cleanup(err);
             }
