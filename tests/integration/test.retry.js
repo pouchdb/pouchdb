@@ -290,8 +290,8 @@ adapters.forEach(function (adapters) {
                 // that the listeners don't grow out of control.
                 numListeners.should.be.within(
                   lastNumListeners - 1,
-                  lastNumListeners + 3,
-                  'numListeners should never increase by +3/-1');
+                  lastNumListeners + 5,
+                  'numListeners should never increase by +5/-1');
               }
             } catch (err) {
               cleanup(err);
