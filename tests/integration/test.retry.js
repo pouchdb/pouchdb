@@ -280,18 +280,27 @@ adapters.forEach(function (adapters) {
 
             try {
               var numListeners = remote.listeners('destroyed').length;
+              console.log('test.retry:', 'window.chrome:', !!(window && window.chrome));
+              console.log('test.retry:', 'db.adapter:', db.adapter);
+              console.log('test.retry:', 'remote.adapter:', remote.adapter);
               if (typeof lastNumListeners !== 'number') {
                 lastNumListeners = numListeners;
+              } else if (!!(window && window.chrome) && remote.adapter === 'indexeddb') {
+                // special case for "destroy" on chromium with indexeddb - see #8689
+                numListeners.should.be.within(
+                  lastNumListeners - 1,
+                  lastNumListeners + 10,
+                  'numListeners should never increase by +10/-1');
               } else {
                 // special case for "destroy" - because there are
                 // two Changes() objects for local databases,
-                // there can briefly be a few too many or one
+                // there can briefly be one extra listener or one
                 // fewer listener. The point of this test is to ensure
                 // that the listeners don't grow out of control.
                 numListeners.should.be.within(
                   lastNumListeners - 1,
-                  lastNumListeners + 5,
-                  'numListeners should never increase by +5/-1');
+                  lastNumListeners + 1,
+                  'numListeners should never increase by +1/-1');
               }
             } catch (err) {
               cleanup(err);
