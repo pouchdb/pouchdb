@@ -24,8 +24,6 @@ describe('migration', function () {
     'websql'
   ];
 
-  var skip = false;
-
   before(function () {
     var isNodeWebkit = typeof window !== 'undefined' &&
       typeof process !== 'undefined';
@@ -35,12 +33,10 @@ describe('migration', function () {
 
     if (!usingDefaultPreferredAdapters() || window.msIndexedDB ||
       isNodeWebkit || skipMigration) {
-      skip = true;
+
+      return this.skip();
     }
 
-    if (skip) {
-      return;
-    }
     // conditionally load all legacy PouchDB scripts to avoid pulling them in
     // for test runs that don't test migrations
     return Promise.all(scenarios.map(function (scenario) {
@@ -59,9 +55,6 @@ describe('migration', function () {
   });
 
   after(function () {
-    if (skip) {
-      return;
-    }
     // free memory
     delete window.PouchDBVersion110;
     delete window.PouchDBVersion200;
@@ -108,10 +101,6 @@ describe('migration', function () {
           ].indexOf(scenario) !== -1;
 
       beforeEach(function (done) {
-        if (skip) {
-          return done();
-        }
-
         constructors = {
           'PouchDB v1.1.0': PouchDBVersion110,
           'PouchDB v2.0.0': PouchDBVersion200,
@@ -152,9 +141,6 @@ describe('migration', function () {
       });
 
       afterEach(function (done) {
-        if (skip) {
-          return done();
-        }
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
       });
 
@@ -166,7 +152,6 @@ describe('migration', function () {
       ];
 
       it('Testing basic migration integrity', function (done) {
-        if (skip) { return done(); }
         var oldPouch =
           new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
           function (err) {
@@ -199,7 +184,6 @@ describe('migration', function () {
       });
 
       it("Test basic replication with migration", function (done) {
-        if (skip) { return done(); }
         var docs = [
           {_id: "0", integer: 0, string: '0'},
           {_id: "1", integer: 1, string: '1'},
@@ -256,7 +240,6 @@ describe('migration', function () {
       });
 
       it("Test basic replication with migration + changes()", function (done) {
-        if (skip) { return done(); }
         var docs = [
           {_id: "0", integer: 0, string: '0'},
           {_id: "1", integer: 1, string: '1'},
@@ -309,7 +292,6 @@ describe('migration', function () {
 
       if (post220) {
         it("Test persistent views don't require update", function (done) {
-          if (skip) { return done(); }
           var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts);
           var docs = origDocs.slice().concat([{
             _id: '_design/myview',
@@ -349,7 +331,6 @@ describe('migration', function () {
 
         it("Test persistent views don't require update, with a value",
             function (done) {
-          if (skip) { return done(); }
           var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts);
           var docs = origDocs.slice().concat([{
             _id: '_design/myview',
@@ -388,7 +369,6 @@ describe('migration', function () {
         });
 
         it('Returns ok for viewCleanup after modifying view', function (done) {
-          if (skip) { return done(); }
           var oldPouch =
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
               function (err) {
@@ -438,7 +418,6 @@ describe('migration', function () {
           }, done);
         });
         it('Remembers local docs', function (done) {
-          if (skip) { return done(); }
           var oldPouch =
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
               function (err) {
@@ -464,8 +443,6 @@ describe('migration', function () {
         });
 
         it('Testing migration with weird doc ids', function (done) {
-          if (skip) { return done(); }
-
           var origDocs = [
             {_id: 'foo::bar::baz'},
             {_id: '\u0000foo\u0000'}
@@ -492,8 +469,6 @@ describe('migration', function () {
       if (post306) {
         // attachments didn't really work until this release
         it('#2818 Testing attachments with compaction of dups', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -535,8 +510,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 2', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -579,8 +552,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 3', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -637,8 +608,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 4', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -691,8 +660,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 5', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -766,8 +733,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 6', function () {
-          if (skip) { return; }
-
           var docs = [];
 
           for (var i = 0; i < 40; i++) {
@@ -830,8 +795,6 @@ describe('migration', function () {
         });
 
         it('#2818 compaction of atts after many revs', function () {
-          if (skip) { return; }
-
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
 
@@ -860,8 +823,6 @@ describe('migration', function () {
         });
 
         it('#2890 PNG content after migration', function () {
-          if (skip) { return; }
-
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
 
@@ -906,10 +867,6 @@ describe('migration', function () {
 
       if (post320) {
         it('#3136 Testing later winningSeqs', function () {
-          if (skip) {
-            return;
-          }
-
           var tree = [
             [
               {
@@ -989,10 +946,6 @@ describe('migration', function () {
 
       if (post360) {
         it('#3646 - Should finish with 0 documents', function () {
-          if (skip) {
-            return;
-          }
-
           var data = [
             {
               "docs": [
