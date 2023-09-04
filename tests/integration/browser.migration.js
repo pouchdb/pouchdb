@@ -24,6 +24,8 @@ describe('migration', function () {
     'websql'
   ];
 
+  var skip = false;
+
   before(function () {
     var isNodeWebkit = typeof window !== 'undefined' &&
       typeof process !== 'undefined';
@@ -33,7 +35,7 @@ describe('migration', function () {
 
     if (!usingDefaultPreferredAdapters() || window.msIndexedDB ||
       isNodeWebkit || skipMigration) {
-
+      skip = true;
       return this.skip();
     }
 
@@ -101,6 +103,10 @@ describe('migration', function () {
           ].indexOf(scenario) !== -1;
 
       beforeEach(function (done) {
+        if (skip) {
+          return this.skip();
+        }
+
         constructors = {
           'PouchDB v1.1.0': PouchDBVersion110,
           'PouchDB v2.0.0': PouchDBVersion200,
