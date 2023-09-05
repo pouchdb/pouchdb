@@ -4,7 +4,7 @@
 db.query(fun, [options], [callback])
 {% endhighlight %}
 
-Invoke a map/reduce function, which allows you to perform more complex queries on PouchDB than what you get with [allDocs()](#batch_fetch), [changes()](#changes), or [find()](#query_index). The [CouchDB documentation for map/reduce](http://docs.couchdb.org/en/latest/couchapp/views/intro.html) applies to PouchDB.
+Invoke a map/reduce function, which allows you to perform more complex queries on PouchDB than what you get with [allDocs()](#batch_fetch), [changes()](#changes), or [find()](#query_index). The [CouchDB documentation for map/reduce](https://docs.couchdb.org/en/stable/couchapp/views/intro.html) applies to PouchDB.
 
 Since views perform a full scan of all documents, this method may be slow, unless you first save your view in a design document. Read the [query guide](/guides/queries.html) for a good tutorial.
 
@@ -33,7 +33,7 @@ All options default to `false` unless otherwise specified.
   * A reduce function.
   * The string name of a built-in function: `'_sum'`, `'_count'`, or `'_stats'`.
     * Tip: if you're not using a built-in, [you're probably doing it wrong](http://youtu.be/BKQ9kXKoHS8?t=865s).
-    * PouchDB will always call your reduce function with rereduce == false. As for CouchDB, refer to the [CouchDB documentation](http://docs.couchdb.org/en/1.6.1/couchapp/views/intro.html).
+    * PouchDB will always call your reduce function with rereduce == false. As for CouchDB, refer to the [CouchDB documentation](https://docs.couchdb.org/en/stable/couchapp/views/intro.html).
 * `options.include_docs`: Include the document in each row in the `doc` field.
     - `options.conflicts`: Include conflicts in the `_conflicts` field of a doc.
   - `options.attachments`: Include attachment data.
@@ -57,7 +57,7 @@ All options default to `false` unless otherwise specified.
     * `'update_after'`: Returns results immediately, but kicks off a build afterwards.
 * `options.update_seq`: Include an `update_seq` value indicating which sequence id of the underlying database the view reflects.
 
-For details, see the [CouchDB query options documentation](http://docs.couchdb.org/en/stable/api/ddoc/views.html#get--db-_design-ddoc-_view-view).
+For details, see the [CouchDB query options documentation](https://docs.couchdb.org/en/stable/api/ddoc/views.html#get--db-_design-ddoc-_view-view).
 
 #### Example Usage:
 
