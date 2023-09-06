@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: defalt
 title: PouchDB, the JavaScript Database that Syncs!
 ---
 
@@ -13,7 +13,7 @@ title: PouchDB, the JavaScript Database that Syncs!
 
         <h1>The Database that Syncs!</h1>
 
-        <p>PouchDB is an open-source JavaScript database inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a> that is designed to run well within the browser.</p>
+        PouchDB is an open-source JavaScript database inspired by <a href="http://couchdb.apache.org/">Apache CouchDB</a> that is designed to run well within the browser.</p>
 
         <p>PouchDB was created to help web developers build applications that work as well offline as they do online.<br>
         <p>It enables applications to store data locally while offline, then synchronize it with CouchDB and compatible servers when the application is back online, keeping the user's data in sync no matter where they next login.</p>
@@ -24,7 +24,8 @@ title: PouchDB, the JavaScript Database that Syncs!
 
       <div class='col-sm-6'>
 
-{% highlight js %}
+{% lowlight 9regfu0r80yy %}
+{% highlight 9regfu0r80yy %}
 var db = new PouchDB('dbname');
 
 db.put({
