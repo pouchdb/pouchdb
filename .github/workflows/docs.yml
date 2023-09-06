@@ -3,15 +3,15 @@ name: PouchDB Docs
 on:
   push:
     paths:
+      - 'package.json'
       - 'bin/**'
       - 'docs/**'
-      - 'package.json'
   pull_request:
     branches: [master]
     paths:
+      - 'package.json'
       - 'bin/**'
       - 'docs/**'
-      - 'package.json'
 
 jobs:
 
