@@ -19,6 +19,11 @@ while [[ $# -gt 1 ]]; do
   shift
 done
 
+if [[ $# -lt 1 ]]; then
+  echo "!!! Missing required argument: pouch db version"
+  exit 1
+fi
+
 version="$1"
 target="./pouchdb-$version-postfixed.js"
 nodots="$(tr -d . <<<"$version")"
