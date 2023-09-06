@@ -9,9 +9,13 @@
 name: PouchDB CI
 
 on:
-  push: {}
+  push:
+    paths:
+      - '!docs/**'
   pull_request:
     branches: [master]
+    paths:
+      - '!docs/**'
 
 env:
   NODE_VERSION: 14
