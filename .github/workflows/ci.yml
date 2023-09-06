@@ -11,12 +11,10 @@ name: PouchDB CI
 on:
   push:
     paths:
-      - '**'
       - '!docs/**'
   pull_request:
     branches: [master]
     paths:
-      - '**'
       - '!docs/**'
 
 env:
