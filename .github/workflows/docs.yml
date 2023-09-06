@@ -1,0 +1,30 @@
+name: PouchDB Docs
+
+on:
+  push:
+    paths:
+      - 'bin/**'
+      - 'docs/**'
+      - 'package.json'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'bin/**'
+      - 'docs/**'
+      - 'package.json'
+
+jobs:
+
+  test-docs:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: ./.github/actions/install-deps
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+          bundler-cache: true
+      - run: sudo gem install bundler -v 2.1.4
+      - run: npm run install-jekyll
+      - run: BUILD=1 npm run build-site
