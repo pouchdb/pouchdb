@@ -6,7 +6,7 @@ sidebar: nav.html
 
 {% include anchor.html class="h3" title="No 'Access-Control-Allow-Origin' header" hash="no_access_control_allow_origin_header" %}
 
-f you see the error:
+If you see the error:
 
 > XMLHttpRequest cannot load [...]
 > No 'Access-Control-Allow-Origin' header is present on the requested resource.
