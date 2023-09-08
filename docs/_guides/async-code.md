@@ -206,23 +206,6 @@ db.get('charlie').then(function (charlie) {
 });
 ```
 
-{% include anchor.html title="Promises in PouchDB" hash="promises-in-pouchdb" %}
-
-Promises are supported natively in [some browsers](http://caniuse.com/#feat=promises). But since they're not universally supported, PouchDB uses [lie](https://github.com/calvinmetcalf/lie) in browsers and Node.js when they are not supported.
-
-You are free to integrate any Promise library you like with PouchDB, as long as it is compliant with [the Promises A+ spec](http://promisesaplus.com/). Some libraries that fit the bill:
-
-<ul>
-<li><a href="https://github.com/petkaantonov/bluebird">bluebird</a></li>
-<li><a href="https://github.com/calvinmetcalf/lie">lie</a></li>
-<li><a href="https://github.com/kriskowal/q">Q</a></li>
-<li><a href="https://github.com/tildeio/rsvp.js">RSVP</a></li>
-<li><a href="https://github.com/then/promise">then/promise</a></li>
-<li><a href="https://github.com/cujojs/when">when</a></li>
-</ul>
-
-If you use one of these libraries, then you will have access to some advanced Promise features. Read that library's documentation for details.
-
 {% include anchor.html title="Next" hash="next" %}
 
 Now that you have a grasp on promises, let's learn about updating and deleting documents.
