@@ -75,33 +75,6 @@ describe('migration', function () {
       var dbs = {};
       var constructors = {};
 
-      var post220 = [
-            'PouchDB v2.2.0',
-            'PouchDB v3.0.6',
-            'PouchDB v3.2.0',
-            'PouchDB v3.6.0',
-            'PouchDB v7.3.1',
-            'PouchDB v8.0.1',
-          ].indexOf(scenario) !== -1;
-      var post306 = [
-            'PouchDB v3.0.6',
-            'PouchDB v3.2.0',
-            'PouchDB v3.6.0',
-            'PouchDB v7.3.1',
-            'PouchDB v8.0.1',
-          ].indexOf(scenario) !== -1;
-      var post320 = [
-            'PouchDB v3.2.0',
-            'PouchDB v3.6.0',
-            'PouchDB v7.3.1',
-            'PouchDB v8.0.1',
-          ].indexOf(scenario) !== -1;
-      var post360 = [
-            'PouchDB v3.6.0',
-            'PouchDB v7.3.1',
-            'PouchDB v8.0.1',
-          ].indexOf(scenario) !== -1;
-
       beforeEach(function (done) {
         if (skip) {
           return this.skip();
@@ -296,7 +269,7 @@ describe('migration', function () {
         });
       });
 
-      if (post220) {
+      if (oldVersionGte('2.2.0')) {
         it("Test persistent views don't require update", function (done) {
           var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts);
           var docs = origDocs.slice().concat([{
@@ -472,7 +445,7 @@ describe('migration', function () {
         });
       }
 
-      if (post306) {
+      if (oldVersionGte('3.0.6')) {
         // attachments didn't really work until this release
         it('#2818 Testing attachments with compaction of dups', function () {
           var docs = [
@@ -871,7 +844,7 @@ describe('migration', function () {
         });
       }
 
-      if (post320) {
+      if (oldVersionGte('3.2.0')) {
         it('#3136 Testing later winningSeqs', function () {
           var tree = [
             [
@@ -950,7 +923,7 @@ describe('migration', function () {
         });
       }
 
-      if (post360) {
+      if (oldVersionGte('3.6.0')) {
         it('#3646 - Should finish with 0 documents', function () {
           var data = [
             {
@@ -1186,5 +1159,20 @@ describe('migration', function () {
         });
       }
     });
+
+    function oldVersionGte(minimumRequired) {
+      const match = scenario.match(/^PouchDB v([.\d]+)$/);
+      if (!match) { return false; }
+      const actual = match[1].split('.');
+
+      const min = minimumRequired.split('.');
+
+      for (let i=0; i<min.length; ++i) {
+        if (actual[i] > min[i]) { return true; }
+        if (actual[i] < min[i]) { return false; }
+      }
+
+      return true;
+    }
   });
 });
