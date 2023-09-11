@@ -3113,15 +3113,9 @@ adapters.forEach(function (adapter) {
             var bigimage = require('./deps/bigimage.js');
             cb(null, bigimage);
           } else { // browser
-            var script = document.createElement('script');
-            script.src = 'deps/bigimage.js';
-            document.body.appendChild(script);
-            var timeout = setInterval(function () {
-              if (window.bigimage) {
-                clearInterval(timeout);
-                cb(null, window.bigimage);
-              }
-            }, 500);
+            testUtils.asyncLoadScript('deps/bigimage.js')
+                .then(() => cb(null, window.bigimage))
+                .catch(err => cb(err));
           }
         }
 

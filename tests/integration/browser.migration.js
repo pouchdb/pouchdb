@@ -46,13 +46,7 @@ describe('migration', function () {
       if (!match) {
         return testUtils.Promise.resolve();
       }
-      return new testUtils.Promise(function (resolve, reject) {
-        var script = document.createElement('script');
-        script.onload = resolve;
-        script.onerror = reject;
-        script.src = 'deps/pouchdb-' + match[1] + '-postfixed.js';
-        document.body.appendChild(script);
-      });
+      return testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-postfixed.js');
     }));
   });
 
