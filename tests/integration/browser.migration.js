@@ -9,7 +9,7 @@ describe('migration', function () {
       (pref.length === 2 && pref[0] === 'idb' && pref[1] === 'websql');
   }
 
-  const getScenarios = () => [
+  const scenarios = [
     { scenario: 'PouchDB v1.1.0', constructorName: 'PouchDBVersion110'} ,
     { scenario: 'PouchDB v2.0.0', constructorName: 'PouchDBVersion200'} ,
     { scenario: 'PouchDB v2.2.0', constructorName: 'PouchDBVersion220'} ,
@@ -38,7 +38,7 @@ describe('migration', function () {
 
     // conditionally load all legacy PouchDB scripts to avoid pulling them in
     // for test runs that don't test migrations
-    return Promise.all(getScenarios().map(function ({ scenario }) {
+    return Promise.all(scenarios.map(function ({ scenario }) {
       var match = scenario.match(/PouchDB v([.\d]+)/);
       if (!match) {
         return testUtils.Promise.resolve();
@@ -55,14 +55,14 @@ describe('migration', function () {
 
   after(function () {
     // free memory
-    getScenarios().forEach(({ constructorName }) => {
+    scenarios.forEach(({ constructorName }) => {
       if (constructorName !== 'PouchDB') {
         delete window[constructorName];
       }
     });
   });
 
-  getScenarios().forEach(function ({ scenario, constructorName }) {
+  scenarios.forEach(function ({ scenario, constructorName }) {
 
     describe('migrate from ' + scenario, function () {
 
