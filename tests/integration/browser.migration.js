@@ -2,11 +2,21 @@
 
 describe('migration', function () {
 
-  function usingDefaultPreferredAdapters() {
+  function usingIdb() {
     var pref = PouchDB.preferredAdapters;
     // Firefox will have ['idb'], Chrome will have ['idb', 'websql']
     return (pref.length === 1 && pref[0] === 'idb') ||
       (pref.length === 2 && pref[0] === 'idb' && pref[1] === 'websql');
+  }
+
+  function usingIndexeddb() {
+    const pref = PouchDB.preferredAdapters;
+    // FUTURE: treat indexeddb adapter as the preferred option?
+    return pref.length === 1 && pref[0] === 'indexeddb';
+  }
+
+  function usingDefaultPreferredAdapters() {
+    return usingIdb() || usingIndexeddb();
   }
 
   const scenarios = [
@@ -43,7 +53,15 @@ describe('migration', function () {
       if (!match) {
         return testUtils.Promise.resolve();
       }
-      return testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-postfixed.js');
+
+      const loader = testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-postfixed.js');
+
+      if (usingIndexeddb() && versionGte(scenario, '7.2.1')) {
+        return loader
+            .then(() => testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-indexeddb-postfixed.js'));
+      } else {
+        return loader;
+      }
     }));
   });
 
@@ -86,6 +104,12 @@ describe('migration', function () {
 
         if (scenario in PouchDB.adapters) {
           dbs.first.localOpts.adapter = scenario;
+        } else if (usingIndexeddb()) {
+          // use indexeddb adapter for both old and new DBs:
+          // * cannot currently migrate idb -> indexeddb automatically
+          // * in these tests, idb adapter is always the default for old PouchDB
+          //   bundles, even if indexeddb is available
+          dbs.first.localOpts.adapter = 'indexeddb';
         }
         // else scenario might not make sense for this browser, so just use
         // same adapter for both
@@ -96,6 +120,12 @@ describe('migration', function () {
 
       afterEach(function (done) {
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
+      });
+
+      before(function () {
+        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
+          return this.skip();
+        }
       });
 
       var origDocs = [
@@ -244,7 +274,7 @@ describe('migration', function () {
         });
       });
 
-      if (oldVersionGte('2.2.0')) {
+      if (versionGte(scenario, '2.2.0')) {
         it("Test persistent views don't require update", function (done) {
           var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts);
           var docs = origDocs.slice().concat([{
@@ -420,7 +450,7 @@ describe('migration', function () {
         });
       }
 
-      if (oldVersionGte('3.0.6')) {
+      if (versionGte(scenario, '3.0.6')) {
         // attachments didn't really work until this release
         it('#2818 Testing attachments with compaction of dups', function () {
           var docs = [
@@ -819,7 +849,7 @@ describe('migration', function () {
         });
       }
 
-      if (oldVersionGte('3.2.0')) {
+      if (versionGte(scenario, '3.2.0')) {
         it('#3136 Testing later winningSeqs', function () {
           var tree = [
             [
@@ -898,7 +928,7 @@ describe('migration', function () {
         });
       }
 
-      if (oldVersionGte('3.6.0')) {
+      if (versionGte(scenario, '3.6.0')) {
         it('#3646 - Should finish with 0 documents', function () {
           var data = [
             {
@@ -1134,20 +1164,20 @@ describe('migration', function () {
         });
       }
     });
-
-    function oldVersionGte(minimumRequired) {
-      const match = scenario.match(/^PouchDB v([.\d]+)$/);
-      if (!match) { return false; }
-      const actual = match[1].split('.');
-
-      const min = minimumRequired.split('.');
-
-      for (let i=0; i<min.length; ++i) {
-        if (actual[i] > min[i]) { return true; }
-        if (actual[i] < min[i]) { return false; }
-      }
-
-      return true;
-    }
   });
 });
+
+function versionGte(scenario, minimumRequired) {
+  const match = scenario.match(/^PouchDB v([.\d]+)$/);
+  if (!match) { return false; }
+  const actual = match[1].split('.');
+
+  const min = minimumRequired.split('.');
+
+  for (let i=0; i<min.length; ++i) {
+    if (actual[i] > min[i]) { return true; }
+    if (actual[i] < min[i]) { return false; }
+  }
+
+  return true;
+}
