@@ -1,4 +1,5 @@
 #!/bin/bash -e
+shopt -s nullglob
 
 cleanup() {
   if [[ -n $SERVER_PID ]]; then
@@ -56,8 +57,8 @@ pouchdb-link-server-modules() {
   fi
 
   # internal node_modules of other packages
-  for subPkg in node_modules/**/node_modules/"${pkg}"/; do
-    cd "${subPkg}"../..
+  for subPkg in node_modules/**/node_modules/"$pkg"; do
+    cd "$subPkg/../.."
     echo -e "\nnpm link ${pkg} for ${subPkg}"
     npm link "${pkg}"
     cd ../..
