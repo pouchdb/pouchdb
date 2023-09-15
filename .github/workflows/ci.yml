@@ -28,6 +28,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - run: npm run eslint
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo apt-get install shellcheck
+      - run: shellcheck bin/*.sh
+
   # Run the integration, find and mapreduce tests against CouchDB on Node.js.
   # This should be run against every version of CouchDB and every version of
   # Node.js we support.
