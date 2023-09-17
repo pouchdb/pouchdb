@@ -1,6 +1,3 @@
-/* global PouchDBVersion110, PouchDBVersion200,
-   PouchDBVersion220, PouchDBVersion306, PouchDBVersion320,
-   PouchDBVersion360, PouchDBVersion731, PouchDBVersion801 */
 'use strict';
 
 describe('migration', function () {
@@ -12,16 +9,16 @@ describe('migration', function () {
       (pref.length === 2 && pref[0] === 'idb' && pref[1] === 'websql');
   }
 
-  var scenarios = [
-    'PouchDB v1.1.0',
-    'PouchDB v2.0.0',
-    'PouchDB v2.2.0',
-    'PouchDB v3.0.6',
-    'PouchDB v3.2.0',
-    'PouchDB v3.6.0',
-    'PouchDB v7.3.1',
-    'PouchDB v8.0.1',
-    'websql'
+  const scenarios = [
+    { scenario: 'PouchDB v1.1.0', constructorName: 'PouchDBVersion110'} ,
+    { scenario: 'PouchDB v2.0.0', constructorName: 'PouchDBVersion200'} ,
+    { scenario: 'PouchDB v2.2.0', constructorName: 'PouchDBVersion220'} ,
+    { scenario: 'PouchDB v3.0.6', constructorName: 'PouchDBVersion306'} ,
+    { scenario: 'PouchDB v3.2.0', constructorName: 'PouchDBVersion320'} ,
+    { scenario: 'PouchDB v3.6.0', constructorName: 'PouchDBVersion360'} ,
+    { scenario: 'PouchDB v7.3.1', constructorName: 'PouchDBVersion731'} ,
+    { scenario: 'PouchDB v8.0.1', constructorName: 'PouchDBVersion801'} ,
+    { scenario: 'websql',         constructorName: 'PouchDB'} ,
   ];
 
   var skip = false;
@@ -41,7 +38,7 @@ describe('migration', function () {
 
     // conditionally load all legacy PouchDB scripts to avoid pulling them in
     // for test runs that don't test migrations
-    return Promise.all(scenarios.map(function (scenario) {
+    return Promise.all(scenarios.map(function ({ scenario }) {
       var match = scenario.match(/PouchDB v([.\d]+)/);
       if (!match) {
         return testUtils.Promise.resolve();
@@ -58,46 +55,30 @@ describe('migration', function () {
 
   after(function () {
     // free memory
-    delete window.PouchDBVersion110;
-    delete window.PouchDBVersion200;
-    delete window.PouchDBVersion220;
-    delete window.PouchDBVersion306;
-    delete window.PouchDBVersion320;
-    delete window.PouchDBVersion360;
-    delete window.PouchDBVersion731;
-    delete window.PouchDBVersion801;
+    scenarios.forEach(({ constructorName }) => {
+      if (constructorName !== 'PouchDB') {
+        delete window[constructorName];
+      }
+    });
   });
 
-  scenarios.forEach(function (scenario) {
+  scenarios.forEach(function ({ scenario, constructorName }) {
 
     describe('migrate from ' + scenario, function () {
 
       var dbs = {};
-      var constructors = {};
 
       beforeEach(function (done) {
         if (skip) {
           return this.skip();
         }
 
-        constructors = {
-          'PouchDB v1.1.0': PouchDBVersion110,
-          'PouchDB v2.0.0': PouchDBVersion200,
-          'PouchDB v2.2.0': PouchDBVersion220,
-          'PouchDB v3.0.6': PouchDBVersion306,
-          'PouchDB v3.2.0': PouchDBVersion320,
-          'PouchDB v3.6.0': PouchDBVersion360,
-          'PouchDB v7.3.1': PouchDBVersion731,
-          'PouchDB v8.0.1': PouchDBVersion801,
-          PouchDB: PouchDB
-        };
-
         // need actual unique db names for these tests
         var localName = testUtils.adapterUrl('local', 'test_migration_local');
         var remoteName = testUtils.adapterUrl('http', 'test_migration_remote');
 
         dbs.first = {
-          pouch : constructors[scenario] || PouchDB,
+          pouch : window[constructorName] || PouchDB,
           local : localName,
           remote : remoteName,
           localOpts : {}
