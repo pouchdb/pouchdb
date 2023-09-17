@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: sudo apt-get install shellcheck
-      - run: shellcheck bin/*.sh
+      - run: git ls-files '*.sh' | xargs shellcheck
 
   # Run the integration, find and mapreduce tests against CouchDB on Node.js.
   # This should be run against every version of CouchDB and every version of
