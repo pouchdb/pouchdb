@@ -123,7 +123,6 @@ commonUtils.asyncLoadScript = function (url) {
   return new commonUtils.Promise(function (resolve, reject) {
     // Create a new script and setup the basics.
     var script = document.createElement("script");
-    var firstScript = document.getElementsByTagName('script')[0];
 
     script.async = true;
     script.src = url;
@@ -142,9 +141,7 @@ commonUtils.asyncLoadScript = function (url) {
       }
     };
 
-    // Attach the script tag to the page (before the first script) so the
-    //magic can happen.
-    firstScript.parentNode.insertBefore(script, firstScript);
+    document.body.append(script);
   });
 };
 
