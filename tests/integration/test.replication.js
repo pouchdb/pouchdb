@@ -171,7 +171,10 @@ adapters.forEach(function (adapters) {
       }
 
       var numRevs = 5000;
-      if (testUtils.isSafari()) {
+      var isSafari = (typeof process === 'undefined' || process.browser) &&
+        /Safari/.test(window.navigator.userAgent) &&
+        !/Chrome/.test(window.navigator.userAgent);
+      if (isSafari) {
         numRevs = 10; // fuck safari, we've hit the storage limit again
       }
 

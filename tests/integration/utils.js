@@ -29,12 +29,6 @@ testUtils.isIE = function () {
   return (isIE || isTrident || isEdge);
 };
 
-testUtils.isSafari = function () {
-  return (typeof process === 'undefined' || process.browser) &&
-      /Safari/.test(window.navigator.userAgent) &&
-      !/Chrome/.test(window.navigator.userAgent);
-};
-
 testUtils.adapterType = function () {
   return testUtils.adapters().indexOf('http') < 0 ? 'local' : 'http';
 };
