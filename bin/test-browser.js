@@ -136,9 +136,26 @@ class RemoteRunner {
   }
 }
 
-function BenchmarkReporter(runner) {
+function BenchmarkConsoleReporter(runner) {
   runner.on('benchmark:result', function (obj) {
     console.log('      ', obj);
+  });
+}
+
+function BenchmarkJsonReporter(runner) {
+  runner.on('end', results => {
+    if (runner.completed) {
+      const { mkdirSync, writeFileSync } = require('fs');
+
+      const resultsDir = 'perf-test-results';
+      mkdirSync(resultsDir, { recursive: true });
+
+      const jsonPath = `${resultsDir}/${new Date().toISOString()}.json`;
+      writeFileSync(jsonPath, JSON.stringify(results));
+      console.log('Wrote JSON results to:', jsonPath);
+    } else {
+      console.log('Runner failed; JSON will not be writted.');
+    }
   });
 }
 
@@ -148,7 +165,15 @@ async function startTest() {
 
   const runner = new RemoteRunner();
   new MochaSpecReporter(runner);
-  new BenchmarkReporter(runner);
+  new BenchmarkConsoleReporter(runner);
+
+  if (process.env.JSON_REPORTER) {
+    if (!process.env.PERF) {
+      console.log('!!! JSON_REPORTER should only be set if PERF is also set.');
+      process.exit(1);
+    }
+    new BenchmarkJsonReporter(runner);
+  }
 
   const options = {
     headless: true,
