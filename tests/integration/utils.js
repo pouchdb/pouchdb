@@ -16,7 +16,7 @@ testUtils.isCouchMaster = function () {
 };
 
 testUtils.isChrome = function () {
-  return window && window.navigator &&
+  return (typeof window !== 'undefined') && window.navigator &&
       /Google Inc/.test(window.navigator.vendor);
 };
 
