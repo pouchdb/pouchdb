@@ -1012,12 +1012,8 @@ adapters.forEach(function (adapter) {
 
       // simulate 5000 normal commits with two conflicts at the very end
 
-      var isSafari = (typeof process === 'undefined' || process.browser) &&
-        /Safari/.test(window.navigator.userAgent) &&
-        !/Chrome/.test(window.navigator.userAgent);
-
-      var numRevs = isSafari ? 10 : 5000;
-      var expected = isSafari ? 10 : 1000;
+      var numRevs = testUtils.isSafari() ? 10 : 5000;
+      var expected = testUtils.isSafari() ? 10 : 1000;
       var uuids = [];
 
       for (var i = 0; i < numRevs - 1; i++) {
