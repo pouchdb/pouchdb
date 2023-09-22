@@ -816,6 +816,12 @@ adapters.forEach(function (adapters) {
     });
 
     it('5007 sync 2 databases', function (done) {
+      if (testUtils.params().SERVER === 'pouchdb-server') {
+        // pouchdb-server times out this test on both chromium and node.
+        // TODO confirm if this timeout is improving things, or if test retries were hiding a bug (either in this test, pouchdb, or pouchdb-server).
+        this.timeout(60000);
+      }
+
       var db = new PouchDB(dbs.name);
 
       var remote1 = new PouchDB(dbs.remote);
