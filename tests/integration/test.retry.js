@@ -216,7 +216,7 @@ adapters.forEach(function (adapters) {
 
     it('target doesn\'t leak "destroyed" event listener', function () {
 
-      if (testUtils.adapters()[0] === 'indexeddb' && testUtils.isChrome()) {
+      if (testUtils.isChrome() && testUtils.adapters()[0] === 'indexeddb') {
         // FIXME this test fails very frequently on chromium+indexeddb.  Skipped
         // here because it's making it very hard to get a green build, but
         // really the problem should be understood and addressed.
