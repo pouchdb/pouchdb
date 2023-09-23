@@ -151,7 +151,7 @@ function BenchmarkJsonReporter(runner) {
       mkdirSync(resultsDir, { recursive: true });
 
       const jsonPath = `${resultsDir}/${new Date().toISOString()}.json`;
-      writeFileSync(jsonPath, JSON.stringify(results));
+      writeFileSync(jsonPath, JSON.stringify(results, null, 2));
       console.log('Wrote JSON results to:', jsonPath);
     } else {
       console.log('Runner failed; JSON will not be writted.');
