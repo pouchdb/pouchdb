@@ -818,6 +818,7 @@ adapters.forEach(function (adapters) {
     it('5007 sync 2 databases', function (done) {
       if (testUtils.params().SERVER === 'pouchdb-server' && adapters[1] === 'http') {
         // FIXME This test frequently times out against pouchdb-server on all current test envs (chromium, firefox, node).
+        // See: https://github.com/pouchdb/pouchdb/issues/8702
         this.skip();
       }
 
