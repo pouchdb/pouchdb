@@ -24,6 +24,12 @@ testUtils.isIE = function () {
   return (isIE || isTrident || isEdge);
 };
 
+testUtils.isSafari = function () {
+  return (typeof process === 'undefined' || process.browser) &&
+      /Safari/.test(window.navigator.userAgent) &&
+      !/Chrome/.test(window.navigator.userAgent);
+};
+
 testUtils.adapterType = function () {
   return testUtils.adapters().indexOf('http') < 0 ? 'local' : 'http';
 };
@@ -259,7 +265,7 @@ testUtils.generateReplicationId = pouchUtils.generateReplicationId;
 testUtils.makeBlob = function (data, type) {
   if (testUtils.isNode()) {
     // "global.Buffer" is to avoid Browserify pulling this in
-    return new global.Buffer(data, 'binary');
+    return global.Buffer.from(data, 'binary');
   } else {
     return pouchUtils.blob([data], {
       type: (type || 'text/plain')

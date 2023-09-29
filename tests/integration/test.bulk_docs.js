@@ -10,7 +10,6 @@ function makeDocs(start, end, templateDoc) {
   }
   var docs = [];
   for (var i = start; i < end; i++) {
-    /*jshint evil:true */
     var newDoc = eval('(' + templateDocSrc + ')');
     newDoc._id = i.toString();
     newDoc.integer = i;
@@ -1013,9 +1012,7 @@ adapters.forEach(function (adapter) {
 
       // simulate 5000 normal commits with two conflicts at the very end
 
-      var isSafari = (typeof process === 'undefined' || process.browser) &&
-        /Safari/.test(window.navigator.userAgent) &&
-        !/Chrome/.test(window.navigator.userAgent);
+      const isSafari = testUtils.isSafari();
 
       var numRevs = isSafari ? 10 : 5000;
       var expected = isSafari ? 10 : 1000;

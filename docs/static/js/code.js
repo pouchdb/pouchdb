@@ -1,5 +1,3 @@
-/* jshint jquery: true */
-
 function codeWrap(){
   "use strict";
 

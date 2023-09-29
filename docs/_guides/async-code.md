@@ -50,7 +50,7 @@ If you already understand promises, you can [skip to the next section](updating-
 {% markdown %}
 
 **What about async/await?**  Async functions are an experimental ES7 syntax that enhances promise-based APIs by adding
-the `async` and `await` keywords. For more information about `async`/`await`, read [our introductory blog post](http://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html).
+the `async` and `await` keywords. For more information about `async`/`await`, read [our introductory blog post]({{ site.baseurl }}/2015/03/05/taming-the-async-beast-with-es7.html).
 
 {% endmarkdown %}
 {% include alert/end.html%}
@@ -205,23 +205,6 @@ db.get('charlie').then(function (charlie) {
   // it will show up here as "err".
 });
 ```
-
-{% include anchor.html title="Promises in PouchDB" hash="promises-in-pouchdb" %}
-
-Promises are supported natively in [some browsers](http://caniuse.com/#feat=promises). But since they're not universally supported, PouchDB uses [lie](https://github.com/calvinmetcalf/lie) in browsers and Node.js when they are not supported.
-
-You are free to integrate any Promise library you like with PouchDB, as long as it is compliant with [the Promises A+ spec](http://promisesaplus.com/). Some libraries that fit the bill:
-
-<ul>
-<li><a href="https://github.com/petkaantonov/bluebird">bluebird</a></li>
-<li><a href="https://github.com/calvinmetcalf/lie">lie</a></li>
-<li><a href="https://github.com/kriskowal/q">Q</a></li>
-<li><a href="https://github.com/tildeio/rsvp.js">RSVP</a></li>
-<li><a href="https://github.com/then/promise">then/promise</a></li>
-<li><a href="https://github.com/cujojs/when">when</a></li>
-</ul>
-
-If you use one of these libraries, then you will have access to some advanced Promise features. Read that library's documentation for details.
 
 {% include anchor.html title="Next" hash="next" %}
 

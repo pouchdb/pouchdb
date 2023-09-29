@@ -204,7 +204,7 @@ input.addEventListener('change', function () {
     _id: 'mydoc',
     _attachments: {
       filename: {
-        type: file.type,
+        content_type: file.type,
         data: file
       }
     }
