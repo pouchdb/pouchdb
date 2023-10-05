@@ -203,6 +203,7 @@ async function startTest() {
       console.log('BROWSER', message.type().toUpperCase(), `${url}:${lineNumber}`, message.text());
     });
   }
+
   await page.goto(testUrl);
 
   const userAgent = await page.evaluate('navigator.userAgent');
