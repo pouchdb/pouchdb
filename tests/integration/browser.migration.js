@@ -1170,9 +1170,9 @@ describe('migration', function () {
 function versionGte(scenario, minimumRequired) {
   const match = scenario.match(/^PouchDB v([.\d]+)$/);
   if (!match) { return false; }
-  const actual = match[1].split('.');
+  const actual = match[1].split('.').map(Number);
 
-  const min = minimumRequired.split('.');
+  const min = minimumRequired.split('.').map(Number);
 
   for (let i=0; i<min.length; ++i) {
     if (actual[i] > min[i]) { return true; }
