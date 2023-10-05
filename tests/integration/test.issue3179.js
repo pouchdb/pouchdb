@@ -1,7 +1,5 @@
 'use strict';
 
-const should = require("chai").should();
-
 var adapters = [
   ['http', 'http'],
   ['http', 'local'],
