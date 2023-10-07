@@ -1,27 +1,34 @@
-/* global PouchDBVersion110, PouchDBVersion200,
-   PouchDBVersion220, PouchDBVersion306, PouchDBVersion320,
-   PouchDBVersion360, PouchDBVersion731, PouchDBVersion801 */
 'use strict';
 
 describe('migration', function () {
 
-  function usingDefaultPreferredAdapters() {
+  function usingIdb() {
     var pref = PouchDB.preferredAdapters;
     // Firefox will have ['idb'], Chrome will have ['idb', 'websql']
     return (pref.length === 1 && pref[0] === 'idb') ||
       (pref.length === 2 && pref[0] === 'idb' && pref[1] === 'websql');
   }
 
-  var scenarios = [
-    'PouchDB v1.1.0',
-    'PouchDB v2.0.0',
-    'PouchDB v2.2.0',
-    'PouchDB v3.0.6',
-    'PouchDB v3.2.0',
-    'PouchDB v3.6.0',
-    'PouchDB v7.3.1',
-    'PouchDB v8.0.1',
-    'websql'
+  function usingIndexeddb() {
+    const pref = PouchDB.preferredAdapters;
+    // FUTURE: treat indexeddb adapter as the preferred option?
+    return pref.length === 1 && pref[0] === 'indexeddb';
+  }
+
+  function usingDefaultPreferredAdapters() {
+    return usingIdb() || usingIndexeddb();
+  }
+
+  const scenarios = [
+    { scenario: 'PouchDB v1.1.0', constructorName: 'PouchDBVersion110'} ,
+    { scenario: 'PouchDB v2.0.0', constructorName: 'PouchDBVersion200'} ,
+    { scenario: 'PouchDB v2.2.0', constructorName: 'PouchDBVersion220'} ,
+    { scenario: 'PouchDB v3.0.6', constructorName: 'PouchDBVersion306'} ,
+    { scenario: 'PouchDB v3.2.0', constructorName: 'PouchDBVersion320'} ,
+    { scenario: 'PouchDB v3.6.0', constructorName: 'PouchDBVersion360'} ,
+    { scenario: 'PouchDB v7.3.1', constructorName: 'PouchDBVersion731'} ,
+    { scenario: 'PouchDB v8.0.1', constructorName: 'PouchDBVersion801'} ,
+    { scenario: 'websql',         constructorName: 'PouchDB'} ,
   ];
 
   var skip = false;
@@ -41,63 +48,49 @@ describe('migration', function () {
 
     // conditionally load all legacy PouchDB scripts to avoid pulling them in
     // for test runs that don't test migrations
-    return Promise.all(scenarios.map(function (scenario) {
+    return Promise.all(scenarios.map(function ({ scenario }) {
       var match = scenario.match(/PouchDB v([.\d]+)/);
       if (!match) {
         return testUtils.Promise.resolve();
       }
-      return new testUtils.Promise(function (resolve, reject) {
-        var script = document.createElement('script');
-        script.onload = resolve;
-        script.onerror = reject;
-        script.src = 'deps/pouchdb-' + match[1] + '-postfixed.js';
-        document.body.appendChild(script);
-      });
+
+      const loader = testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-postfixed.js');
+
+      if (usingIndexeddb() && versionGte(scenario, '7.2.1')) {
+        return loader
+            .then(() => testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-indexeddb-postfixed.js'));
+      } else {
+        return loader;
+      }
     }));
   });
 
   after(function () {
     // free memory
-    delete window.PouchDBVersion110;
-    delete window.PouchDBVersion200;
-    delete window.PouchDBVersion220;
-    delete window.PouchDBVersion306;
-    delete window.PouchDBVersion320;
-    delete window.PouchDBVersion360;
-    delete window.PouchDBVersion731;
-    delete window.PouchDBVersion801;
+    scenarios.forEach(({ constructorName }) => {
+      if (constructorName !== 'PouchDB') {
+        delete window[constructorName];
+      }
+    });
   });
 
-  scenarios.forEach(function (scenario) {
+  scenarios.forEach(function ({ scenario, constructorName }) {
 
     describe('migrate from ' + scenario, function () {
 
       var dbs = {};
-      var constructors = {};
 
       beforeEach(function (done) {
         if (skip) {
           return this.skip();
         }
 
-        constructors = {
-          'PouchDB v1.1.0': PouchDBVersion110,
-          'PouchDB v2.0.0': PouchDBVersion200,
-          'PouchDB v2.2.0': PouchDBVersion220,
-          'PouchDB v3.0.6': PouchDBVersion306,
-          'PouchDB v3.2.0': PouchDBVersion320,
-          'PouchDB v3.6.0': PouchDBVersion360,
-          'PouchDB v7.3.1': PouchDBVersion731,
-          'PouchDB v8.0.1': PouchDBVersion801,
-          PouchDB: PouchDB
-        };
-
         // need actual unique db names for these tests
         var localName = testUtils.adapterUrl('local', 'test_migration_local');
         var remoteName = testUtils.adapterUrl('http', 'test_migration_remote');
 
         dbs.first = {
-          pouch : constructors[scenario] || PouchDB,
+          pouch : window[constructorName] || PouchDB,
           local : localName,
           remote : remoteName,
           localOpts : {}
@@ -111,6 +104,12 @@ describe('migration', function () {
 
         if (scenario in PouchDB.adapters) {
           dbs.first.localOpts.adapter = scenario;
+        } else if (usingIndexeddb()) {
+          // use indexeddb adapter for both old and new DBs:
+          // * cannot currently migrate idb -> indexeddb automatically
+          // * in these tests, idb adapter is always the default for old PouchDB
+          //   bundles, even if indexeddb is available
+          dbs.first.localOpts.adapter = 'indexeddb';
         }
         // else scenario might not make sense for this browser, so just use
         // same adapter for both
@@ -121,6 +120,12 @@ describe('migration', function () {
 
       afterEach(function (done) {
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
+      });
+
+      before(function () {
+        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
+          return this.skip();
+        }
       });
 
       var origDocs = [
@@ -269,7 +274,7 @@ describe('migration', function () {
         });
       });
 
-      if (oldVersionGte('2.2.0')) {
+      if (versionGte(scenario, '2.2.0')) {
         it("Test persistent views don't require update", function (done) {
           var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts);
           var docs = origDocs.slice().concat([{
@@ -445,7 +450,7 @@ describe('migration', function () {
         });
       }
 
-      if (oldVersionGte('3.0.6')) {
+      if (versionGte(scenario, '3.0.6')) {
         // attachments didn't really work until this release
         it('#2818 Testing attachments with compaction of dups', function () {
           var docs = [
@@ -844,7 +849,7 @@ describe('migration', function () {
         });
       }
 
-      if (oldVersionGte('3.2.0')) {
+      if (versionGte(scenario, '3.2.0')) {
         it('#3136 Testing later winningSeqs', function () {
           var tree = [
             [
@@ -923,7 +928,7 @@ describe('migration', function () {
         });
       }
 
-      if (oldVersionGte('3.6.0')) {
+      if (versionGte(scenario, '3.6.0')) {
         it('#3646 - Should finish with 0 documents', function () {
           var data = [
             {
@@ -1159,20 +1164,20 @@ describe('migration', function () {
         });
       }
     });
-
-    function oldVersionGte(minimumRequired) {
-      const match = scenario.match(/^PouchDB v([.\d]+)$/);
-      if (!match) { return false; }
-      const actual = match[1].split('.');
-
-      const min = minimumRequired.split('.');
-
-      for (let i=0; i<min.length; ++i) {
-        if (actual[i] > min[i]) { return true; }
-        if (actual[i] < min[i]) { return false; }
-      }
-
-      return true;
-    }
   });
 });
+
+function versionGte(scenario, minimumRequired) {
+  const match = scenario.match(/^PouchDB v([.\d]+)$/);
+  if (!match) { return false; }
+  const actual = match[1].split('.').map(Number);
+
+  const min = minimumRequired.split('.').map(Number);
+
+  for (let i=0; i<min.length; ++i) {
+    if (actual[i] > min[i]) { return true; }
+    if (actual[i] < min[i]) { return false; }
+  }
+
+  return true;
+}
