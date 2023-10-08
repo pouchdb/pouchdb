@@ -79,6 +79,7 @@ if [[ -z "${TEST_ITERATIONS-}" ]]; then
 else
   while ((TEST_ITERATIONS-- > 0)); do
     iterate_tests
+    log "Iterations remaining: $TEST_ITERATIONS"
   done
 fi
 
