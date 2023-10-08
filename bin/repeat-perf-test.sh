@@ -54,9 +54,6 @@ npm run build-test
 
 iterate_tests() {
   for commit in "${commits[@]}"; do
-    log "Checking out $commit..."
-    git checkout "$commit"
-
     log "Running perf tests on $commit..."
     set -x
     SRC_ROOT="../../dist-bundles/$commit" \
