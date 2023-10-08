@@ -65,6 +65,7 @@ iterate_tests() {
     COUCH_HOST="${COUCH_HOST:-http://admin:password@127.0.0.1:5984}" \
     JSON_REPORTER=1 \
     PERF=1 \
+    USE_MINIFIED=1 \
     node ./bin/test-browser.js
     set +x
 
