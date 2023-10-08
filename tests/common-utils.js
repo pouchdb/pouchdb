@@ -102,7 +102,7 @@ commonUtils.loadPouchDBForNode = function (plugins) {
 commonUtils.loadPouchDBForBrowser = function (plugins) {
   var params = commonUtils.params();
   const scriptPath = params.srcRoot || params.SRC_ROOT || '../../packages/node_modules/pouchdb/dist';
-  const ext = (params.useMinified || params.USE_MINIFIED) ? 'min.js' : 'js'; // TODO set USE_MINIFIED in repeat script
+  const ext = (params.useMinified || params.USE_MINIFIED) ? 'min.js' : 'js';
 
   var pouchdbSrc = params.src || `${scriptPath}/pouchdb.${ext}`;
 
