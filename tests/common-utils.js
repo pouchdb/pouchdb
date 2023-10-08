@@ -101,7 +101,7 @@ commonUtils.loadPouchDBForNode = function (plugins) {
 
 commonUtils.loadPouchDBForBrowser = function (plugins) {
   var params = commonUtils.params();
-  var scriptPath = '../../packages/node_modules/pouchdb/dist';
+  var scriptPath = params.srcRoot || params.SRC_ROOT || '../../packages/node_modules/pouchdb/dist';
   var pouchdbSrc = params.src || `${scriptPath}/pouchdb.js`;
 
   plugins = plugins.map((plugin) => {
