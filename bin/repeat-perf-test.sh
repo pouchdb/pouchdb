@@ -19,9 +19,11 @@ fi
 echo
 log "Running perf tests endlessly on:"
 log
+declare -a commits
 i=0
-for commit in "$@"; do
-  log "  $((i=i+1)). $(git show --oneline --no-patch "$commit") ($commit)"
+for treeish in "$@"; do
+  commits[i]="$(git rev-parse "$treeish")"
+  log "  $((i=i+1)). $(git show --oneline --no-patch "$commit") ($treeish)"
 done
 log
 log "Press <enter> to continue."
@@ -31,7 +33,7 @@ read -r
 mkdir -p dist-bundles
 
 log "Building bundles..."
-for commit in "$@"; do
+for commit in "${commits[@]}"; do
   log "Checking out $commit..."
   git checkout "$commit"
   npm run build
@@ -47,7 +49,7 @@ log "Building tests..."
 npm run build-test
 
 iterate_tests() {
-  for commit in "$@"; do
+  for commit in "${commits[@]}"; do
     log "Checking out $commit..."
     git checkout "$commit"
 
