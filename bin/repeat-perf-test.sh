@@ -17,7 +17,11 @@ EOF
 fi
 
 echo
-log "Running perf tests endlessly on:"
+if [[ -z "${TEST_ITERATIONS-}" ]]; then
+  log "Running perf tests $TEST_ITERATIONS times on:"
+else
+  log "Running perf tests endlessly on:"
+fi
 log
 declare -a commits
 i=0
