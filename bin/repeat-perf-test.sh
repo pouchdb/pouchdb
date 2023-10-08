@@ -46,7 +46,7 @@ done
 log "Building tests..."
 npm run build-test
 
-while true; do
+iterate_tests() {
   for commit in "$@"; do
     log "Checking out $commit..."
     git checkout "$commit"
@@ -64,6 +64,16 @@ while true; do
 
     sleep 1
   done
-done
+}
+
+if [[ -z "${TEST_ITERATIONS-}" ]]; then
+  while ((TEST_ITERATIONS-- > 0)); do
+    iterate_tests
+  done
+else
+  while true; do
+    iterate_tests
+  done
+fi
 
 log "All tests complete."
