@@ -21,7 +21,7 @@ log "Running perf tests endlessly on:"
 log
 i=0
 for commit in "$@"; do
-  log "  $((i=i+1)). $(git show --oneline --no-patch "$commit")"
+  log "  $((i=i+1)). $(git show --oneline --no-patch "$commit") ($commit)"
 done
 log
 log "Press <enter> to continue."
