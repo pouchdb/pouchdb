@@ -27,7 +27,7 @@ declare -a commits
 i=0
 for treeish in "$@"; do
   commits[i]="$(git rev-parse "$treeish")"
-  log "  $((i=i+1)). $(git show --oneline --no-patch "$commit") ($treeish)"
+  log "  $((i=i+1)). $(git show --oneline --no-patch "$treeish") ($treeish)"
 done
 log
 log "Press <enter> to continue."
