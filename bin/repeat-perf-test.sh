@@ -10,41 +10,78 @@ if [[ "$#" -lt 1 ]]; then
       Repeatedly run the performance test suite against one or more versions of the codebase.
 
     USAGE
-      $scriptName ...commits
+      $scriptName ...tree-ish
 
 EOF
   exit 1
 fi
 
 echo
-log "Running perf tests endlessly on:"
+if [[ -z "${TEST_ITERATIONS-}" ]]; then
+  log "Running perf tests endlessly on:"
+else
+  log "Running perf tests $TEST_ITERATIONS times on:"
+fi
 log
+declare -a commits
 i=0
-for commit in "$@"; do
-  log "  $((i=i+1)). $(git show --oneline --no-patch "$commit")"
+for treeish in "$@"; do
+  commits[i]="$(git rev-parse "$treeish")"
+  log "  $((i=i+1)). $(git show --oneline --no-patch "$treeish") ($treeish)"
 done
 log
 log "Press <enter> to continue."
 echo
 read -r
 
-while true; do
-  for commit in "$@"; do
+mkdir -p dist-bundles
+
+log "Building bundles..."
+for commit in "${commits[@]}"; do
+  log "Checking out $commit..."
+  git checkout "$commit"
+  npm run build
+
+  targetDir="dist-bundles/$commit"
+  mkdir -p "$targetDir"
+  cp -r packages/node_modules/pouchdb/dist/. "$targetDir/"
+
+  git checkout -
+done
+
+log "Building tests..."
+npm run build-test
+
+iterate_tests() {
+  for commit in "${commits[@]}"; do
     log "Checking out $commit..."
     git checkout "$commit"
 
     log "Running perf tests on $commit..."
     set -x
+    SRC_ROOT="../../dist-bundles/$commit" \
     ADAPTERS="${ADAPTERS:-idb}" \
     CLIENT="${CLIENT:-firefox}" \
     COUCH_HOST="${COUCH_HOST:-http://admin:password@127.0.0.1:5984}" \
     JSON_REPORTER=1 \
     PERF=1 \
-    npm run test
+    USE_MINIFIED=1 \
+    node ./bin/test-browser.js
     set +x
 
     sleep 1
   done
-done
+}
+
+if [[ -z "${TEST_ITERATIONS-}" ]]; then
+  while true; do
+    iterate_tests
+  done
+else
+  while ((TEST_ITERATIONS-- > 0)); do
+    iterate_tests
+    log "Iterations remaining: $TEST_ITERATIONS"
+  done
+fi
 
 log "All tests complete."

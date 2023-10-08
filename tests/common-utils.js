@@ -101,12 +101,14 @@ commonUtils.loadPouchDBForNode = function (plugins) {
 
 commonUtils.loadPouchDBForBrowser = function (plugins) {
   var params = commonUtils.params();
-  var scriptPath = '../../packages/node_modules/pouchdb/dist';
-  var pouchdbSrc = params.src || `${scriptPath}/pouchdb.js`;
+  const scriptPath = params.srcRoot || params.SRC_ROOT || '../../packages/node_modules/pouchdb/dist';
+  const ext = (params.useMinified || params.USE_MINIFIED) ? 'min.js' : 'js';
+
+  var pouchdbSrc = params.src || `${scriptPath}/pouchdb.${ext}`;
 
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
-    return `${scriptPath}/pouchdb.${plugin}.js`;
+    return `${scriptPath}/pouchdb.${plugin}.${ext}`;
   });
 
   var scripts = [pouchdbSrc].concat(plugins);
