@@ -18,9 +18,9 @@ fi
 
 echo
 if [[ -z "${TEST_ITERATIONS-}" ]]; then
-  log "Running perf tests $TEST_ITERATIONS times on:"
-else
   log "Running perf tests endlessly on:"
+else
+  log "Running perf tests $TEST_ITERATIONS times on:"
 fi
 log
 declare -a commits
@@ -73,11 +73,11 @@ iterate_tests() {
 }
 
 if [[ -z "${TEST_ITERATIONS-}" ]]; then
-  while ((TEST_ITERATIONS-- > 0)); do
+  while true; do
     iterate_tests
   done
 else
-  while true; do
+  while ((TEST_ITERATIONS-- > 0)); do
     iterate_tests
   done
 fi
