@@ -5,7 +5,7 @@ log() { echo "[$scriptName] $*"; }
 
 flagFileDevServerRunning=./.dev-server-started
 cleanup() {
-  if [[ -n $SERVER_PID ]]; then
+  if [[ -n ${SERVER_PID-} ]]; then
     log "Shutting down dev server..."
     kill "$SERVER_PID"
     rm "$flagFileDevServerRunning"
@@ -15,6 +15,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ -f "$flagFileDevServerRunning" ]]; then
+  log "!!!"
   log "!!! Cannot start tests - flag file already exists at $flagFileDevServerRunning"
   log "!!! Are tests running in another process?"
   log "!!!"
