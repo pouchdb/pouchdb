@@ -109,19 +109,11 @@ function startServers(callback) {
   readyCallback = callback;
   http_server.createServer().listen(HTTP_PORT, function () {
     var testRoot = 'http://127.0.0.1:' + HTTP_PORT;
-    var query = '';
-    Object.keys(queryParams).forEach(function (key) {
-      query += (query ? '&' : '?');
-      query += key + '=' + encodeURIComponent(queryParams[key]);
-    });
-    console.log('Integration  tests: ' + testRoot +
-                '/tests/integration/' + query);
-    console.log('Map/reduce   tests: ' + testRoot +
-                '/tests/mapreduce' + query);
-    console.log('pouchdb-find tests: ' + testRoot +
-                '/tests/find/' + query);
-    console.log('Performance  tests: ' + testRoot +
-                '/tests/performance/' + query);
+    const query = new URLSearchParams(queryParams);
+    console.log(`Integration  tests: ${testRoot}/tests/integration/?${query}`);
+    console.log(`Map/reduce   tests: ${testRoot}/tests/mapreduce/?${query}`);
+    console.log(`pouchdb-find tests: ${testRoot}/tests/find/?${query}`);
+    console.log(`Performance  tests: ${testRoot}/tests/performance/?${query}`);
     serversStarted = true;
     checkReady();
   });
