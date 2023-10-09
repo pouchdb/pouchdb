@@ -85,6 +85,7 @@ iterate_tests() {
     PERF=1 \
     USE_MINIFIED=1 \
     MANUAL_DEV_SERVER=1 \
+    NO_REBUILD_POUCHDB=1 \
     node ./bin/test-browser.js
     set +x
 
