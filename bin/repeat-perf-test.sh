@@ -3,6 +3,24 @@
 scriptName="$(basename "$0")"
 log() { echo "[$scriptName] $*"; }
 
+flagFileDevServerRunning=./.dev-server-started
+cleanup() {
+  if [[ -n $SERVER_PID ]]; then
+    log "Shutting down dev server..."
+    kill "$SERVER_PID"
+    rm "$flagFileDevServerRunning"
+    log "Shutdown complete."
+  fi
+}
+trap cleanup EXIT
+
+if [[ -f "$flagFileDevServerRunning" ]]; then
+  log "!!! Cannot start tests - flag file already exists at $flagFileDevServerRunning"
+  log "!!! Are tests running in another process?"
+  log "!!!"
+  exit 1
+fi
+
 if [[ "$#" -lt 1 ]]; then
   cat <<EOF
 
@@ -38,15 +56,19 @@ mkdir -p dist-bundles
 
 log "Building bundles..."
 for commit in "${commits[@]}"; do
-  log "Checking out $commit..."
-  git checkout "$commit"
-  npm run build
-
   targetDir="dist-bundles/$commit"
-  mkdir -p "$targetDir"
-  cp -r packages/node_modules/pouchdb/dist/. "$targetDir/"
+  if [[ -d "$targetDir" ]]; then
+    log "Skipping build for $commit - dist files already found at $targetDir."
+  else
+    log "Building commit $commit..."
+    git checkout "$commit"
+    npm run build
 
-  git checkout -
+    mkdir -p "$targetDir"
+    cp -r packages/node_modules/pouchdb/dist/. "$targetDir/"
+
+    git checkout -
+  fi
 done
 
 log "Building tests..."
@@ -63,6 +85,7 @@ iterate_tests() {
     JSON_REPORTER=1 \
     PERF=1 \
     USE_MINIFIED=1 \
+    MANUAL_DEV_SERVER=1 \
     node ./bin/test-browser.js
     set +x
 
@@ -70,6 +93,20 @@ iterate_tests() {
   done
 }
 
+log "Starting dev server..."
+NO_REBUILD=1 node -e "
+const { start } = require('./bin/dev-server.js');
+start(() => {
+  require('fs').writeFileSync('$flagFileDevServerRunning', '');
+  console.log('[$scriptName] Dev server ready.');
+});
+" &
+SERVER_PID=$!
+
+until [[ -f "$flagFileDevServerRunning" ]]; do sleep 1; done
+log "Dev server started OK!"
+
+log "Running tests..."
 if [[ -z "${TEST_ITERATIONS-}" ]]; then
   while true; do
     iterate_tests

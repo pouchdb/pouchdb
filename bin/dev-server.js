@@ -36,6 +36,10 @@ if (process.env.ITERATIONS) {
 var rebuildPromise = Promise.resolve();
 
 function rebuildPouch() {
+  if (process.env.NO_REBUILD) {
+    return Promise.resolve();
+  }
+
   rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
     console.log('Rebuilt packages/node_modules/pouchdb');
   }).catch(console.error);

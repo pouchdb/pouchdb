@@ -226,6 +226,8 @@ async function startTest() {
   }, 1000);
 }
 
-devserver.start(function () {
+if (process.env.MANUAL_DEV_SERVER) {
   startTest();
-});
+} else {
+  devserver.start(startTest);
+}
