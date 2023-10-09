@@ -97,8 +97,8 @@ log "Starting dev server..."
 NO_REBUILD_POUCHDB=1 node -e "
 const { start } = require('./bin/dev-server.js');
 start(() => {
-  require('fs').writeFileSync('$flagFileDevServerRunning', '');
   console.log('[$scriptName] Dev server ready.');
+  require('fs').writeFileSync('$flagFileDevServerRunning', '');
 });
 " &
 SERVER_PID=$!
