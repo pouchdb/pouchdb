@@ -3,7 +3,7 @@
 
 const playwright = require('playwright');
 
-const { isEmpty, omitBy } = require('lodash');
+const { identity, pickBy } = require('lodash');
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
 
@@ -54,7 +54,7 @@ const qs = {
 };
 
 testUrl += '?';
-testUrl += new URLSearchParams(omitBy(qs, isEmpty));
+testUrl += new URLSearchParams(pickBy(qs, identity));
 
 class RemoteRunner {
   constructor() {
