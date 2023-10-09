@@ -36,6 +36,7 @@
     "eol-last": "error",
     "no-empty": "off",
     "no-console": "off",
+    "no-tabs": "error",
     "no-trailing-spaces": "error",
     "semi": ["error", "always"],
     "curly": ["error", "all"],

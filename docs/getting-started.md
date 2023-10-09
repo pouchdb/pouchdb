@@ -18,7 +18,7 @@ In this tutorial we will write a basic Todo web application based on [TodoMVC](h
 
 Prefer video tutorials? This guide is available in video format:
 
-{% include iframe.html src="//www.youtube.com/embed/-Z7UF2TuSp0" %}
+{% include iframe.html src="https://www.youtube.com/embed/-Z7UF2TuSp0" %}
 
 {% include anchor.html class="h3" title="Download Assets" hash="download" %}
 
@@ -41,7 +41,7 @@ It's also a good idea to open your browser's console so you can see any errors o
 Open `index.html` and include PouchDB in the app by adding a script tag:
 
 {% highlight html %}
-<script src="//cdn.jsdelivr.net/npm/pouchdb@{{site.version}}/dist/pouchdb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pouchdb@{{site.version}}/dist/pouchdb.min.js"></script>
 <script src="js/base.js"></script>
 <script src="js/app.js"></script>
 {% endhighlight %}

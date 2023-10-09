@@ -59,7 +59,7 @@ db.replicate.to('http://example.com/mydb');
 
         <img
           class="icon icon-lg"
-          src="{{ site.base_url }}/static/img/index/node.svg"
+          src="{{ site.baseurl }}/static/img/index/node.svg"
           alt=""
         />
 
@@ -72,7 +72,7 @@ db.replicate.to('http://example.com/mydb');
 
         <img
           class="icon icon-lg"
-          src="{{ site.base_url }}/static/img/index/light.svg"
+          src="{{ site.baseurl }}/static/img/index/light.svg"
           alt=""
         />
 
@@ -86,7 +86,7 @@ db.replicate.to('http://example.com/mydb');
 
         <img
           class="icon icon-lg"
-          src="{{ site.base_url }}/static/img/index/learn.svg"
+          src="{{ site.baseurl }}/static/img/index/learn.svg"
           alt=""
         />
 
@@ -99,7 +99,7 @@ db.replicate.to('http://example.com/mydb');
 
         <img
           class="icon icon-lg"
-          src="{{ site.base_url }}/static/img/index/open.svg"
+          src="{{ site.baseurl }}/static/img/index/open.svg"
           alt=""
         />
 

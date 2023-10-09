@@ -652,7 +652,7 @@ In truth, you shouldn't have to learn a bunch of arcane rules and new APIs to do
 Awaiting async/await
 ---
 
-That's the point I made in ["Taming the asynchronous beast with ES7"](http://pouchdb.com/2015/03/05/taming-the-async-beast-with-es7.html), where I explored the ES7 `async`/`await` keywords, and how they integrate promises more deeply into the language. Instead of having to write pseudo-synchronous code (with a fake `catch()` method that's kinda like `catch`, but not really), ES7 will allow us to use the real `try`/`catch`/`return` keywords, just like we learned in CS 101.
+That's the point I made in ["Taming the asynchronous beast with ES7"]({{ site.baseurl }}/2015/03/05/taming-the-async-beast-with-es7.html), where I explored the ES7 `async`/`await` keywords, and how they integrate promises more deeply into the language. Instead of having to write pseudo-synchronous code (with a fake `catch()` method that's kinda like `catch`, but not really), ES7 will allow us to use the real `try`/`catch`/`return` keywords, just like we learned in CS 101.
 
 This is a huge boon to JavaScript as a language. Because in the end, these promise anti-patterns will still keep cropping up, as long as our tools don't tell us when we're making a mistake.
 

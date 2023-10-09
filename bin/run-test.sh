@@ -1,5 +1,12 @@
 #!/bin/bash -e
 
+cleanup() {
+  if [[ ! -z $SERVER_PID ]]; then
+    kill $SERVER_PID
+  fi
+}
+trap cleanup EXIT
+
 # Run tests against a local setup of pouchdb-express-router
 # by default unless COUCH_HOST is specified.
 [ -z "$COUCH_HOST" -a -z "$SERVER"  ] && SERVER="pouchdb-express-router"
@@ -13,8 +20,7 @@ pouchdb-setup-server() {
   # in CI, link pouchdb-servers dependencies on pouchdb
   # modules to the current implementations
   if [ -d "pouchdb-server-install" ]; then
-    # pouchdb server already running
-    exit 0
+    rm -rf pouchdb-server-install
   fi
   mkdir pouchdb-server-install
   cd pouchdb-server-install
@@ -112,7 +118,7 @@ if [ "$SERVER" == "couchdb-master" ]; then
   ./node_modules/.bin/add-cors-to-couchdb $COUCH_HOST
 fi
 
-printf 'Waiting for host to start .'
+printf "Waiting for host to start on $COUCH_HOST..."
 WAITING=0
 until $(curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST); do
     if [ $WAITING -eq 4 ]; then
@@ -135,9 +141,3 @@ elif [ "$CLIENT" == "dev" ]; then
 else
     npm run test-browser
 fi
-
-EXIT_STATUS=$?
-if [[ ! -z $SERVER_PID ]]; then
-  kill $SERVER_PID
-fi
-exit $EXIT_STATUS
