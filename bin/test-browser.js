@@ -73,6 +73,12 @@ if (process.env.COUCH_HOST) {
 if (process.env.ITERATIONS) {
   qs.iterations = process.env.ITERATIONS;
 }
+if (process.env.USE_MINIFIED) {
+  qs.useMinified = process.env.USE_MINIFIED;
+}
+if (process.env.SRC_ROOT) {
+  qs.srcRoot = process.env.SRC_ROOT;
+}
 
 testUrl += '?';
 testUrl += querystring.stringify(qs);
