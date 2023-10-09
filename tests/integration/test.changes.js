@@ -333,8 +333,8 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Changes with `filters` key not present in ddoc', function (done) {
-      var docs = [
+    it('Changes with `filters` key not present in ddoc', async function () {
+      const docs = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {
@@ -343,24 +343,39 @@ adapters.forEach(function (adapter) {
           views: {
             even: {
               map: 'function (doc) { if (doc.integer % 2 === 1)' +
-               ' { emit(doc._id, null) }; }'
+                ' { emit(doc._id, null) }; }'
             }
           }
         }
       ];
-      var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function () {
-        db.changes({
+      const db = new PouchDB(dbs.name);
+      await testUtils.promisify(testUtils.writeDocs)(db, docs);
+
+      const caughtErrors = [];
+      try {
+        await db.changes({
           filter: 'foo/even',
           limit: 2,
           include_docs: true
         }).on('error', function (err) {
-          err.status.should.equal(testUtils.errors.MISSING_DOC.status,
-                                  'correct error status returned');
-          err.name.should.equal('not_found');
-          done();
+          assert.equal(
+            err.status,
+            testUtils.errors.MISSING_DOC.status,
+            'correct error status returned'
+          );
+          assert.equal(err.name, 'not_found');
+          caughtErrors.push(err);
         });
-      });
+      }
+      catch (e) {
+        if (e !== caughtErrors[0]) {
+          throw new Error("unexpected error");
+        }
+      }
+
+      if (caughtErrors.length !== 1) {
+        throw new Error("changes completed without expected error");
+      }
     });
 
     it('Changes limit and filter', function (done) {
