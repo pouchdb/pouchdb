@@ -3,7 +3,8 @@
 scriptName="$(basename "$0")"
 log() { echo "[$scriptName] $*"; }
 
-flagFileDevServerRunning=./.dev-server-started
+mkdir -p ./perf-test-results
+flagFileDevServerRunning=./perf-test-results/.dev-server-started
 cleanup() {
   if [[ -n ${SERVER_PID-} ]]; then
     log "Shutting down dev server..."
