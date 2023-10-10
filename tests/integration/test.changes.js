@@ -339,11 +339,11 @@ adapters.forEach(function (adapter) {
             });
           } catch (e) {
             if (e !== caughtErrors[0]) {
-              throw new Error("unexpected error");
+              return new Error("unexpected error");
             }
           }
           if (caughtErrors.length !== 1) {
-            throw new Error("changes completed without expected error");
+            return new Error("changes completed without expected error");
           }
         })
         .then(done)
@@ -387,12 +387,12 @@ adapters.forEach(function (adapter) {
           }
           catch (e) {
             if (e !== caughtErrors[0]) {
-              throw new Error("unexpected error");
+              return new Error("unexpected error");
             }
           }
 
           if (caughtErrors.length !== 1) {
-            throw new Error("changes completed without expected error");
+            return new Error("changes completed without expected error");
           }
         })
         .then(done)
