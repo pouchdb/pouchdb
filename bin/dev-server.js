@@ -79,6 +79,7 @@ function rebuildPerf() {
 function watchAll() {
   const watch = require('watch-glob');
   const debounce = require('lodash.debounce');
+
   watch(['packages/node_modules/*/src/**/*.js'],
     debounce(rebuildPouch, 700, {leading: true}));
   watch(['tests/integration/utils.js'],
