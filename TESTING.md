@@ -245,7 +245,9 @@ command-line options and their query string equivalents are:
 | `GREP`               | `grep`             |
 | `ITERATIONS`         | `iterations`       |
 | `PLUGINS`            | `plugins`          |
+| `SRC_ROOT`           | `srcRoot`          |
 | `POUCHDB_SRC`        | `src`              |
+| `USE_MINIFIED`       | `useMinified`      |
 | `VIEW_ADAPTERS`      | `viewAdapters`     |
 
 
