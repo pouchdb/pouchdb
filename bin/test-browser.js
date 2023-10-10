@@ -190,6 +190,7 @@ async function startTest() {
   const browser = await playwright[browserName].launch(options);
   const page = await browser.newPage();
 
+  // TODO should come from https://github.com/pouchdb/pouchdb/pull/8768
   page.on('pageerror', err => {
     console.log('Unhandled error in test page:', err);
     process.exit(1);
@@ -228,12 +229,6 @@ async function startTest() {
         process.exit(!process.env.PERF && runner.failed ? 1 : 0);
       }
     } catch (e) {
-      if (e.message.includes('window.testEvents is not a function')) {
-        console.log('window.testEvents is not available.  Waiting for webrunner.js to load...');
-        console.log(await page.evaluate('document.documentElement.innerHTML'));
-        return;
-      }
-
       console.error('Tests failed:', e);
 
       clearInterval(interval);
