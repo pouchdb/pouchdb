@@ -242,7 +242,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       var docs = [binAttDoc, binAttDoc2, pngAttDoc];
       return db.bulkDocs(docs).then(function () {
-        return testUtils.Promise.all(docs.map(function (doc) {
+        return Promise.all(docs.map(function (doc) {
           var attName = Object.keys(doc._attachments)[0];
           var expected = doc._attachments[attName];
           return db.get(doc._id, {
@@ -267,7 +267,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       var docs = [binAttDoc, binAttDoc2, pngAttDoc, {_id: 'foo'}];
       return db.bulkDocs(docs).then(function () {
-        return testUtils.Promise.all(docs.map(function (doc) {
+        return Promise.all(docs.map(function (doc) {
           var atts = doc._attachments;
           var attName = atts && Object.keys(atts)[0];
           var expected = atts && atts[attName];
@@ -310,7 +310,7 @@ adapters.forEach(function (adapter) {
           var savedDocs = res.rows.map(function (x) {
             return x.doc;
           });
-          return testUtils.Promise.all(docs.map(function (doc) {
+          return Promise.all(docs.map(function (doc) {
             var atts = doc._attachments;
             var attName = atts && Object.keys(atts)[0];
             var expected = atts && atts[attName];
@@ -350,7 +350,7 @@ adapters.forEach(function (adapter) {
           var savedDocs = res.rows.map(function (x) {
             return x.doc;
           });
-          return testUtils.Promise.all(docs.filter(function (doc) {
+          return Promise.all(docs.filter(function (doc) {
             return !doc._deleted;
           }).map(function (doc) {
             var atts = doc._attachments;
@@ -419,7 +419,7 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.rows.should.have.length(5);
 
-          return testUtils.Promise.all(res.rows.map(function (row, i) {
+          return Promise.all(res.rows.map(function (row, i) {
             if (docs[i]._deleted) {
               should.not.exist(row.doc);
               return;
@@ -500,13 +500,13 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.rows.should.have.length(5);
 
-          return testUtils.Promise.all(res.rows.map(function (row) {
+          return Promise.all(res.rows.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
             var atts = doc._attachments;
             var attNames = Object.keys(atts);
-            return testUtils.Promise.all(attNames.map(function (attName) {
+            return Promise.all(attNames.map(function (attName) {
               var expected = atts && atts[attName];
               var savedDoc = row.doc;
               var att = savedDoc._attachments[attName];
@@ -588,7 +588,7 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.rows.should.have.length(8);
 
-          return testUtils.Promise.all(res.rows.map(function (row) {
+          return Promise.all(res.rows.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
@@ -602,7 +602,7 @@ adapters.forEach(function (adapter) {
               return;
             }
             var attNames = Object.keys(atts);
-            return testUtils.Promise.all(attNames.map(function (attName) {
+            return Promise.all(attNames.map(function (attName) {
               var expected = atts && atts[attName];
               var savedDoc = row.doc;
               var att = savedDoc._attachments[attName];
@@ -634,7 +634,7 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.results.should.have.length(5);
 
-          return testUtils.Promise.all(res.results.map(function (row) {
+          return Promise.all(res.results.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
@@ -719,13 +719,13 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.results.should.have.length(5);
 
-          return testUtils.Promise.all(res.results.map(function (row) {
+          return Promise.all(res.results.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
             var atts = doc._attachments;
             var attNames = Object.keys(atts);
-            return testUtils.Promise.all(attNames.map(function (attName) {
+            return Promise.all(attNames.map(function (attName) {
               var expected = atts && atts[attName];
               var savedDoc = row.doc;
               var att = savedDoc._attachments[attName];
@@ -808,7 +808,7 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.results.should.have.length(9);
 
-          return testUtils.Promise.all(res.results.map(function (row) {
+          return Promise.all(res.results.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
@@ -818,7 +818,7 @@ adapters.forEach(function (adapter) {
               return;
             }
             var attNames = Object.keys(atts);
-            return testUtils.Promise.all(attNames.map(function (attName) {
+            return Promise.all(attNames.map(function (attName) {
               var expected = atts && atts[attName];
               var savedDoc = row.doc;
               var att = savedDoc._attachments[attName];
@@ -893,7 +893,7 @@ adapters.forEach(function (adapter) {
         }}
       ];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           db.changes({
             return_docs: true,
             attachments: true,
@@ -901,7 +901,7 @@ adapters.forEach(function (adapter) {
             include_docs: true
           }).on('error', reject).on('complete', resolve);
         }).then(function (results) {
-            return testUtils.Promise.all(results.results.map(function (row) {
+            return Promise.all(results.results.map(function (row) {
               var doc = docs.filter(function (x) {
                 return x._id === row.id;
               })[0];
@@ -916,7 +916,7 @@ adapters.forEach(function (adapter) {
                 return;
               }
               var attNames = Object.keys(atts);
-              return testUtils.Promise.all(attNames.map(function (attName) {
+              return Promise.all(attNames.map(function (attName) {
                 var expected = atts && atts[attName];
                 var att = savedDoc._attachments[attName];
                 should.not.exist(att.stub);
@@ -939,7 +939,7 @@ adapters.forEach(function (adapter) {
         {_id: 'bar'},
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             return_docs: true,
             attachments: true,
@@ -950,7 +950,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1051,7 +1051,7 @@ adapters.forEach(function (adapter) {
         }}
       ];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             return_docs: true,
             attachments: true,
@@ -1062,7 +1062,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1089,7 +1089,7 @@ adapters.forEach(function (adapter) {
                 return doneWithDoc();
               }
               var attNames = Object.keys(atts);
-              return testUtils.Promise.all(attNames.map(function (attName) {
+              return Promise.all(attNames.map(function (attName) {
                 var expected = atts && atts[attName];
                 var att = savedDoc._attachments[attName];
                 should.not.exist(att.stub);
@@ -1113,7 +1113,7 @@ adapters.forEach(function (adapter) {
         {_id: 'bar'},
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             return_docs: true,
             attachments: true,
@@ -1124,7 +1124,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1174,7 +1174,7 @@ adapters.forEach(function (adapter) {
         {_id: 'bar'},
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             include_docs: true,
             binary: true,
@@ -1183,7 +1183,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1229,7 +1229,7 @@ adapters.forEach(function (adapter) {
         {_id: 'bar'},
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             attachments: true,
             binary: true,
@@ -1238,7 +1238,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1388,7 +1388,7 @@ adapters.forEach(function (adapter) {
 
       function liveChangesPromise(opts) {
         opts.live = true;
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var retChanges = {results: []};
           var changes = db.changes(opts)
             .on('change', function (change) {
@@ -1529,7 +1529,7 @@ adapters.forEach(function (adapter) {
       function liveChangesPromise(opts) {
         opts.live = true;
         opts.return_docs = true;
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var retChanges = {results: []};
           var changes = db.changes(opts)
             .on('change', function (change) {
@@ -2194,7 +2194,7 @@ adapters.forEach(function (adapter) {
       return db.putAttachment('doc', 'att', null, 'Zm9v', 'text/plain').then(function () {
         return db.getAttachment('doc', 'att');
       }).then(function (blob) {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           testUtils.base64Blob(blob, function (data) {
             data.should.equal('Zm9v', 'should get the correct base64 back');
             resolve();
@@ -2491,7 +2491,7 @@ adapters.forEach(function (adapter) {
           var doc = res.rows[0].doc;
           doc._attachments['foo.txt'].stub.should.equal(true);
           doc._attachments['foo.txt'].length.should.equal(29);
-          return new testUtils.Promise(function (resolve, reject) {
+          return new Promise(function (resolve, reject) {
             var change;
             var changes = db.changes({include_docs: true, live: true})
               .on('change', function (x) {
@@ -2804,7 +2804,7 @@ adapters.forEach(function (adapter) {
       }).then(function (blob) {
         should.exist(blob);
 
-        return testUtils.Promise.all([
+        return Promise.all([
           db.getAttachment('a', 'foo.txt', {rev: rev1}),
           db.getAttachment('a', 'foo.txt', {rev: '3-fake'}),
           db.getAttachment('a', 'foo.txt'),
@@ -2864,7 +2864,7 @@ adapters.forEach(function (adapter) {
           [db.getAttachment('a', 'foo.txt', {rev: rev1}), 'foo']
         ];
 
-        return testUtils.Promise.all(testCases.map(function (testCase) {
+        return Promise.all(testCases.map(function (testCase) {
           var promise = testCase[0];
           var expected = testCase[1];
           return promise.then(function (blob) {
@@ -3322,7 +3322,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.sync(remote);
       }).then(function () {
-        return testUtils.Promise.all([db, remote].map(function (pouch) {
+        return Promise.all([db, remote].map(function (pouch) {
           return pouch.allDocs({
             include_docs: true,
             attachments: true
@@ -3369,7 +3369,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.sync(remote);
       }).then(function () {
-        return testUtils.Promise.all([db, remote].map(function (pouch) {
+        return Promise.all([db, remote].map(function (pouch) {
           return pouch.allDocs({
             include_docs: true,
             attachments: true
@@ -3416,7 +3416,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.sync(remote);
       }).then(function () {
-        return testUtils.Promise.all([db, remote].map(function (pouch) {
+        return Promise.all([db, remote].map(function (pouch) {
           return pouch.allDocs({
             include_docs: true,
             attachments: true
@@ -3616,7 +3616,7 @@ repl_adapters.forEach(function (adapters) {
         return db.put(doc).then(function () {
           return db.replicate.to(remote);
         }).then(function () {
-          return testUtils.Promise.all([
+          return Promise.all([
             db, remote
           ].map(function (pouch) {
             return pouch.get('foo', {attachments: true}).then(function (doc) {
@@ -3665,7 +3665,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.allDocs();
       }).then(function (res) {
-        return testUtils.Promise.all(res.rows.map(function (row) {
+        return Promise.all(res.rows.map(function (row) {
           return db.get(row.id, {attachments: true});
         }));
       }).then(function (docs) {
@@ -3705,7 +3705,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.allDocs();
       }).then(function (res) {
-        return testUtils.Promise.all(res.rows.map(function (row) {
+        return Promise.all(res.rows.map(function (row) {
           return db.get(row.id, {attachments: true});
         }));
       }).then(function (docs) {
@@ -3723,7 +3723,7 @@ repl_adapters.forEach(function (adapters) {
           };
         }));
 
-        return testUtils.Promise.all(docs.map(function (doc) {
+        return Promise.all(docs.map(function (doc) {
           return db.get(doc._id);
         }));
       }).then(function (docs) {
@@ -3785,7 +3785,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.replicate.to(remote);
       }).then(function () {
-        return testUtils.Promise.all([db, remote].map(function (pouch) {
+        return Promise.all([db, remote].map(function (pouch) {
           return pouch.get('test1', {attachments: true}).then(function (doc) {
             var filenames = Object.keys(doc._attachments);
             filenames.should.have.length(2);

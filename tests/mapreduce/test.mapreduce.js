@@ -14,7 +14,7 @@ function tests(suiteName, dbName, dbType, viewType) {
 
   describe(suiteName, function () {
 
-    var Promise = testUtils.Promise;
+    var Promise = Promise;
 
     var createView;
     if (dbType === 'http' || viewType === 'persisted') {

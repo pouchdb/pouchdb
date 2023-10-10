@@ -51,7 +51,7 @@ describe('migration', function () {
     return Promise.all(scenarios.map(function ({ scenario }) {
       var match = scenario.match(/PouchDB v([.\d]+)/);
       if (!match) {
-        return testUtils.Promise.resolve();
+        return Promise.resolve();
       }
 
       const loader = testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-postfixed.js');
@@ -882,7 +882,7 @@ describe('migration', function () {
 
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
-          var chain = testUtils.Promise.resolve();
+          var chain = Promise.resolve();
           tree.forEach(function (docs) {
             chain = chain.then(function () {
               return oldPouch.bulkDocs(docs, {new_edits: false});
