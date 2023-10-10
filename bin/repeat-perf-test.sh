@@ -38,7 +38,7 @@ fi
 
 echo
 if [[ -z "${PERF_REPEATS-}" ]]; then
-  log "Running perf tests endlessly on:"
+  log "Running perf tests ENDLESSLY on:"
 else
   log "Running perf tests $PERF_REPEATS times on:"
 fi
