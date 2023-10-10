@@ -7,8 +7,6 @@ var querystring = require("querystring");
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
 
-var devserver = require('./dev-server.js');
-
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
@@ -248,5 +246,7 @@ async function startTest() {
 if (process.env.MANUAL_DEV_SERVER) {
   startTest();
 } else {
+  // dev-server.js rebuilds bundles when required
+  const devserver = require('./dev-server.js');
   devserver.start(startTest);
 }
