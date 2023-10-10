@@ -310,7 +310,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Changes with filter not present in ddoc', function (done) {
-      this.timeout(15000);
       const docs = [
         {_id: '1', integer: 1},
         { _id: '_design/foo',
@@ -339,7 +338,7 @@ adapters.forEach(function (adapter) {
             });
           } catch (e) {
             if (e !== caughtErrors[0]) {
-              return new Error("unexpected error");
+              return new Error("unexpected error", { cause: e });
             }
           }
           if (caughtErrors.length !== 1) {
@@ -387,7 +386,7 @@ adapters.forEach(function (adapter) {
           }
           catch (e) {
             if (e !== caughtErrors[0]) {
-              return new Error("unexpected error");
+              return new Error("unexpected error", { cause: e });
             }
           }
 
