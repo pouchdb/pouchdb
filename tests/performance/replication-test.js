@@ -13,7 +13,7 @@ module.exports = function (PouchDB, Promise) {
     this.localPouches = [];
   };
 
-  PullRequestTestObject.prototype.setup = function (itr, gens) {
+  PullRequestTestObject.prototype.setup = function (itr, _, gens) {
     var self = this;
     return function (localDB, callback) {
       var remoteDBOpts = {ajax: {pool: {maxSockets: MAX_SOCKETS}}};
