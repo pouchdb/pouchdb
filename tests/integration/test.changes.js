@@ -311,26 +311,43 @@ adapters.forEach(function (adapter) {
 
     it('Changes with filter not present in ddoc', function (done) {
       this.timeout(15000);
-      var docs = [
+      const docs = [
         {_id: '1', integer: 1},
         { _id: '_design/foo',
           integer: 4,
           filters: { even: 'function (doc) { return doc.integer % 2 === 1; }' }
         }
       ];
-      var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function () {
-        db.changes({
-          filter: 'foo/odd',
-          limit: 2,
-          include_docs: true
-        }).on('error', function (err) {
-          err.name.should.equal('not_found');
-          err.status.should.equal(testUtils.errors.MISSING_DOC.status,
-                                  'correct error status returned');
-          done();
-        });
-      });
+      const caughtErrors = [];
+      const db = new PouchDB(dbs.name);
+
+      testUtils.promisify(testUtils.writeDocs)(db, docs)
+        .then(async () => {
+          try {
+            db.changes({
+              filter: 'foo/odd',
+              limit: 2,
+              include_docs: true
+            }).on('error', function (err) {
+              assert.equal(
+                err.status,
+                testUtils.errors.MISSING_DOC.status,
+                'correct error status returned'
+              );
+              assert.equal(err.name, 'not_found');
+              caughtErrors.push(err);
+            });
+          } catch (e) {
+            if (e !== caughtErrors[0]) {
+              throw new Error("unexpected error");
+            }
+          }
+          if (caughtErrors.length !== 1) {
+            throw new Error("changes completed without expected error");
+          }
+        })
+        .then(done)
+        .catch(done);
     });
 
     it('Changes with `filters` key not present in ddoc', function (done) {
@@ -370,13 +387,13 @@ adapters.forEach(function (adapter) {
           }
           catch (e) {
             if (e !== caughtErrors[0]) {
-            return new Error("unexpected error");
+              throw new Error("unexpected error");
+            }
           }
-        }
 
           if (caughtErrors.length !== 1) {
-          return new Error("changes completed without expected error");
-        }
+            throw new Error("changes completed without expected error");
+          }
         })
         .then(done)
         .catch(done);
