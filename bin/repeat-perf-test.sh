@@ -50,6 +50,8 @@ for treeish in "$@"; do
   log "  $((i=i+1)). $(git show --oneline --no-patch "$treeish") ($treeish)"
 done
 log
+log "!!! This may cause strange issues if you have uncomitted changes. !!!"
+log
 log "Press <enter> to continue."
 echo
 read -r
