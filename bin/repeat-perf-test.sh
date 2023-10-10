@@ -11,7 +11,7 @@ cleanup() {
     kill "$SERVER_PID"
     log "Shutdown complete."
   fi
-  rm "$flagFileDevServerRunning"
+  ! [[ -f "$flagFileDevServerRunning" ]] || rm "$flagFileDevServerRunning"
 }
 trap cleanup EXIT
 
