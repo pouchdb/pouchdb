@@ -122,8 +122,7 @@ commonUtils.loadPouchDBForBrowser = function (plugins) {
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
 commonUtils.asyncLoadScript = function (url) {
-  console.log('Loading script asynchronously:', url);
-  return new Promise(function (resolve, reject) {
+  return new commonUtils.Promise(function (resolve, reject) {
     // Create a new script and setup the basics.
     var script = document.createElement("script");
 
@@ -176,5 +175,9 @@ commonUtils.createDocId = function (i) {
   }
   return 'doc_' + intString;
 };
+
+var PouchForCoverage = require('../packages/node_modules/pouchdb-for-coverage');
+var pouchUtils = PouchForCoverage.utils;
+commonUtils.Promise = pouchUtils.Promise;
 
 module.exports = commonUtils;
