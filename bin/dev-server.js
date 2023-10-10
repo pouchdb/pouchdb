@@ -2,10 +2,7 @@
 
 'use strict';
 
-var watch = require('watch-glob');
 var http_server = require('http-server');
-var debounce = require('lodash.debounce');
-var buildPouchDB = require('./build-pouchdb');
 var browserify = require('browserify');
 var fs = require('fs');
 
@@ -43,6 +40,7 @@ var rebuildPromise = Promise.resolve();
 
 function rebuildPouch() {
   if (!process.env.NO_REBUILD_POUCHDB) {
+    const buildPouchDB = require('./build-pouchdb');
     rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
       console.log('Rebuilt packages/node_modules/pouchdb');
     }).catch(console.error);
@@ -79,6 +77,8 @@ function rebuildPerf() {
 }
 
 function watchAll() {
+  const watch = require('watch-glob');
+  const debounce = require('lodash.debounce');
   watch(['packages/node_modules/*/src/**/*.js'],
     debounce(rebuildPouch, 700, {leading: true}));
   watch(['tests/integration/utils.js'],
