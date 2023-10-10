@@ -923,7 +923,6 @@ adapters.forEach(function (adapter) {
 
     it("#3579 changes firing 1 too many times", function () {
       var db = new PouchDB(dbs.name);
-      var Promise = Promise;
       return db.bulkDocs([{}, {}, {}]).then(function () {
         var changes = db.changes({
           since: 'now',

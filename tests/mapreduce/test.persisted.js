@@ -4,8 +4,6 @@ describe('test.persisted.js', function () {
   var dbType = testUtils.adapterType();
   var dbName = testUtils.adapterUrl(dbType, 'testdb');
 
-  var Promise = Promise;
-
   function setTimeoutPromise(time) {
     return new Promise(function (resolve) {
       setTimeout(function () { resolve(true); }, time);

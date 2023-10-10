@@ -1949,7 +1949,6 @@ adapters.forEach(function (adapters) {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = Promise;
 
       // id() is the first thing called
       var origId = remote.id;
@@ -2253,7 +2252,6 @@ adapters.forEach(function (adapters) {
     it('(#4963) Ensure successful docs are saved but seq not updated if single doc fails to replicate', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = Promise;
 
       // 10 test documents
       var num = 10;
@@ -3636,7 +3634,6 @@ adapters.forEach(function (adapters) {
     it('#3606 - live replication with filtered ddoc', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = Promise;
 
       return remote.bulkDocs([{
           _id: '_design/myddoc',
@@ -3670,7 +3667,6 @@ adapters.forEach(function (adapters) {
     it('#3606 - live repl with filtered ddoc+query_params', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = Promise;
 
       return remote.bulkDocs([{
           _id: '_design/myddoc',
@@ -3705,7 +3701,6 @@ adapters.forEach(function (adapters) {
     it('#3606 - live repl with doc_ids', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = Promise;
 
       return remote.bulkDocs([{
         _id: '_design/myddoc',
@@ -3739,7 +3734,6 @@ adapters.forEach(function (adapters) {
     it('#3606 - live repl with view', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = Promise;
 
       return remote.bulkDocs([{
         _id: '_design/myddoc',
@@ -3778,7 +3772,6 @@ adapters.forEach(function (adapters) {
     it('#3569 - 409 during replication', function () {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = Promise;
 
       // we know we're easily going to go over that limit
       // because of all the parallel replications we're doing

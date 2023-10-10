@@ -1,8 +1,6 @@
 'use strict';
 
 describe('test.basic.js', function () {
-  var Promise = Promise;
-
   it('should create an index', function () {
     var db = context.db;
     var index = {

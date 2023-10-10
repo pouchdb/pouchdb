@@ -13,9 +13,6 @@ viewTypes.forEach(function (viewType) {
 function tests(suiteName, dbName, dbType, viewType) {
 
   describe(suiteName, function () {
-
-    var Promise = Promise;
-
     var createView;
     if (dbType === 'http' || viewType === 'persisted') {
       createView = function (db, viewObj) {
