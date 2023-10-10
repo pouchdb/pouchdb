@@ -89,7 +89,6 @@ function watchAll() {
 
 var filesWritten = false;
 
-// TODO this needs handling differently
 Promise.resolve().then(function () {
   if (process.env.TRAVIS) {
     return; // don't bother rebuilding in Travis; we already built
