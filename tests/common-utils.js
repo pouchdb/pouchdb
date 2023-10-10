@@ -122,6 +122,7 @@ commonUtils.loadPouchDBForBrowser = function (plugins) {
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
 commonUtils.asyncLoadScript = function (url) {
+  console.log('Loading script asynchronously:', url);
   return new commonUtils.Promise(function (resolve, reject) {
     // Create a new script and setup the basics.
     var script = document.createElement("script");
