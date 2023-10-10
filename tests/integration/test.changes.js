@@ -324,7 +324,7 @@ adapters.forEach(function (adapter) {
       testUtils.promisify(testUtils.writeDocs)(db, docs)
         .then(async () => {
           try {
-            db.changes({
+            await db.changes({
               filter: 'foo/odd',
               limit: 2,
               include_docs: true
