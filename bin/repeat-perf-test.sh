@@ -6,7 +6,7 @@ log() { echo "[$scriptName] $*"; }
 mkdir -p ./perf-test-results
 flagFileDevServerRunning=./perf-test-results/.dev-server-started
 cleanup() {
-  if [[ -n ${SERVER_PID-} ]] && ps --pid "$SERVER_PID"; then
+  if [[ -n ${SERVER_PID-} ]] && ps --pid "$SERVER_PID" >/dev/null; then
     log "Shutting down dev server..."
     kill "$SERVER_PID"
     log "Shutdown complete."
