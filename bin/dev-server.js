@@ -99,7 +99,7 @@ Promise.resolve().then(function () {
     rebuildPerf()
   ]);
 }).then(function () {
-  console.log('Rebuilt all JS bundles');
+  console.log('Rebuilt PouchDB/test/perf JS bundles');
   filesWritten = true;
   checkReady();
 });
