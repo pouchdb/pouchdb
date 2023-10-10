@@ -8,7 +8,7 @@ flagFileDevServerRunning=./perf-test-results/.dev-server-started
 cleanup() {
   if [[ -n ${SERVER_PID-} ]] && ps --pid "$SERVER_PID"; then
     log "Shutting down dev server..."
-    kill "$SERVER_PID"
+    kill "-$SERVER_PID"
     log "Shutdown complete."
   fi
   rm "$flagFileDevServerRunning"
