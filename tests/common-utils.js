@@ -174,8 +174,4 @@ commonUtils.createDocId = function (i) {
   return 'doc_' + intString;
 };
 
-var PouchForCoverage = require('../packages/node_modules/pouchdb-for-coverage');
-var pouchUtils = PouchForCoverage.utils;
-commonUtils.Promise = pouchUtils.Promise;
-
 module.exports = commonUtils;
