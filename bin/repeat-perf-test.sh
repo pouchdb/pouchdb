@@ -77,8 +77,6 @@ log "Building tests..."
 npm run build-test
 
 iterate_tests() {
-  log "Pausing..."
-  read -r
   for commit in "${commits[@]}"; do
     log "Running perf tests on $commit..."
     set -x
