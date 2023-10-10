@@ -37,10 +37,10 @@ EOF
 fi
 
 echo
-if [[ -z "${TEST_ITERATIONS-}" ]]; then
+if [[ -z "${REPEAT_ITERATIONS-}" ]]; then
   log "Running perf tests endlessly on:"
 else
-  log "Running perf tests $TEST_ITERATIONS times on:"
+  log "Running perf tests $REPEAT_ITERATIONS times on:"
 fi
 log
 declare -a commits
@@ -107,14 +107,14 @@ until [[ -f "$flagFileDevServerRunning" ]]; do sleep 1; done
 log "Dev server started OK!"
 
 log "Running tests..."
-if [[ -z "${TEST_ITERATIONS-}" ]]; then
+if [[ -z "${REPEAT_ITERATIONS-}" ]]; then
   while true; do
     iterate_tests
   done
 else
-  while ((TEST_ITERATIONS-- > 0)); do
+  while ((REPEAT_ITERATIONS-- > 0)); do
     iterate_tests
-    log "Iterations remaining: $TEST_ITERATIONS"
+    log "Iterations remaining: $REPEAT_ITERATIONS"
   done
 fi
 
