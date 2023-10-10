@@ -32,6 +32,12 @@ if (process.env.COUCH_HOST) {
 if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }
+if (process.env.USE_MINIFIED) {
+  queryParams.iterations = process.env.USE_MINIFIED;
+}
+if (process.env.SRC_ROOT) {
+  queryParams.iterations = process.env.SRC_ROOT;
+}
 
 var rebuildPromise = Promise.resolve();
 
@@ -94,7 +100,7 @@ Promise.resolve().then(function () {
     rebuildPerf()
   ]);
 }).then(function () {
-  console.log('Rebuilt PouchDB/test/perf JS bundles');
+  console.log('Rebuilt all JS bundles');
   filesWritten = true;
   checkReady();
 });

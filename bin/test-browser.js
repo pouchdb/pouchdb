@@ -229,6 +229,12 @@ async function startTest() {
         process.exit(!process.env.PERF && runner.failed ? 1 : 0);
       }
     } catch (e) {
+      //if (e.message.includes('window.testEvents is not a function')) {
+      //  console.log('window.testEvents is not available.  Waiting for webrunner.js to load...');
+      //  console.log(await page.evaluate('document.documentElement.innerHTML'));
+      //  return;
+      //}
+
       console.error('Tests failed:', e);
 
       clearInterval(interval);
