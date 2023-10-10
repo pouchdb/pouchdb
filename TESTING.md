@@ -131,8 +131,8 @@ minified version, the Webpack version, etc.
 #### `USE_MINIFIED`
 
 This changes the file extension used for loading PouchDB files in the browser.
-We use this in CI to select the minified version of PouchDB and its adapters,
-plugins, etc.
+We use this in CI and performance testing to select the minified version of
+PouchDB and its adapters, plugins, etc.
 
 #### `SERVER` (default: `pouchdb-express-router`)
 
