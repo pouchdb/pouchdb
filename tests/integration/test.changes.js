@@ -309,7 +309,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Changes with filter not present in ddoc', function (done) {
+    it('Changes with filter not present in ddoc', async function () {
       const docs = [
         {_id: '1', integer: 1},
         { _id: '_design/foo',
@@ -317,39 +317,34 @@ adapters.forEach(function (adapter) {
           filters: { even: 'function (doc) { return doc.integer % 2 === 1; }' }
         }
       ];
-      const caughtErrors = [];
       const db = new PouchDB(dbs.name);
 
-      testUtils.promisify(testUtils.writeDocs)(db, docs)
-        .then(async () => {
-          try {
-            await db.changes({
-              filter: 'foo/odd',
-              limit: 2,
-              include_docs: true
-            }).on('error', function (err) {
-              assert.equal(
-                err.status,
-                testUtils.errors.MISSING_DOC.status,
-                'correct error status returned'
-              );
-              assert.equal(err.name, 'not_found');
-              caughtErrors.push(err);
-            });
-          } catch (e) {
-            if (e !== caughtErrors[0]) {
-              return new Error("unexpected error", { cause: e });
-            }
-          }
-          if (caughtErrors.length !== 1) {
-            return new Error("changes completed without expected error");
-          }
-        })
-        .then(done)
-        .catch(done);
+      await testUtils.promisify(testUtils.writeDocs)(db, docs);
+
+      const caughtErrors = [];
+      const changes = db.changes({
+        filter: 'foo/odd',
+        limit: 2,
+        include_docs: true
+      });
+
+      changes.on('error', (err) => {
+        assert.equal(
+          err.status,
+          testUtils.errors.MISSING_DOC.status,
+          'correct error status returned'
+        );
+        assert.equal(err.name, 'not_found');
+        caughtErrors.push(err);
+      });
+
+      // await the end of changes and confirm the error,
+      // otherwise it will be a dangeling or false negative test result.
+      await assert.isRejected(changes, "changes is rejected");
+      assert.lengthOf(caughtErrors, 1, "changes emitted the expected error");
     });
 
-    it('Changes with `filters` key not present in ddoc', function (done) {
+    it('Changes with `filters` key not present in ddoc', async function () {
       const docs = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
@@ -364,38 +359,31 @@ adapters.forEach(function (adapter) {
           }
         }
       ];
-      const caughtErrors = [];
       const db = new PouchDB(dbs.name);
 
-      testUtils.promisify(testUtils.writeDocs)(db, docs)
-        .then(async () => {
-          try {
-            await db.changes({
-              filter: 'foo/even',
-              limit: 2,
-              include_docs: true
-            }).on('error', function (err) {
-              assert.equal(
-                err.status,
-                testUtils.errors.MISSING_DOC.status,
-                'correct error status returned'
-              );
-              assert.equal(err.name, 'not_found');
-              caughtErrors.push(err);
-            });
-          }
-          catch (e) {
-            if (e !== caughtErrors[0]) {
-              return new Error("unexpected error", { cause: e });
-            }
-          }
+      await testUtils.promisify(testUtils.writeDocs)(db, docs);
 
-          if (caughtErrors.length !== 1) {
-            return new Error("changes completed without expected error");
-          }
-        })
-        .then(done)
-        .catch(done);
+      const caughtErrors = [];
+      const changes = db.changes({
+        filter: 'foo/even',
+        limit: 2,
+        include_docs: true
+      });
+
+      changes.on('error', (err) => {
+        assert.equal(
+          err.status,
+          testUtils.errors.MISSING_DOC.status,
+          'correct error status returned'
+        );
+        assert.equal(err.name, 'not_found');
+        caughtErrors.push(err);
+      });
+
+      // await the end of changes and confirm the error,
+      // otherwise it will be a dangeling or false negative test result.
+      await assert.isRejected(changes, "changes is rejected");
+      assert.lengthOf(caughtErrors, 1, "changes emitted the expected error");
     });
 
     it('Changes limit and filter', function (done) {
