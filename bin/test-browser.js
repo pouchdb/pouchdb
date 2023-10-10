@@ -149,12 +149,9 @@ function BenchmarkConsoleReporter(runner) {
 function BenchmarkJsonReporter(runner) {
   runner.on('end', results => {
     if (runner.completed) {
-      const { execSync } = require('child_process');
       const { mkdirSync, writeFileSync } = require('fs');
 
-      const exec = cmd => execSync(cmd, { encoding:'utf-8' }).trim();
-
-      results.gitDescription = exec('git rev-parse HEAD');
+      results.srcRoot = process.env.SRC_ROOT;
 
       const resultsDir = 'perf-test-results';
       mkdirSync(resultsDir, { recursive: true });
