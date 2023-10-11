@@ -9,10 +9,9 @@ var nextTick = (typeof process === 'undefined' || process.browser) ?
 var grep;
 var iterations;
 if (global.window && global.window.location && global.window.location.search) {
-  grep = global.window.location.search.match(/[&?]grep=([^&]+)/);
-  grep = grep && grep[1];
-  iterations = global.window.location.search.match(/[&?]iterations=([^&]+)/);
-  iterations = iterations && parseInt(iterations[1], 10);
+  const usp = new URLSearchParams(global.window.location.search.slice(1));
+  grep = usp.get('grep');
+  iterations = parseInt(usp.get('iterations'), 10);
 } else if (process && process.env) {
   grep = process.env.GREP;
   iterations = process.env.ITERATIONS && parseInt(process.env.ITERATIONS, 10);
