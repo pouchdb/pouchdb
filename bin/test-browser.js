@@ -3,7 +3,7 @@
 
 const playwright = require('playwright');
 
-var querystring = require("querystring");
+const { identity, pickBy } = require('lodash');
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
 
@@ -36,50 +36,25 @@ if (process.env.PERF) {
   testUrl = testRoot + 'integration/index.html';
 }
 
-var qs = { remote: 1 };
-
-if (process.env.INVERT) {
-  qs.invert = process.env.INVERT;
-}
-if (process.env.GREP) {
-  qs.grep = process.env.GREP;
-}
-if (process.env.ADAPTERS) {
-  qs.adapters = process.env.ADAPTERS;
-}
-if (process.env.VIEW_ADAPTERS) {
-  qs.viewAdapters = process.env.VIEW_ADAPTERS;
-}
-if (process.env.AUTO_COMPACTION) {
-  qs.autoCompaction = true;
-}
-if (process.env.SERVER) {
-  qs.SERVER = process.env.SERVER;
-}
-if (process.env.SKIP_MIGRATION) {
-  qs.SKIP_MIGRATION = process.env.SKIP_MIGRATION;
-}
-if (process.env.POUCHDB_SRC) {
-  qs.src = process.env.POUCHDB_SRC;
-}
-if (process.env.PLUGINS) {
-  qs.plugins = process.env.PLUGINS;
-}
-if (process.env.COUCH_HOST) {
-  qs.couchHost = process.env.COUCH_HOST;
-}
-if (process.env.ITERATIONS) {
-  qs.iterations = process.env.ITERATIONS;
-}
-if (process.env.USE_MINIFIED) {
-  qs.useMinified = process.env.USE_MINIFIED;
-}
-if (process.env.SRC_ROOT) {
-  qs.srcRoot = process.env.SRC_ROOT;
-}
+const qs = {
+  remote: 1,
+  invert: process.env.INVERT,
+  grep: process.env.GREP,
+  adapters: process.env.ADAPTERS,
+  viewAdapters: process.env.VIEW_ADAPTERS,
+  autoCompaction: process.AUTO_COMPACTION,
+  SERVER: process.env.SERVER,
+  SKIP_MIGRATION: process.env.SKIP_MIGRATION,
+  srcRoot: process.env.SRC_ROOT,
+  src: process.env.POUCHDB_SRC,
+  useMinified: process.env.USE_MINIFIED,
+  plugins: process.env.PLUGINS,
+  couchHost: process.env.COUCH_HOST,
+  iterations: process.env.ITERATIONS,
+};
 
 testUrl += '?';
-testUrl += querystring.stringify(qs);
+testUrl += new URLSearchParams(pickBy(qs, identity));
 
 class RemoteRunner {
   constructor() {
