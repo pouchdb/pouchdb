@@ -15,12 +15,12 @@ commonUtils.params = function () {
     return process.env;
   }
   var paramStr = document.location.search.slice(1);
-  return paramStr.split('&').reduce(function (acc, val) {
-    if (!val) {
-      return acc;
-    }
-    var tmp = val.split('=');
-    acc[tmp[0]] = decodeURIComponent(tmp[1]) || true;
+  const usp = new URLSearchParams(paramStr);
+  return usp.entries().reduce((acc, [k, v]) => {
+    // REVIEW: This preserves previous behaviour: an empty value is re-mapped to
+    // `true`.  This is surprising, and differs from the handling of env vars in
+    // node (see above).
+    acc[k] = v || true;
     return acc;
   }, {});
 };
