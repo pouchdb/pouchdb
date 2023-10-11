@@ -14,7 +14,7 @@ commonUtils.params = function () {
   if (commonUtils.isNode()) {
     return process.env;
   }
-  const usp = new URLSearchParams(window.location.search);
+  const usp = new URLSearchParams(document.location.search);
   return usp.entries().reduce((acc, [k, v]) => {
     // REVIEW: This preserves previous behaviour: an empty value is re-mapped to
     // `true`.  This is surprising, and differs from the handling of env vars in
