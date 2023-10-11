@@ -30,10 +30,10 @@ if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }
 if (process.env.USE_MINIFIED) {
-  queryParams.iterations = process.env.USE_MINIFIED;
+  queryParams.useMinified = process.env.USE_MINIFIED;
 }
 if (process.env.SRC_ROOT) {
-  queryParams.iterations = process.env.SRC_ROOT;
+  queryParams.srcRoot = process.env.SRC_ROOT;
 }
 
 var rebuildPromise = Promise.resolve();
