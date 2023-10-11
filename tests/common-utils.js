@@ -99,17 +99,21 @@ commonUtils.loadPouchDBForNode = function (plugins) {
   return PouchDB;
 };
 
+commonUtils.pouchdbSrc = function () {
+  const scriptPath = '../../packages/node_modules/pouchdb/dist';
+  const params = commonUtils.params();
+  return params.src || `${scriptPath}/pouchdb.js`;
+};
+
 commonUtils.loadPouchDBForBrowser = function (plugins) {
-  var params = commonUtils.params();
   var scriptPath = '../../packages/node_modules/pouchdb/dist';
-  var pouchdbSrc = params.src || `${scriptPath}/pouchdb.js`;
 
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
     return `${scriptPath}/pouchdb.${plugin}.js`;
   });
 
-  var scripts = [pouchdbSrc].concat(plugins);
+  var scripts = [commonUtils.pouchdbSrc()].concat(plugins);
 
   var loadScripts = scripts.reduce((prevScriptLoaded, script) => {
     return prevScriptLoaded.then(() => commonUtils.asyncLoadScript(script));
