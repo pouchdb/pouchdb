@@ -15,6 +15,11 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
+testUtils.isChrome = function () {
+  return (typeof window !== 'undefined') && window.navigator &&
+      /Google Inc/.test(window.navigator.vendor);
+};
+
 testUtils.isIE = function () {
   var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
       navigator.userAgent.toLowerCase() : '';
