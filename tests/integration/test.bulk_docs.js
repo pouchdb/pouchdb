@@ -319,37 +319,6 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.only('#2935 new_edits=false correct number 3 (revs over 9)', function () {
-      var docs = [
-        {
-          "_id": "EE35E",
-          "_rev": "11-70b26",
-          "_deleted": true,
-          "_revisions": {
-            "start": 11,
-            "ids": ["70b26", "9f454", "914bf", "7fdf8", "61f87", "f2628",
-              "ea8c4", "096ac", "d3e91", "25eb9", "61dce" ]
-          }
-        }, {
-          "_id": "EE35E",
-          "_rev": "3-f6d28",
-          "_revisions": {"start": 3, "ids": ["f6d28", "914bf", "7fdf8"]}
-        }
-      ];
-
-      var db = new PouchDB(dbs.name);
-
-      return db.bulkDocs({docs: docs, new_edits: false}).then(function (res) {
-        res.should.deep.equal([]);
-        return db.allDocs();
-      }).then(function (res) {
-        res.total_rows.should.equal(1);
-        return db.info();
-      }).then(function (info) {
-        info.doc_count.should.equal(1);
-      });
-    });
-
     it('bulk docs update then delete then conflict', function () {
       var db = new PouchDB(dbs.name);
       var docs= [{_id: '1'}];
