@@ -8,13 +8,13 @@ var nextTick = (typeof process === 'undefined' || process.browser) ?
 
 var grep;
 var iterations;
-if (global.window && global.window.location && global.window.location.search) {
-  const usp = new URLSearchParams(global.window.location.search);
-  grep = usp.get('grep');
-  iterations = parseInt(usp.get('iterations'), 10);
-} else if (process && process.env) {
-  grep = process.env.GREP;
-  iterations = process.env.ITERATIONS && parseInt(process.env.ITERATIONS, 10);
+const params = commonUtils.params();
+if (commonUtils.isNode()) {
+  grep = params.GREP;
+  iterations = params.ITERATIONS && parseInt(params.ITERATIONS, 10);
+} else {
+  grep = params.grep;
+  iterations = params.iterations && parseInt(params.iterations, 10);
 }
 
 var adapterUsed;
