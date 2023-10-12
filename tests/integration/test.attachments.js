@@ -3101,10 +3101,7 @@ adapters.forEach(function (adapter) {
     });
 
 
-    var isSafari = (typeof process === 'undefined' || process.browser) &&
-      /Safari/.test(window.navigator.userAgent) &&
-      !/Chrome/.test(window.navigator.userAgent);
-    if (!isSafari && !testUtils.isIE()) {
+    if (!testUtils.isSafari() && !testUtils.isIE()) {
       // skip in safari/ios because of size limit popup
       it('putAttachment and getAttachment with big png data', function (done) {
 
@@ -3113,15 +3110,9 @@ adapters.forEach(function (adapter) {
             var bigimage = require('./deps/bigimage.js');
             cb(null, bigimage);
           } else { // browser
-            var script = document.createElement('script');
-            script.src = 'deps/bigimage.js';
-            document.body.appendChild(script);
-            var timeout = setInterval(function () {
-              if (window.bigimage) {
-                clearInterval(timeout);
-                cb(null, window.bigimage);
-              }
-            }, 500);
+            testUtils.asyncLoadScript('deps/bigimage.js')
+                .then(() => cb(null, window.bigimage))
+                .catch(err => cb(err));
           }
         }
 
