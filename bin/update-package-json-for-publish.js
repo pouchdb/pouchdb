@@ -62,7 +62,7 @@ modules.forEach(function (mod) {
   // Also add "module" member: https://github.com/rollup/rollup/wiki/pkg.module
   pkg.module = './lib/index.es.js';
   // whitelist the files we'll actually publish
-  pkg.files = ['lib', 'dist', 'tonic-example.js'];
+  pkg.files = ['lib', 'dist'];
 
   var jsonString = JSON.stringify(pkg, null, '  ') + '\n';
   fs.writeFileSync(pkgPath, jsonString, 'utf8');

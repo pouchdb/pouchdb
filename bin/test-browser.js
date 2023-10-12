@@ -3,7 +3,7 @@
 
 const playwright = require('playwright');
 
-var querystring = require("querystring");
+const { identity, pickBy } = require('lodash');
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
 
@@ -38,44 +38,23 @@ if (process.env.PERF) {
   testUrl = testRoot + 'integration/index.html';
 }
 
-var qs = { remote: 1 };
-
-if (process.env.INVERT) {
-  qs.invert = process.env.INVERT;
-}
-if (process.env.GREP) {
-  qs.grep = process.env.GREP;
-}
-if (process.env.ADAPTERS) {
-  qs.adapters = process.env.ADAPTERS;
-}
-if (process.env.VIEW_ADAPTERS) {
-  qs.viewAdapters = process.env.VIEW_ADAPTERS;
-}
-if (process.env.AUTO_COMPACTION) {
-  qs.autoCompaction = true;
-}
-if (process.env.SERVER) {
-  qs.SERVER = process.env.SERVER;
-}
-if (process.env.SKIP_MIGRATION) {
-  qs.SKIP_MIGRATION = process.env.SKIP_MIGRATION;
-}
-if (process.env.POUCHDB_SRC) {
-  qs.src = process.env.POUCHDB_SRC;
-}
-if (process.env.PLUGINS) {
-  qs.plugins = process.env.PLUGINS;
-}
-if (process.env.COUCH_HOST) {
-  qs.couchHost = process.env.COUCH_HOST;
-}
-if (process.env.ITERATIONS) {
-  qs.iterations = process.env.ITERATIONS;
-}
+const qs = {
+  remote: 1,
+  invert: process.env.INVERT,
+  grep: process.env.GREP,
+  adapters: process.env.ADAPTERS,
+  viewAdapters: process.env.VIEW_ADAPTERS,
+  autoCompaction: process.AUTO_COMPACTION,
+  SERVER: process.env.SERVER,
+  SKIP_MIGRATION: process.env.SKIP_MIGRATION,
+  src: process.env.POUCHDB_SRC,
+  plugins: process.env.PLUGINS,
+  couchHost: process.env.COUCH_HOST,
+  iterations: process.env.ITERATIONS,
+};
 
 testUrl += '?';
-testUrl += querystring.stringify(qs);
+testUrl += new URLSearchParams(pickBy(qs, identity));
 
 class RemoteRunner {
   constructor() {
@@ -136,9 +115,26 @@ class RemoteRunner {
   }
 }
 
-function BenchmarkReporter(runner) {
+function BenchmarkConsoleReporter(runner) {
   runner.on('benchmark:result', function (obj) {
     console.log('      ', obj);
+  });
+}
+
+function BenchmarkJsonReporter(runner) {
+  runner.on('end', results => {
+    if (runner.completed) {
+      const { mkdirSync, writeFileSync } = require('fs');
+
+      const resultsDir = 'perf-test-results';
+      mkdirSync(resultsDir, { recursive: true });
+
+      const jsonPath = `${resultsDir}/${new Date().toISOString()}.json`;
+      writeFileSync(jsonPath, JSON.stringify(results, null, 2));
+      console.log('Wrote JSON results to:', jsonPath);
+    } else {
+      console.log('Runner failed; JSON will not be writted.');
+    }
   });
 }
 
@@ -148,7 +144,15 @@ async function startTest() {
 
   const runner = new RemoteRunner();
   new MochaSpecReporter(runner);
-  new BenchmarkReporter(runner);
+  new BenchmarkConsoleReporter(runner);
+
+  if (process.env.JSON_REPORTER) {
+    if (!process.env.PERF) {
+      console.log('!!! JSON_REPORTER should only be set if PERF is also set.');
+      process.exit(1);
+    }
+    new BenchmarkJsonReporter(runner);
+  }
 
   const options = {
     headless: true,

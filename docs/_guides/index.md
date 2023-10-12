@@ -8,7 +8,7 @@ sidebar: guides_nav.html
 
 Welcome to the PouchDB guide! Consider this your starting point for anything and everything related to the world of PouchDB and CouchDB.
 
-For a quicker TodoMVC-based tutorial, you can also check out the ["Getting Started" guide](/getting-started.html).
+For a quicker TodoMVC-based tutorial, you can also check out the ["Getting Started" guide]({{ site.baseurl }}/getting-started.html).
 
 Feel free to skip ahead using the sidebar at any time.
 
