@@ -338,9 +338,7 @@ adapters.forEach(function (adapter) {
         caughtErrors.push(err);
       });
 
-      // await the end of changes and confirm the error,
-      // otherwise it will be a dangeling or false negative test result.
-      await assert.isRejected(changes, "changes is rejected");
+      await assert.isRejected(changes, "completes with an exception");
       assert.lengthOf(caughtErrors, 1, "changes emitted the expected error");
     });
 
@@ -380,9 +378,7 @@ adapters.forEach(function (adapter) {
         caughtErrors.push(err);
       });
 
-      // await the end of changes and confirm the error,
-      // otherwise it will be a dangeling or false negative test result.
-      await assert.isRejected(changes, "changes is rejected");
+      await assert.isRejected(changes, "completes with an exception");
       assert.lengthOf(caughtErrors, 1, "changes emitted the expected error");
     });
 
