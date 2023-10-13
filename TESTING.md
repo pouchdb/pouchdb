@@ -107,7 +107,7 @@ not available.
 
 Use this to request that a specific test is run; if you set `GREP='name of
 test'` then only those tests whose names include the string `name of test` will
-run.
+run.  Regular expressions are also supported.
 
 #### `PLUGINS` (default: empty)
 
