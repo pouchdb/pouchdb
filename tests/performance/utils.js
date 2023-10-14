@@ -10,7 +10,7 @@ var grep;
 var iterations;
 if (global.window && global.window.location && global.window.location.search) {
   grep = global.window.location.search.match(/[&?]grep=([^&]+)/);
-  grep = grep && grep[1];
+  grep = grep && decodeURIComponent(grep[1]);
   iterations = global.window.location.search.match(/[&?]iterations=([^&]+)/);
   iterations = iterations && parseInt(iterations[1], 10);
 } else if (process && process.env) {
@@ -23,9 +23,11 @@ var adapterUsed;
 exports.runTests = function (PouchDB, suiteName, testCases, callback) {
 
   testCases = testCases.filter(function (testCase) {
-    if (grep && suiteName.indexOf(grep) === -1 &&
-      testCase.name.indexOf(grep) === -1) {
-      return false;
+    if (grep) {
+      const regexp = new RegExp(grep);
+      if (!regexp.test(suiteName) && !regexp.test(testCase.name)) {
+        return false;
+      }
     }
     var iter = typeof iterations === 'number' ? iterations :
       testCase.iterations;
