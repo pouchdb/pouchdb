@@ -22,9 +22,11 @@ var adapterUsed;
 exports.runTests = function (PouchDB, suiteName, testCases, callback) {
 
   testCases = testCases.filter(function (testCase) {
-    if (grep && suiteName.indexOf(grep) === -1 &&
-      testCase.name.indexOf(grep) === -1) {
-      return false;
+    if (grep) {
+      const regexp = new RegExp(grep);
+      if (!regexp.test(suiteName) && !regexp.test(testCase.name)) {
+        return false;
+      }
     }
     var iter = typeof iterations === 'number' ? iterations :
       testCase.iterations;
