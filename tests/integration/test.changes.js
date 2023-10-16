@@ -72,7 +72,7 @@ adapters.forEach(function (adapter) {
         {_id: '10', integer: 10}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         var changeCount = 0;
         var promise = db.changes().on('change', function handler() {
           changeCount++;
@@ -421,7 +421,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         var promise = db.changes({
           return_docs: true,
           filter: 'even',
@@ -753,7 +753,7 @@ adapters.forEach(function (adapter) {
         {_id: '3', integer: 3}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           limit: 0
@@ -794,7 +794,7 @@ adapters.forEach(function (adapter) {
         });
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err) {
+      db.bulkDocs({ docs }, function (err) {
         if (err) {
           return done(err);
         }
@@ -1443,7 +1443,7 @@ adapters.forEach(function (adapter) {
         });
       }
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({return_docs: true}).on('complete', function (res) {
           res.results.length.should.equal(num);
           done();
@@ -1560,7 +1560,7 @@ adapters.forEach(function (adapter) {
         docs.push({ _id: 'doc_' + i});
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err) {
+      db.bulkDocs({ docs }, function (err) {
         if (err) {
           return done(err);
         }
@@ -1725,7 +1725,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           selector: {"user": "foo"},
@@ -1753,7 +1753,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           selector: {"user": "foo"},
@@ -1796,7 +1796,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         return db.changes({
           return_docs: true,
           limit: 1,

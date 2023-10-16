@@ -39,7 +39,7 @@ module.exports = function (PouchDB, Promise) {
       }
 
       var addGeneration = function (generationCount, docs) {
-        return self.remoteDB.bulkDocs({docs: docs}, localOpts)
+        return self.remoteDB.bulkDocs({docs}, localOpts)
           .then(function (bulkDocsResponse) {
             --generationCount;
             if (generationCount <= 0) {

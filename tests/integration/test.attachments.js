@@ -1895,7 +1895,7 @@ adapters.forEach(function (adapter) {
             id: "doc",
             key: "doc",
             value: {
-              rev: rev,
+              rev,
               deleted: true
             }
           }
@@ -2138,7 +2138,7 @@ adapters.forEach(function (adapter) {
       function sort(a, b) {
         return a.id.localeCompare(b.id);
       }
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.allDocs({ include_docs: true }, function (err, res) {
           for (var i = 0; i < docs.length; i++) {
             var attachmentsNb = typeof docs[i]._attachments !== 'undefined' ?
@@ -3058,7 +3058,7 @@ adapters.forEach(function (adapter) {
         return db.get('doc', {attachments: true});
       }).then(function (doc) {
         doc._attachments['foo.txt'].data.should.equal('dG90bw==');
-        return db.get('doc', {rev: rev, attachments: true});
+        return db.get('doc', {rev, attachments: true});
       }).then(function (doc) {
         doc._attachments['foo.txt'].data.should.equal('Zm9vYmFy');
       });
@@ -3235,7 +3235,7 @@ adapters.forEach(function (adapter) {
       return db.bulkDocs(docs).then(function () {
         keys = ['bin_doc', 'thisDocIsNotInDB'];
         return db.allDocs({
-          keys: keys,
+          keys,
           attachments: true,
           binary: true,
           include_docs: true
