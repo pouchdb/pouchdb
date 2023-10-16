@@ -121,7 +121,7 @@ if [ "$SERVER" == "couchdb-master" ]; then
   ./node_modules/.bin/add-cors-to-couchdb $COUCH_HOST
 fi
 
-printf "Waiting for host to start on $COUCH_HOST..."
+printf "Waiting for host to start on %s..." "$COUCH_HOST"
 WAITING=0
 until curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST; do
     if [ $WAITING -eq 4 ]; then
