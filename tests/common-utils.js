@@ -14,15 +14,15 @@ commonUtils.params = function () {
   if (commonUtils.isNode()) {
     return process.env;
   }
-  var paramStr = document.location.search.slice(1);
-  return paramStr.split('&').reduce(function (acc, val) {
-    if (!val) {
-      return acc;
-    }
-    var tmp = val.split('=');
-    acc[tmp[0]] = decodeURIComponent(tmp[1]) || true;
-    return acc;
-  }, {});
+  const usp = new URLSearchParams(window.location.search);
+  const params = {};
+  for (const [k, v] of usp) {
+    // This preserves previous behaviour: an empty value is re-mapped to
+    // `true`.  This is surprising, and differs from the handling of env vars in
+    // node (see above).
+    params[k] = v || true;
+  }
+  return params;
 };
 
 commonUtils.adapters = function () {
@@ -99,17 +99,21 @@ commonUtils.loadPouchDBForNode = function (plugins) {
   return PouchDB;
 };
 
+commonUtils.pouchdbSrc = function () {
+  const scriptPath = '../../packages/node_modules/pouchdb/dist';
+  const params = commonUtils.params();
+  return params.src || `${scriptPath}/pouchdb.js`;
+};
+
 commonUtils.loadPouchDBForBrowser = function (plugins) {
-  var params = commonUtils.params();
   var scriptPath = '../../packages/node_modules/pouchdb/dist';
-  var pouchdbSrc = params.src || `${scriptPath}/pouchdb.js`;
 
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
     return `${scriptPath}/pouchdb.${plugin}.js`;
   });
 
-  var scripts = [pouchdbSrc].concat(plugins);
+  var scripts = [commonUtils.pouchdbSrc()].concat(plugins);
 
   var loadScripts = scripts.reduce((prevScriptLoaded, script) => {
     return prevScriptLoaded.then(() => commonUtils.asyncLoadScript(script));
