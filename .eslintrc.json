@@ -39,6 +39,7 @@
     "no-tabs": "error",
     "no-trailing-spaces": "error",
     "no-undef-init": "error",
+    "object-shorthand": "error",
     "semi": ["error", "always"],
     "curly": ["error", "all"],
     "space-unary-ops": ["error", {"words": true}],
