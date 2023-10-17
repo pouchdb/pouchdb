@@ -7,10 +7,6 @@ var adapters = [
   ['local', 'local']
 ];
 
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
-
 adapters.forEach(function (adapters) {
   describe('test.issue3179.js-' + adapters[0] + '-' + adapters[1], function () {
 
@@ -48,6 +44,7 @@ adapters.forEach(function (adapters) {
         });
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
@@ -86,7 +83,7 @@ adapters.forEach(function (adapters) {
         return local.sync(remote);
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
-          console.log('test.issue3179, doc:', doc);
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
@@ -104,12 +101,9 @@ adapters.forEach(function (adapters) {
     });
 
     it('#3179 conflicts synced, live sync', function () {
-      console.log(1, '> #3179 conflicts synced, live sync');
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      console.log(2, '> #3179 conflicts synced, live sync, local, remote', local, remote);
       var sync = local.sync(remote, { live: true });
-      console.log(3, '> #3179 conflicts synced, live sync, started sync');
       function waitForUptodate() {
 
         function defaultToEmpty(promise) {
@@ -169,56 +163,42 @@ adapters.forEach(function (adapters) {
       }
 
       return local.put({ _id: '1'}).then(function () {
-        console.log(4, '> #3179 conflicts synced, live sync, put doc _id:"1"');
         return waitForUptodate();
       }).then(function () {
-        console.log(5, '> #3179 conflicts synced, live sync, waited, cancel sync');
         sync.cancel();
         return waitForUptodate();
       }).then(function () {
-        console.log(6, '> #3179 conflicts synced, live sync, waited, get doc 1');
         return local.get('1').then(function (doc) {
-          console.log(1, '> #3179 conflicts synced, live sync, waited, got doc 1', doc);
           doc.foo = Math.random();
           return local.put(doc);
         });
       }).then(function () {
-        console.log(7, '> #3179 conflicts synced, live sync, did put new doc 1');
         return remote.get('1').then(function (doc) {
-          console.log(8, '> #3179 conflicts synced, live sync, got doc 1', doc);
           doc.foo = Math.random();
           return remote.put(doc);
         });
       }).then(function () {
-        console.log(9, '> #3179 conflicts synced, live sync, did put new new doc 1');
         sync = local.sync(remote, { live: true });
         return waitForUptodate();
       }).then(function () {
-        console.log(10, '> #3179 conflicts synced, live sync, waited, get doc 1 with conflicts');
         return local.get('1', {conflicts: true}).then(function (doc) {
-          console.log(11, '> #3179 conflicts synced, live sync, waited, got doc 1 with conflicts', doc);
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
-        console.log(12, '> #3179 conflicts synced, live sync, removed conflicts[0]');
         return waitForConflictsResolved();
       }).then(function () {
-        console.log(13, '> #3179 conflicts synced, live sync, waited for conflict resolved');
         return local.get('1', {conflicts: true, revs: true});
       }).then(function (localDoc) {
-        console.log(14, '> #3179 conflicts synced, live sync, get local doc 1 with conflicts and revs', localDoc);
         return remote.get('1', {
           conflicts: true,
           revs: true
         }).then(function (remoteDoc) {
-          console.log(15, '> #3179 conflicts synced, live sync, get remote doc 1 with conflicts and revs', remoteDoc);
           remoteDoc.should.deep.equal(localDoc);
         });
       }).then(function () {
-        console.log(16, ' do cleanup ');
         return cleanup();
       }, function (err) {
-        console.log(100, ' err ', err);
         return cleanup().then(function () {
           throw err;
         });
@@ -323,6 +303,7 @@ adapters.forEach(function (adapters) {
         return waitForUptodate();
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {

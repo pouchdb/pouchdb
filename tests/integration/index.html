@@ -7,14 +7,13 @@
   </head>
   <body>
     <div id="mocha"></div>
-    <script src="../../node_modules/promise-polyfill/dist/polyfill.js"></script>
     <script src="../../node_modules/whatwg-fetch/fetch.js"></script>
     <script src="../../node_modules/mocha/mocha.js"></script>
     <script src="../../node_modules/chai/chai.js"></script>
     <script src="../../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
     <script>
       mocha.setup({
-        timeout:1200000,
+        timeout: 20_000,
         ui: 'bdd'
       });
       var should = chai.should();
@@ -44,6 +43,7 @@
     <script src='test.issue2674.js'></script>
     <script src='test.issue3179.js'></script>
     <script src='test.issue3646.js'></script>
+    <script src='test.issue8581.js'></script>
     <script src='test.http.js'></script>
     <script src='test.compaction.js'></script>
     <script src='test.get.js'></script>
@@ -55,6 +55,7 @@
     <script src='test.reserved.js'></script>
     <script src='test.prefix.js'></script>
     <script src='test.deterministicrevs.js'></script>
+    <script src='test.viewadapter.js'></script>
     <script src='browser.worker.js'></script>
     <script type="text/javascript" src="./webrunner.js"></script>
   </body>

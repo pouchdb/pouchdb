@@ -132,5 +132,20 @@ var abstractMapper = abstractMapReduce(
 );
 
 export default function (db) {
-  return db._customFindAbstractMapper || abstractMapper;
+  if (db._customFindAbstractMapper) {
+    return {
+      // Calls the _customFindAbstractMapper, but with a third argument:
+      // the standard findAbstractMapper query/viewCleanup.
+      // This allows the indexeddb adapter to support partial_filter_selector.
+      query: function addQueryFallback(signature, opts) {
+        var fallback = abstractMapper.query.bind(this);
+        return db._customFindAbstractMapper.query.call(this, signature, opts, fallback);
+      },
+      viewCleanup: function addViewCleanupFallback() {
+        var fallback = abstractMapper.viewCleanup.bind(this);
+        return db._customFindAbstractMapper.viewCleanup.call(this, fallback);
+      }
+    };
+  }
+  return abstractMapper;
 }

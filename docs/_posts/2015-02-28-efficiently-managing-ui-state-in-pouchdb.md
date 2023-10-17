@@ -123,6 +123,6 @@ There's no performance benefit to using <code>filter</code>/<code>view</code>/<c
 
 {% include alert/end.html %}
 
-Another neat thing about this code is that it elegantly handles conflicts. Since `{include_docs: true}` will only give us the *winning* revision of a document, we are guaranteed that we'll never show conflicting versions of the same document in the array. We can still handle conflicts in [the usual way](http://pouchdb.com/guides/conflicts.html), and the changes feed will simply tell us if the winning revision has changed.
+Another neat thing about this code is that it elegantly handles conflicts. Since `{include_docs: true}` will only give us the *winning* revision of a document, we are guaranteed that we'll never show conflicting versions of the same document in the array. We can still handle conflicts in [the usual way]({{ site.baseurl }}/guides/conflicts.html), and the changes feed will simply tell us if the winning revision has changed.
 
 I've written [a toy app](http://bl.ocks.org/nolanlawson/3e096160b848689f1058) to demonstrate this code. Feel free to borrow it for your next super-fast PouchDB-powered app.

@@ -40,6 +40,7 @@ describe('test.utils.js', function () {
       newError.name.should.equal(errors.BAD_REQUEST.name);
       newError.message.should.equal(errors.BAD_REQUEST.message,
         'correct error message returned');
+      newError.stack.should.be.a('string');
       newError.reason.should.equal('love needs no message');
     });
   });

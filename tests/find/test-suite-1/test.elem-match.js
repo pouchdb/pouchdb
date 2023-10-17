@@ -98,4 +98,26 @@ describe('test.elem-match.js', function () {
       err.message.should.eq('Query operator $elemMatch must be an object. Received : null');
     });
   });
+
+  it('with null value in array', function () {
+    var db = context.db;
+    var docs = [
+      {_id: '1', values: [null]},
+      {_id: '2', values: [1, null, 3]},
+      {_id: '3', values: [1, 2, 3]}
+    ];
+
+    return db.bulkDocs(docs).then(function () {
+      return db.find({
+        selector: {
+          values: {$elemMatch: {$eq: null}},
+        },
+        fields: ['_id']
+      }).then(function (resp) {
+        resp.docs.map(function (doc) {
+          return doc._id;
+        }).should.deep.equal(['1', '2']);
+      });
+    });
+  });
 });

@@ -261,4 +261,37 @@ describe('test.sorting.js', function () {
       });
     });
   });
+
+  it('#8438 exclude deleted docs', async function () {
+    const db = context.db;
+
+    await db.createIndex({
+      "index": {
+        "fields": ["foo"]
+      },
+      "name": "foo-index",
+      "type": "json"
+    });
+    await db.bulkDocs([
+      {_id: "a1", foo: "a"},
+      {_id: "a2", _deleted: true, foo: "c"},
+      {_id: "b1", foo: "b"}
+    ]);
+
+    const res = await db.find({
+      "selector": {"foo": {$gt: null}},
+      "fields": ["_id", "foo"],
+      "sort": ["foo"]
+    });
+    res.docs.should.deep.equal([
+      {
+        "_id": "a1",
+        "foo": "a"
+      },
+      {
+        "_id": "b1",
+        "foo": "b"
+      }
+    ]);
+  });
 });

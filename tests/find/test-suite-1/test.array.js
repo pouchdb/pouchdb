@@ -728,5 +728,27 @@ describe('test.array.js', function () {
         err.message.should.eq('Query operator $allMatch must be an object. Received string: a');
       });
     });
+
+    it('with null value in array', function () {
+      var db = context.db;
+      var docs = [
+        {_id: '1', values: [null, null]},
+        {_id: '2', values: [1, null, 3]},
+        {_id: '3', values: [1, 2, 3]}
+      ];
+
+      return db.bulkDocs(docs).then(function () {
+        return db.find({
+          selector: {
+            values: {$allMatch: {$eq: null}},
+          },
+          fields: ['_id']
+        }).then(function (resp) {
+          resp.docs.map(function (doc) {
+            return doc._id;
+          }).should.deep.equal(['1']);
+        });
+      });
+    });
   });
 });

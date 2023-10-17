@@ -413,7 +413,7 @@ describe('test.memleak.js -- http adapter', function () {
           pool: false
         }
       };
-      var db_name = host+'/goodluck'+Math.random().toString().substr(4,5);
+      var db_name = host+'/goodluck'+Math.random().toString().slice(4,9);
       var db = new PouchDB(db_name,opts);
       function Finally() { return db.close(); }
       db_name = null;

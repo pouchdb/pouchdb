@@ -1,4 +1,3 @@
-/* global mocha: true */
 (function () {
   'use strict';
 
@@ -9,7 +8,7 @@
     window.removeEventListener("load", startTests);
 
     if (remote) {
-      // Capture logs for selenium output
+      // Capture logs for test runner output
       var logs = [];
 
       (function () {
@@ -42,7 +41,7 @@
 
       })();
 
-      // Capture test events for selenium output
+      // Capture test events for test runner output
       var testEventsBuffer = [];
 
       window.testEvents = function () {

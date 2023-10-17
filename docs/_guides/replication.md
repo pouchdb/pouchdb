@@ -171,7 +171,7 @@ Any PouchDB object can replicate to any other PouchDB object. So for instance, y
 
 This can be very powerful, because it enables lots of fancy scenarios. For example:
 
-1. You have an [in-memory PouchDB](http://pouchdb.com/adapters.html#pouchdb_in_the_browser) that replicates with a local PouchDB, acting as a cache.
+1. You have an [in-memory PouchDB]({{ site.baseurl }}/adapters.html#pouchdb_in_the_browser) that replicates with a local PouchDB, acting as a cache.
 2. You have many remote CouchDB databases that the user may access, and they are all replicated to the same local PouchDB.
 3. You have many local PouchDB databases, which are mirrored to a single remote CouchDB as a backup store.
 

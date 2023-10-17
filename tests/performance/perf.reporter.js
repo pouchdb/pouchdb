@@ -9,7 +9,7 @@ var results = {
   tests: {}
 };
 
-// Capture test events for selenium output
+// Capture test events for test runner output
 var testEventsBuffer = [];
 
 global.testEvents = function () {
@@ -20,7 +20,6 @@ global.testEvents = function () {
 
 // fix for Firefox max timing entries capped to 150:
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1331135
-/* global performance */
 if (typeof performance !== 'undefined' && performance.setResourceTimingBufferSize) {
   performance.setResourceTimingBufferSize(100000);
 }

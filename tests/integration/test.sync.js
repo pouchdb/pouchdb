@@ -7,10 +7,6 @@ var adapters = [
   ['local', 'local']
 ];
 
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
-
 adapters.forEach(function (adapters) {
   describe('test.sync.js-' + adapters[0] + '-' + adapters[1], function () {
 
@@ -62,7 +58,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       // intentionally throw an error during replication
-      remote.allDocs = function () {
+      remote.bulkGet = function () {
         return testUtils.Promise.reject(new Error('flunking you'));
       };
 
@@ -91,7 +87,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       // intentionally throw an error during replication
-      remote.allDocs = function () {
+      remote.bulkGet = function () {
         return testUtils.Promise.reject(new Error('flunking you'));
       };
 
@@ -124,7 +120,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       // intentionally throw an error during replication
-      remote.allDocs = function () {
+      remote.bulkGet = function () {
         return testUtils.Promise.reject(new Error('flunking you'));
       };
 
@@ -153,7 +149,7 @@ adapters.forEach(function (adapters) {
       var remote = new PouchDB(dbs.remote);
 
       // intentionally throw an error during replication
-      remote.allDocs = function () {
+      remote.bulkGet = function () {
         return testUtils.Promise.reject(new Error('flunking you'));
       };
 
@@ -820,48 +816,34 @@ adapters.forEach(function (adapters) {
     });
 
     it('5007 sync 2 databases', function (done) {
-      console.log(1, '> 5997 sync 2 databases');
       var db = new PouchDB(dbs.name);
-      console.log(2, '> 5997 sync 2 databases, db:', db);
 
       var remote1 = new PouchDB(dbs.remote);
       var remote2 = new PouchDB(dbs.remote + '_2');
-      console.log(3, '> 5997 sync 2 databases, remote 1/2:', remote1, remote2);
 
       var sync1 = db.sync(remote1, {live: true});
-      console.log(4, '> 5997 sync 2 databases, sync1:', sync1);
       var sync2 = db.sync(remote2, {live: true});
-      console.log(5, '> 5997 sync 2 databases, sync2:', sync2);
 
       var numChanges = 0;
       function onChange() {
-        console.log(9, '> 5997 sync 2 databases, onChange, numChanges', numChanges);
         if (++numChanges === 2) {
-          console.log(10, '> 5997 sync 2 databases, onChange, complete, numChanges', numChanges);
           complete();
         }
       }
 
       var changes1 = remote1.changes({live: true}).on('change', onChange);
-      console.log(6, '> 5997 sync 2 databases, changes1', changes1);
       var changes2 = remote2.changes({live: true}).on('change', onChange);
-      console.log(7, '> 5997 sync 2 databases, changes1', changes1);
 
       db.post({foo: 'bar'});
-      console.log(8, '> 5997 sync 2 databases, posted');
       var toCancel = [changes1, changes2, sync1, sync2];
       function complete() {
-        console.log(12, '> 5997 sync 2 databases, complete', toCancel.length);
         if (!toCancel.length) {
-          console.log(13, '> 5997 sync 2 databases, complete, nothing left to cancel', toCancel);
           return remote2.destroy().then(function () {
-            console.log(14, '> 5997 sync 2 databases, destryoed remote2', toCancel);
             done();
           });
         }
         var cancelling = toCancel.shift();
         cancelling.on('complete', complete);
-        console.log(11, '> 5997 sync 2 databases, cancel');
         cancelling.cancel();
       }
     });

@@ -1,247 +1,282 @@
-Running PouchDB Tests
---------------------------------------
+# Running PouchDB Tests
 
-The PouchDB test suite expects an instance of CouchDB (version 1.6.1 and above) running in [Admin Party](http://guide.couchdb.org/draft/security.html#party) on http://127.0.0.1:5984 with [CORS enabled](https://github.com/pouchdb/add-cors-to-couchdb), you can configure this by setting the `COUCH_HOST` env var.
+This document covers all the types of tests the PouchDB project has and how to
+run them. PouchDB has been primarily developed on Linux and macOS, if you are
+using Windows then these instructions will have problems, we would love your
+help fixing them though.
 
-If you use docker, you can start the couchdb-instance with
-```bash
-    docker run -it --name my-couchdb -p 5984:5984 couchdb:latest
-    
+
+## Installation
+
+The PouchDB test suite expects an instance of CouchDB (version 1.6.1 and above)
+running in [Admin Party](http://guide.couchdb.org/draft/security.html#party) on
+`http://127.0.0.1:5984` with [CORS
+enabled](https://github.com/pouchdb/add-cors-to-couchdb). See the [official
+CouchDB documentation](https://docs.couchdb.org/en/stable/install/index.html) for
+a guide on how to install CouchDB.
+
+If you have CouchDB available at a different URL, you can assign this URL to the
+`COUCH_HOST` environment variable to make the PouchDB tests use it.
+
+You can run CouchDB v3.0 or later, which no longer supports Admin Party, but you
+will need to put user credentials in the `COUCH_HOST` URL to allow new databases
+to be created, for example:
+
+    COUCH_HOST='http://admin:password@localhost:5984'
+
+If you use docker, you can start the CouchDB instance with:
+
+    $ docker run -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -it --name my-couchdb -p 5984:5984 couchdb:latest
+
     # to have a couchdb with enabled cors, you can use trivago/couchdb-cors
-    docker run -it --name my-couchdb -p 5984:5984 trivago/couchdb-cors:latest
-```
+    $ docker run -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -it --name my-couchdb -p 5984:5984 trivago/couchdb-cors:latest
 
- * PouchDB has been primarily developed on Linux and OSX, if you are using Windows then these instructions will have problems, we would love your help fixing them though.
 
-### Node Tests
+## Running the integration tests
 
-Given that you have [installed a CouchDB server](#installing-a-couchdb-server).
-
-Run all tests with:
+The main test suite can be run using the following command:
 
     $ npm test
 
-### Browser Tests
+PouchDB runs in the browser and on Node.js, and has multiple different storage
+backends known as _adapters_. In the browser these are `idb`, `indexeddb` and
+`memory` and on Node.js they're `leveldb` and `memory`.
 
-Browser tests can be run automatically with:
+It also includes an adapter named `http`, which works by delegating operations
+to CouchDB (or anything that's API-compatible with it) over the network. Since
+PouchDB replicates the functionality of CouchDB and speaks its replication
+protocol, it's important we maintain compatibility with CouchDB and that all
+tests pass against it. The variable `COUCH_HOST` sets the URL that PouchDB will
+use to connect to a remote server.
 
-    $ CLIENT=selenium:firefox npm test
+By default, `npm test` will run the integration tests on Node.js, using the
+default adapter for the target environment. Some of the tests perform
+replication to a remote server, and by default we start an instance of
+`pouchdb-express-router` for this purpose.
 
-or you can run:
+### Test options
 
-    $ npm run dev
+The integration tests support the following options, configured via environment
+variables.
 
-and open [http://127.0.0.1:8000/tests/integration/index.html](http://127.0.0.1:8000/tests/integration/index.html) in your browser of choice. The performance tests are located @ [http://localhost:8000/tests/performance/index.html](http://localhost:8000/tests/performance/index.html).
+#### `ADAPTERS` (default: depends on `CLIENT`)
 
-You can also test against phantomjs, but you'll need to install phantomjs yourself:
+Comma-separated list of preferred adapter backends that PouchDB will use for local
+databases. These are selected automatically based on the execution environment,
+but this variable overrides the default choice and causes additional adapters to
+be loaded if they're not part of the default distribution.
 
-    $ npm install phantomjs-prebuilt
-    $ CLIENT=selenium:phantomjs npm test
+On Node.js the available local adapters are `leveldb` and `memory`. In the
+browser they're `idb`, `indexeddb` and `memory`.
 
-To test a specific plugin in the browser run:
+You can also set `ADAPTERS=http` to force all PouchDB databases to be created on
+a remote server, identified by `COUCH_HOST`. This is not necessary for
+integration tests since they use a mixture of local and remote databases to
+check compatibility, but it's useful for the `find` and `mapreduce` suites.
 
-    $ TYPE=find PLUGINS=pouchdb-find npm run dev
+#### `AUTO_COMPACTION` (default: `0`)
 
-### Unit tests
+Set this to `1` to enable automatic compaction of PouchDB databases by default.
 
-    $ npm run test-unit
+#### `BAIL` (default: `1`)
 
-### Test Options
+Normally the test runner will halt as soon as it discovers a failing test. Set
+this to `0` to prevent this behaviour.
 
-#### Subset of tests:
+#### `CLIENT` (default: `node`)
 
-    $ GREP=test.replication.js npm test
+Sets the target platform the tests will execute on. Set this to
+`firefox`, `chromium` or `webkit` to execute the tests in the browser.
 
-or append `?grep=test.replication.js` if you opened the tests in a browser manually.
+#### `COUCH_HOST`
 
-#### Test Coverage
+Some tests perform replication between local and remote databases. When we
+create a remote database, we get the URL of the remote server from `COUCH_HOST`.
+This variable must be set to the URL of a CouchDB-compatible HTTP server, with
+CORS enabled.
 
-    $ npm run test-coverage
+If not set explicitly, this variable is set automatically based on the other
+configuration values.
 
-#### Test alternative server
+#### `FETCH` (default: `0`)
 
-    $ COUCH_HOST=http://user:pass@myname.host.com npm run dev
+Set this to `1` to stop PouchDB falling back to `XMLHttpRequest` if `fetch()` is
+not available.
 
-or
+#### `GREP`
 
-    $ COUCH_HOST=http://user:pass@myname.host.com npm test
+Use this to request that a specific test is run; if you set `GREP='name of
+test'` then only those tests whose names include the string `name of test` will
+run.  Regular expressions are also supported.
 
-#### Other test options
+#### `PLUGINS` (default: empty)
 
-* `SKIP_MIGRATION=1` should be used to skip the migration tests.
-* `POUCHDB_SRC=../../dist/pouchdb.js` can be used to treat another file as the PouchDB source file.
-* `npm run test-webpack` will build with Webpack and then test that in a browser.
+Comma-separated list of additional plugins that should be loaded into the test
+environment. For example:
 
-#### Test against custom Firefox
+    $ PLUGINS=pouchdb-find npm test
 
-You can specify a custom Firefox path using `FIREFOX_BIN`
+#### `POUCHDB_SRC`
 
-    $ FIREFOX_BIN=/path/to/firefox npm run test-browser
+This overrides the path used to load PouchDB in the browser. We use this in CI
+to select different builds of the PouchDB library, for example to test the
+minified version, the Webpack version, etc.
 
-#### Run the map/reduce tests
+#### `SERVER` (default: `pouchdb-express-router`)
 
-The map/reduce tests are done separately from the normal integration tests, because
-they take a long time. They'll also cause a ton of popups in Safari due to exceeding
-the 5MB limit.
+To support remote replication tests, we start a server in the background that
+speaks the CouchDB replication protocol. This variable controls how that is
+done, and what `COUCH_HOST` is set to as a result. It can have one of the
+following values:
 
-    $ TYPE=mapreduce npm test
+- `pouchdb-express-router` (default): a minimal implementation of the CouchDB
+  API that supports the replication protocol but not the `query()` or `find()`
+  methods.
+- `pouchdb-server`: this is a full reimplementation of the CouchDB API on top of
+  PouchDB, including Mango and map-reduce queries.
+- `couchdb-master`: use this value if you already have CouchDB running; it
+  causes `COUCH_HOST` to be set to the correct value.
 
-#### Run the pouchdb-find tests
+#### `SKIP_MIGRATION` (default: `0`)
 
-These are similar to the map/reduce tests:
+Set this to `1` to skip the migration tests.
+
+#### `VIEW_ADAPTERS` (default: `memory`)
+
+Comma-separated list of preferred view adapter backends that PouchDB will use. 
+This variable overrides the default choice and causes additional adapters to
+be loaded if they're not part of the default distribution.
+
+On Node.js the available adapters are `leveldb` and `memory`. In the
+browser they're `idb`, `indexeddb` and `memory`.
+
+
+## Other sets of tests
+
+### `find` and `mapreduce`
+
+The integration tests cover all the core functionality of CouchDB. Some
+additional behaviour is covered by separate test suites, either because they
+contain features not supported in every adapter, or because they take a long
+time to run.
+
+The main additional suites are the `find` and `mapreduce` suites, which can be
+run using these commands:
 
     $ TYPE=find PLUGINS=pouchdb-find npm test
+    $ TYPE=mapreduce npm test
 
-### Testing against PouchDB server
+These suites run all their tests against a single adapter per run; they will use
+the default adapter for the target environment, which is Node.js by default.
+These suites support most of the same options as the integration tests.
 
-[pouchdb-server](https://github.com/nick-thompson/pouchdb-server) is a project that uses [express-pouchdb](https://github.com/nick-thompson/express-pouchdb) to run a CouchDB-compliant server backed by PouchDB.
+You'll want to test specific adapters by specifying them on the command-line,
+for example:
 
-To test the latest and greatest version of pouchdb-server, you can do e.g.:
+    # run the "find" tests with the memory client on node.js
+    $ TYPE=find PLUGINS=pouchdb-find CLIENT=node ADAPTERS=memory npm test
 
-    SERVER=pouchdb-server npm test
-    SERVER=pouchdb-server CLIENT=selenium:firefox npm test
+    # run the "mapreduce" tests with indexeddb in firefox
+    $ TYPE=mapreduce CLIENT=firefox ADAPTERS=indexeddb npm test
 
-If you would like to modify pouchdb-server while testing, then git clone the express-pouchdb and pouchdb-server projects, `npm link` them all together, and then run:
+It's also important to check these tests against server-side adapters,
+specifically we need to ensure compatibility with CouchDB itself. We do this by
+setting `ADAPTERS=http` and pointing `COUCH_HOST` at our server:
 
-        node /path/to/pouchdb-server/bin/pouchdb-server -p 6984
+    $ TYPE=mapreduce ADAPTERS=http COUCH_HOST='<your CouchDB URL>' npm test
 
-Then in the PouchDB project, run:
+And we test [pouchdb-server](https://github.com/pouchdb/pouchdb-server) using
+the current PouchDB source tree. This is an implementation of the CouchDB API
+and supports the `find()` and `query()` methods. Run the test suites against it
+like so:
 
-    COUCH_HOST=http://localhost:6984 npm run dev
+    $ TYPE=mapreduce ADAPTERS=http SERVER=pouchdb-server npm test
 
-This works because `npm run dev` does not start up the pouchdb-server itself (only `npm test` does).
+Note that the default choice for the `SERVER` value (`pouchdb-express-router`)
+does not support `find` or `mapreduce` and does not need to pass these tests.
 
-Note that you must `npm install pouchdb-server` or `npm install express-pouchdb` yourself for this test to work.
+### "Fuzzy" tests
 
-### Testing different Node adapters
+This test suite checks some more unusual replication scenarios, it can be run
+using the command:
 
-Use this option to test the new indexeddb adapter:
-
-    ADAPTERS=indexeddb
-
-Use this option to test the in-memory adapter:
-
-    ADAPTERS=memory
-
-To run the node-websql test in Node, run the tests with:
-
-    ADAPTERS=websql
-
-### Testing fetch vs XMLHttpRequest
-
-PouchDB falls back to either XHR or fetch, whichever is available. You can test fetch-only using:
-
-    FETCH=1 npm test
+    $ npm run test-fuzzy
 
 ### Performance tests
 
-To run the performance test suite in node.js:
+The performance test suite is run using the `PERF` variable:
 
-    PERF=1 npm test
+    $ PERF=1 npm test
 
-Or the automated browser runner:
+This supports most of the same options as the integration suite, particularly
+the `CLIENT`, `ADAPTERS` and `GREP` options. It has some additional options of
+its own:
 
-    PERF=1 CLIENT=selenium:firefox npm test
+#### `ITERATIONS`
 
-You can also use `GREP` to run certain tests:
+Sets the number of iterations each test uses by default.
 
-    PERF=1 GREP=basic-inserts npm test
+### Running tests in the browser
 
-You can also use `LEVEL_ADAPTER` to use a certain "DOWN" adapter:
+Normally we use `CLIENT=firefox` to run a set of tests in the browser
+automatically. This opens a browser window, automatically runs the requested
+tests in it, and reports the results back to the shell.
 
-    PERF=1 LEVEL_ADAPTER=memdown npm test
+You can also run browser tests in a more "manual" fashion by running the dev
+server and opening a browser window yourself. To run the server:
 
-You can also test against node-websql:
+    $ npm run dev
 
-    PERF=1 ADAPTERS=websql npm test
+Then you can open the page for any of the test suites via the following URLs:
 
-You can also override the default number of iterations:
+- `http://127.0.0.1:8000/tests/integration/`
+- `http://127.0.0.1:8000/tests/find/`
+- `http://127.0.0.1:8000/tests/mapreduce/`
+- `http://127.0.0.1:8000/tests/performance/`
 
-    PERF=1 ITERATIONS=10 npm test
+The test options are controlled by editing the query string; some of the common
+command-line options and their query string equivalents are:
 
-### Performance tests in the browser
+| Environment variable | Query-string param |
+| -------------------- | ------------------ |
+| `ADAPTERS`           | `adapters`         |
+| `AUTO_COMPACTION`    | `autoCompaction`   |
+| `COUCH_HOST`         | `couchHost`        |
+| `GREP`               | `grep`             |
+| `ITERATIONS`         | `iterations`       |
+| `PLUGINS`            | `plugins`          |
+| `POUCHDB_SRC`        | `src`              |
+| `VIEW_ADAPTERS`      | `viewAdapters`     |
 
-When you run `npm run dev`, performance tests are available at:
 
-    http://localhost:8000/tests/performance/index.html
+## Other test tasks
 
-You can specify a particular version of PouchDB or a particular adapter by doing e.g.:
+There are a few other tasks we run during CI and which you will find useful to
+run during development.
 
-    http://localhost:8000/tests/performance/index.html?src=http://site.com/path/to/pouchdb.js
-    http://localhost:8000/tests/performance/index.html?adapter=websql
-    http://localhost:8000/tests/performance/index.html?adapter=idb&src=//site.com/pouchdb.js
+### `npm run eslint`
 
-All of the browser plugin adapters (i.e. `fruitdown`, `memory`, and `localstorage`) are also available this way.
+Checks that all code in the project follows our formatting and style guide. This
+runs before any other tasks are run during our CI build.
 
-You can also specify particular tests by using `grep=`, e.g.:
+### `npm run test-unit`
 
-    http://127.0.0.1:8000/tests/performance/index.html?grep=basics
-    http://127.0.0.1:8000/tests/performance/index.html?grep=basic-inserts
+Runs the unit tests; running these can give more precise feedback about key
+building blocks that are not working.
 
-You can also override the default number of iterations using `iterations=`:
+### `npm run test-component`
 
-    http://127.0.0.1:8000/tests/performance/index.html?grep=basic-insert&interations=10
+Tests some additional components besides the core database functionality, for
+example authentication and read-only replication.
 
-### Ad-hoc tests
+### `npm run test-coverage`
 
-There's a WebSQL storage quota test available in:
+Runs the test suite with coverage analysis turned on.
 
-    http://127.0.0.1:8000/tests/stress/websql_storage_limit.html
+### `npm run test-webpack`
 
-Run `npm run dev`, then open it in Safari or iOS.
+Checks that the Webpack build of PouchDB works correctly.
 
-### Build tests
+### `npm run verify-build`
 
-To verify that the build was done correctly, there are some tests here:
-
-    npm run verify-build
-
-Adapter plugins and adapter order
---------------------------------------
-
-We are currently building three adapters-as-plugins: `fruitdown`, `memory` and `localstorage`.  All are based on the [LevelDOWN API](https://github.com/rvagg/abstract-leveldown):
-
-* `fruitdown`: based on [FruitDOWN](https://github.com/nolanlawson/fruitdown)
-* `memory`: based on [MemDOWN](https://github.com/rvagg/memdown)
-* `localstorage`: based on [localstorage-down](https://github.com/no9/localstorage-down)
-
-These adapters are built and included in the `dist/` folder as e.g. `pouchdb.memory.js`.  Including these scripts after `pouchdb.js` will load the adapters, placing them in the `PouchDB.preferredAdapters` list after `idb` and `websql` by default.
-
-    <script src="pouchdb.js"></script>
-    <script>console.log(PouchDB.preferredAdapters); // ['idb', 'websql']</script>
-    <script src="pouchdb.memory.js"></script>
-    <script>console.log(PouchDB.preferredAdapters); // ['idb', 'websql', 'memory']</script>
-
-To test these adapters, you can run e.g.
-
-    ADAPTERS=memory CLIENT=selenium:firefox npm run test
-
-Or append them as query params in the browser:
-
-    http://localhost:8000/tests/index.html?adapters=memory
-
-The `adapters` list is a comma-separated list that will be used for `PouchDB.preferredAdapters`.  So e.g. if you want to test `websql` in Chrome, you can do:
-
-    http://localhost:8000/tests/index.html?adapters=websql
-
-Or even make the `preferredAdapters` list anything you want:
-
-    # loads websql, then memory, then idb, then localstorage
-    http://localhost:8000/tests/index.html?adapters=websql,memory,idb,localstorage
-
-Keep in mind that `preferredAdapters` only applies to non-http, non-https adapters.
-
-You can also inject (comma-separated) plugins into any test:
-
-    PLUGINS=pouchdb-find npm test
-
-Or as a query param:
-
-    http://localhost:8000/tests/index.html?plugins=pouchdb-find
-
-### Installing a CouchDB server
-
-Regular install
----------------------------
-
-See the [official CouchDB documentation](http://docs.couchdb.org/en/1.6.1/install/index.html) for a guide on how to install CouchDB.
+Checks that the build is correct.

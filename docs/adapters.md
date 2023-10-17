@@ -149,7 +149,7 @@ var db = new PouchDB('mydatabase.db', {adapter: 'websql'});
 
 In this case, PouchDB is directly using SQLite queries to build the database, exactly as the WebSQL adapter would.
 
-See ["Prebuilt databases with PouchDB"](https://pouchdb.com/2016/04/28/prebuilt-databases-with-pouchdb.html)
+See ["Prebuilt databases with PouchDB"]({{ site.baseurl }}/2016/04/28/prebuilt-databases-with-pouchdb.html)
 for a guide to how you might use this adapter to create prebuilt SQLite database files for adapters such as Cordova or Electron.
 
 #### Other LevelDOWN adapters
