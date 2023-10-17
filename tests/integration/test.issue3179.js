@@ -7,10 +7,6 @@ var adapters = [
   ['local', 'local']
 ];
 
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
-
 adapters.forEach(function (adapters) {
   describe('test.issue3179.js-' + adapters[0] + '-' + adapters[1], function () {
 
@@ -48,6 +44,7 @@ adapters.forEach(function (adapters) {
         });
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
@@ -86,6 +83,7 @@ adapters.forEach(function (adapters) {
         return local.sync(remote);
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
@@ -184,6 +182,7 @@ adapters.forEach(function (adapters) {
         return waitForUptodate();
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
@@ -304,6 +303,7 @@ adapters.forEach(function (adapters) {
         return waitForUptodate();
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {

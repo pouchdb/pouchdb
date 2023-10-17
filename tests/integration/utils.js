@@ -1,5 +1,3 @@
-/* global PouchDB */
-/* jshint -W079 */
 'use strict';
 
 var testUtils = Object.create(require('../common-utils'));
@@ -17,6 +15,11 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
+testUtils.isChrome = function () {
+  return (typeof window !== 'undefined') && window.navigator &&
+      /Google Inc/.test(window.navigator.vendor);
+};
+
 testUtils.isIE = function () {
   var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
       navigator.userAgent.toLowerCase() : '';
@@ -24,6 +27,12 @@ testUtils.isIE = function () {
   var isTrident = ua.indexOf('trident') !== -1;
   var isEdge = ua.indexOf('edge') !== -1;
   return (isIE || isTrident || isEdge);
+};
+
+testUtils.isSafari = function () {
+  return (typeof process === 'undefined' || process.browser) &&
+      /Safari/.test(window.navigator.userAgent) &&
+      !/Chrome/.test(window.navigator.userAgent);
 };
 
 testUtils.adapterType = function () {
@@ -196,7 +205,7 @@ testUtils.eliminateDuplicates = function (arr) {
     obj[arr[i]] = 0;
   }
   for (element in obj) {
-    if (obj.hasOwnProperty(element)) {
+    if (Object.hasOwnProperty.call(obj, element)) {
       out.push(element);
     }
   }
@@ -261,7 +270,7 @@ testUtils.generateReplicationId = pouchUtils.generateReplicationId;
 testUtils.makeBlob = function (data, type) {
   if (testUtils.isNode()) {
     // "global.Buffer" is to avoid Browserify pulling this in
-    return new global.Buffer(data, 'binary');
+    return global.Buffer.from(data, 'binary');
   } else {
     return pouchUtils.blob([data], {
       type: (type || 'text/plain')

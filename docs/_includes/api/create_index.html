@@ -210,9 +210,93 @@ db.createIndex({
 {% endhighlight %}
 {% include code/end.html %}
 
+If you want to index a subset of the documents in the database, you can use `partial_filter_selector`. This has the same syntax as the selector you'd pass to `find()`, and only documents matching the selector will be included in the index.
+
+{% include alert/start.html variant="warning"%}
+{% markdown %}
+
+**When using _pouchdb-adapter-indexeddb:_** On the `indexeddb`-adapter, indexes with
+a`partial_filter_selector` will fall back to using [map-reduce](#query_database),
+instead of the native indexes, negating all index performance gains from the
+`indexeddb`-adapter over the `idb`-adapter.
+
+{% endmarkdown %}
+{% include alert/end.html%}
+
+{% include code/start.html id="create_idx5" type="callback" %}
+{% highlight js %}
+db.createIndex({
+  index: {
+    fields: ['year', 'title'],
+    partial_filter_selector: {
+      year: { $gt: 2010 }
+    }
+  }
+}, function (err, result) {
+  if (err) { return console.log(err); }
+  // handle result
+});
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="create_idx5" type="async" %}
+{% highlight js %}
+try {
+  var result = db.createIndex({
+    index: {
+      fields: ['year', 'title'],
+      partial_filter_selector: {
+        year: { $gt: 2010 }
+      }
+    }
+  });
+} catch (err) {
+  console.log(err);
+}
+{% endhighlight %}
+{% include code/end.html %}
+
+{% include code/start.html id="create_idx5" type="promise" %}
+{% highlight js %}
+db.createIndex({
+  index: {
+    fields: ['year', 'title'],
+    partial_filter_selector: {
+      year: { $gt: 2010 }
+    }
+  }
+}).then(function (result) {
+  // handle result
+}).catch(function (err) {
+  console.log(err);
+});
+{% endhighlight %}
+{% include code/end.html %}
+
 ### Options
 
 * `fields`: a list of fields to index
 * `name` (optional): name of the index, auto-generated if you don't include it
 * `ddoc` (optional): design document name (i.e. the part after `'_design/'`), auto-generated if you don't include it
 * `type` (optional): only supports `'json'`, which is also the default
+* `partial_filter_selector` (optional): a _selector_ used to filter the set of documents included in the index
+
+When a PouchDB instance updates an index, it emits `indexing` events that include information about the progress of the index update task.
+
+{% highlight js %}
+var db = new PouchDB('my-docs');
+
+db.on('indexing', function (event) {
+  // called when indexes are updated
+});
+{% endhighlight %}
+
+The `event` object contains the following fields:
+
+* `view`: the name of the view that's being updated
+* `indexed_docs`: the total number of document updates processed during the current run
+
+When an index is updated this event is emitted once at the start of the update, with `indexed_docs` equal to `0`. It will then emit further events as batches of changes are processed, and those events will also include these fields:
+
+* `last_seq`: the `seq` value of the last event from the database change feed that's been processed
+* `results_count`: the number of changes in the most recent batch of changes

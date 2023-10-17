@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/bin/bash -e
+
+cleanup() {
+  if [[ ! -z $SERVER_PID ]]; then
+    kill $SERVER_PID
+  fi
+}
+trap cleanup EXIT
 
 # Run tests against a local setup of pouchdb-express-router
 # by default unless COUCH_HOST is specified.
@@ -6,10 +13,15 @@
 
 : ${CLIENT:="node"}
 : ${COUCH_HOST:="http://127.0.0.1:5984"}
+: ${VIEW_ADAPTERS:="memory"}
+export VIEW_ADAPTERS
 
 pouchdb-setup-server() {
   # in CI, link pouchdb-servers dependencies on pouchdb
   # modules to the current implementations
+  if [ -d "pouchdb-server-install" ]; then
+    rm -rf pouchdb-server-install
+  fi
   mkdir pouchdb-server-install
   cd pouchdb-server-install
   npm init -y
@@ -52,10 +64,18 @@ pouchdb-link-server-modules() {
   cd ..
 }
 
+search-free-port() {
+  EXPRESS_PORT=3000
+  while (: < /dev/tcp/127.0.0.1/$EXPRESS_PORT) 2>/dev/null; do
+    ((EXPRESS_PORT++))
+  done
+  export PORT=$EXPRESS_PORT
+}
+
 pouchdb-build-node() {
-  if [[ $BUILD_NODE -ne 0 ]]; then
+  if [[ $BUILD_NODE_DONE -ne 1 ]]; then
     npm run build-node
-    BUILD_NODE=0
+    BUILD_NODE_DONE=1
   fi
 }
 
@@ -73,9 +93,10 @@ if [[ ! -z $SERVER ]]; then
     fi
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
     pouchdb-build-node
+    search-free-port
     node ./tests/misc/pouchdb-express-router.js &
     export SERVER_PID=$!
-    export COUCH_HOST='http://127.0.0.1:3000'
+    export COUCH_HOST="http://127.0.0.1:${PORT}"
   elif [ "$SERVER" == "express-pouchdb-minimum" ]; then
     pouchdb-build-node
     node ./tests/misc/express-pouchdb-minimum-for-pouchdb.js &
@@ -97,7 +118,7 @@ if [ "$SERVER" == "couchdb-master" ]; then
   ./node_modules/.bin/add-cors-to-couchdb $COUCH_HOST
 fi
 
-printf 'Waiting for host to start .'
+printf "Waiting for host to start on $COUCH_HOST..."
 WAITING=0
 until $(curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST); do
     if [ $WAITING -eq 4 ]; then
@@ -120,9 +141,3 @@ elif [ "$CLIENT" == "dev" ]; then
 else
     npm run test-browser
 fi
-
-EXIT_STATUS=$?
-if [[ ! -z $SERVER_PID ]]; then
-  kill $SERVER_PID
-fi
-exit $EXIT_STATUS

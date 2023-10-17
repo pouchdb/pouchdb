@@ -136,9 +136,9 @@ Committers!
 
 With great power comes great responsibility yada yada yada:
 
- * Code is peer reviewed, you should (almost) never push your own code.
- * Please don't accidentally force push to master.
- * Cherry Pick / Rebase commits, **don't use the big green button**, see below for instructions on how to
+ * Code is peer reviewed, you should not merge un-reviewed code.
+ * Pushing to `master` is blocked by GitHub.
+ * Cherry Pick / Rebase commits, **don't use merge commits**, see below for instructions on how to
  merge a pull request.
  * Ensure reviewed code follows the above contribution guidelines, if it doesn't feel free to amend and make note.
  * Please try to watch when Pull Requests are made and review and / or commit them in a timely manner.
@@ -146,14 +146,13 @@ With great power comes great responsibility yada yada yada:
  * Thanks, you are all awesome human beings.
 
 **How to merge a pull request**
- * Go to the pouchdb repository on your machine
- * Get the link to the patch of the pull request, which can be found under 'view command line instructions'
- next to the green 'Merge pull request' button on the page on GitHub for the pull request
- * In your command line, run the following:
-    * `curl https://patch-diff.githubusercontent.com/raw/pouchdb/pouchdb/pull/[PATCH NUMBER].patch | git am - && git push origin master`, replacing [PATCH NUMBER] with the number of the patch you want to merge.
- * Close the pull request once it has been merged, so no-one accidentally tries to merge it themselves
- * Make sure the issue associated with the pull request is closed, if the issue was resolved by that pull
- request
+  * Use the github Pull Request UI.
+  * Generally, use _Squash and merge_.
+  * In special circumstances, _Rebase and merge_ may be used.  It may be appropriate where intermediate commits in a pull request:
+    * meet standard requirements for commit messages; and
+    * are important for future understanding of a sequence of related changes; and
+    * cannot be broken down into separate pull requests.
+  * Make sure the issue associated with the pull request is closed, if the issue was resolved by that pull request.
 
 Release Procedure
 -----------------
@@ -161,8 +160,8 @@ Release Procedure
  * Copy the last release post from ./docs/_posts/date-pouchdb-version.md, amend date and version and fill in release notes
  * Push release post
  * `npm run set-version -- $VERSION`
- * `npm run release`
- * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` after you upload it.
+ * `npm run release`. Note that with 2FA in npm, it will request you an OTP for every package.
+ * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` (same with `pouchdb.js`) after you upload it.
  * Update docs/_config.yml to the current version
  * Push updated versions to master
  * `npm run publish-site`

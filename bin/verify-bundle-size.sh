@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 
 # Max size in bytes that we find acceptable.
 # We might have to change this later.

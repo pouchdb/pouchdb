@@ -7,10 +7,6 @@ var adapters = [
   ['local', 'local']
 ];
 
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
-
 adapters.forEach(function (adapters) {
   describe('suite2 test.replication.js-' + adapters[0] + '-' + adapters[1], function () {
 
@@ -175,10 +171,7 @@ adapters.forEach(function (adapters) {
       }
 
       var numRevs = 5000;
-      var isSafari = (typeof process === 'undefined' || process.browser) &&
-        /Safari/.test(window.navigator.userAgent) &&
-        !/Chrome/.test(window.navigator.userAgent);
-      if (isSafari) {
+      if (testUtils.isSafari()) {
         numRevs = 10; // fuck safari, we've hit the storage limit again
       }
 
@@ -2148,7 +2141,7 @@ adapters.forEach(function (adapters) {
     });
 
     it('Replicate large number of docs', function (done) {
-      if ('saucelabs' in testUtils.params() || testUtils.isIE()) {
+      if (testUtils.isIE()) {
         return done();
       }
       var db = new PouchDB(dbs.name);

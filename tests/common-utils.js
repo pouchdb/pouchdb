@@ -14,20 +14,26 @@ commonUtils.params = function () {
   if (commonUtils.isNode()) {
     return process.env;
   }
-  var paramStr = document.location.search.slice(1);
-  return paramStr.split('&').reduce(function (acc, val) {
-    if (!val) {
-      return acc;
-    }
-    var tmp = val.split('=');
-    acc[tmp[0]] = decodeURIComponent(tmp[1]) || true;
-    return acc;
-  }, {});
+  const usp = new URLSearchParams(window.location.search);
+  const params = {};
+  for (const [k, v] of usp) {
+    // This preserves previous behaviour: an empty value is re-mapped to
+    // `true`.  This is surprising, and differs from the handling of env vars in
+    // node (see above).
+    params[k] = v || true;
+  }
+  return params;
 };
 
 commonUtils.adapters = function () {
   var adapters = commonUtils.isNode() ? process.env.ADAPTERS : commonUtils.params().adapters;
   return adapters ? adapters.split(',') : [];
+};
+
+commonUtils.viewAdapters = function () {
+  var viewAdapters = commonUtils.isNode() ?
+    process.env.VIEW_ADAPTERS : commonUtils.params().viewAdapters;
+  return viewAdapters ? viewAdapters.split(',') : [];
 };
 
 commonUtils.plugins = function () {
@@ -42,9 +48,11 @@ commonUtils.loadPouchDB = function (opts) {
 
   var params = commonUtils.params();
   var adapters = commonUtils.adapters().concat(opts.adapters || []);
+  var viewAdapters = commonUtils.viewAdapters().concat(opts.viewAdapters || []);
   var plugins = commonUtils.plugins().concat(opts.plugins || []);
 
-  for (let adapter of adapters) {
+  const allAdapters = [...adapters, ...viewAdapters];
+  for (let adapter of allAdapters) {
     if (adapter === 'websql') {
       adapter = 'node-websql';
     }
@@ -91,17 +99,21 @@ commonUtils.loadPouchDBForNode = function (plugins) {
   return PouchDB;
 };
 
+commonUtils.pouchdbSrc = function () {
+  const scriptPath = '../../packages/node_modules/pouchdb/dist';
+  const params = commonUtils.params();
+  return params.src || `${scriptPath}/pouchdb.js`;
+};
+
 commonUtils.loadPouchDBForBrowser = function (plugins) {
-  var params = commonUtils.params();
   var scriptPath = '../../packages/node_modules/pouchdb/dist';
-  var pouchdbSrc = params.src || `${scriptPath}/pouchdb.js`;
 
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
     return `${scriptPath}/pouchdb.${plugin}.js`;
   });
 
-  var scripts = [pouchdbSrc].concat(plugins);
+  var scripts = [commonUtils.pouchdbSrc()].concat(plugins);
 
   var loadScripts = scripts.reduce((prevScriptLoaded, script) => {
     return prevScriptLoaded.then(() => commonUtils.asyncLoadScript(script));
@@ -112,14 +124,14 @@ commonUtils.loadPouchDBForBrowser = function (plugins) {
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
 commonUtils.asyncLoadScript = function (url) {
-  return new commonUtils.Promise(function (resolve) {
+  return new commonUtils.Promise(function (resolve, reject) {
     // Create a new script and setup the basics.
     var script = document.createElement("script");
-    var firstScript = document.getElementsByTagName('script')[0];
 
     script.async = true;
     script.src = url;
 
+    script.onerror = reject;
     script.onload = function () {
       resolve();
 
@@ -133,18 +145,11 @@ commonUtils.asyncLoadScript = function (url) {
       }
     };
 
-    // Attach the script tag to the page (before the first script) so the
-    //magic can happen.
-    firstScript.parentNode.insertBefore(script, firstScript);
+    document.body.append(script);
   });
 };
 
 commonUtils.couchHost = function () {
-  if (typeof window !== 'undefined' && window.cordova) {
-    // magic route to localhost on android emulator
-    return 'http://10.0.2.2:5984';
-  }
-
   if (typeof window !== 'undefined' && window.COUCH_HOST) {
     return window.COUCH_HOST;
   }

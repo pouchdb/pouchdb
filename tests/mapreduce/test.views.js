@@ -1,4 +1,3 @@
-/*jshint expr:true */
 'use strict';
 
 describe('test.views.js', function () {
@@ -178,7 +177,7 @@ describe('test.views.js', function () {
     values.push(3);
     values.push(4);
     // then text, case sensitive
-    // currently chrome uses ascii ordering and so wont handle 
+    // currently chrome uses ascii ordering and so wont handle
     // capitals properly
     values.push('a');
     //values.push("A");

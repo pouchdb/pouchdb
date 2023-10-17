@@ -17,7 +17,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Create a pouch without new keyword', function () {
-      /* jshint newcap:false */
       var db = PouchDB(dbs.name);
       db.should.be.an.instanceof(PouchDB);
     });
@@ -594,12 +593,12 @@ adapters.forEach(function (adapter) {
         var db = new PouchDB(dbs.name);
         db.post(doc, function (err, resp) {
           should.not.exist(err);
-  
+
           db.get(resp.id, function (err, doc2) {
             should.not.exist(err);
-  
+
             doc2._access.should.eql(['alice']);
-  
+
             done();
           });
         });
@@ -1048,7 +1047,6 @@ adapters.forEach(function (adapter) {
 
     it('3968, keeps all object fields', function () {
       var db =  new PouchDB(dbs.name);
-      /* jshint -W001 */
       var doc = {
         _id: "x",
         type: "testdoc",
@@ -1065,7 +1063,7 @@ adapters.forEach(function (adapter) {
       return db.put(doc).then(function () {
         return db.get(doc._id);
       }).then(function (savedDoc) {
-        // We shouldnt need to delete from doc here (#4273)
+        // We shouldn't need to delete from doc here (#4273)
         should.not.exist(doc._rev);
         should.not.exist(doc._rev_tree);
 
@@ -1128,6 +1126,29 @@ adapters.forEach(function (adapter) {
       return db.put(doc).then(function () {
         return doc._id;
       }).then(db.get);
+    });
+
+    it('Test rev purge', function () {
+      const db = new PouchDB(dbs.name);
+
+      if (typeof db._purge === 'undefined') {
+        console.log('purge is not implemented for adapter', db.adapter);
+        return;
+      }
+
+      const doc = { _id: 'foo' };
+      return db.put(doc).then(function (res) {
+        return db.purge(doc._id, res.rev);
+      }).then(function () {
+        return db.get(doc._id);
+      }).then(function () {
+        assert.fail('doc should not exist');
+      }).catch(function (err) {
+        if (!err.status) {
+          throw err;
+        }
+        err.status.should.equal(404, 'doc should not exist');
+      });
     });
 
     if (adapter === 'local') {

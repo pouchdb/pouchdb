@@ -8,14 +8,13 @@ var nextTick = (typeof process === 'undefined' || process.browser) ?
 
 var grep;
 var iterations;
-if (global.window && global.window.location && global.window.location.search) {
-  grep = global.window.location.search.match(/[&?]grep=([^&]+)/);
-  grep = grep && grep[1];
-  iterations = global.window.location.search.match(/[&?]iterations=([^&]+)/);
-  iterations = iterations && parseInt(iterations[1], 10);
-} else if (process && process.env) {
-  grep = process.env.GREP;
-  iterations = process.env.ITERATIONS && parseInt(process.env.ITERATIONS, 10);
+const params = commonUtils.params();
+if (commonUtils.isNode()) {
+  grep = params.GREP;
+  iterations = params.ITERATIONS && parseInt(params.ITERATIONS, 10);
+} else {
+  grep = params.grep;
+  iterations = params.iterations && parseInt(params.iterations, 10);
 }
 
 var adapterUsed;
@@ -23,9 +22,11 @@ var adapterUsed;
 exports.runTests = function (PouchDB, suiteName, testCases, callback) {
 
   testCases = testCases.filter(function (testCase) {
-    if (grep && suiteName.indexOf(grep) === -1 &&
-      testCase.name.indexOf(grep) === -1) {
-      return false;
+    if (grep) {
+      const regexp = new RegExp(grep);
+      if (!regexp.test(suiteName) && !regexp.test(testCase.name)) {
+        return false;
+      }
     }
     var iter = typeof iterations === 'number' ? iterations :
       testCase.iterations;
@@ -65,6 +66,9 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
 
       t.test(testName, function (t) {
         t.plan(testCase.assertions);
+        if (global.window && global.window.console && global.window.console.profile) {
+          global.window.console.profile(testName);
+        }
         var num = 0;
         function next() {
           nextTick(function () {
@@ -88,6 +92,9 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
         next();
       });
       t.test('teardown', function (t) {
+        if (global.window && global.window.console && global.window.console.profileEnd) {
+          global.window.console.profileEnd();
+        }
         var testCaseTeardown = testCase.tearDown ?
           testCase.tearDown(db, setupObj) :
           Promise.resolve();

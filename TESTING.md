@@ -12,7 +12,7 @@ The PouchDB test suite expects an instance of CouchDB (version 1.6.1 and above)
 running in [Admin Party](http://guide.couchdb.org/draft/security.html#party) on
 `http://127.0.0.1:5984` with [CORS
 enabled](https://github.com/pouchdb/add-cors-to-couchdb). See the [official
-CouchDB documentation](http://docs.couchdb.org/en/1.6.1/install/index.html) for
+CouchDB documentation](https://docs.couchdb.org/en/stable/install/index.html) for
 a guide on how to install CouchDB.
 
 If you have CouchDB available at a different URL, you can assign this URL to the
@@ -86,10 +86,7 @@ this to `0` to prevent this behaviour.
 #### `CLIENT` (default: `node`)
 
 Sets the target platform the tests will execute on. Set this to
-`selenium:firefox` or `selenium:chrome` to execute in the tests in the browser.
-
-You can also specify a custom Firefox binary to run using the `FIREFOX_BIN`
-variable.
+`firefox`, `chromium` or `webkit` to execute the tests in the browser.
 
 #### `COUCH_HOST`
 
@@ -110,7 +107,7 @@ not available.
 
 Use this to request that a specific test is run; if you set `GREP='name of
 test'` then only those tests whose names include the string `name of test` will
-run.
+run.  Regular expressions are also supported.
 
 #### `PLUGINS` (default: empty)
 
@@ -144,6 +141,15 @@ following values:
 
 Set this to `1` to skip the migration tests.
 
+#### `VIEW_ADAPTERS` (default: `memory`)
+
+Comma-separated list of preferred view adapter backends that PouchDB will use. 
+This variable overrides the default choice and causes additional adapters to
+be loaded if they're not part of the default distribution.
+
+On Node.js the available adapters are `leveldb` and `memory`. In the
+browser they're `idb`, `indexeddb` and `memory`.
+
 
 ## Other sets of tests
 
@@ -171,7 +177,7 @@ for example:
     $ TYPE=find PLUGINS=pouchdb-find CLIENT=node ADAPTERS=memory npm test
 
     # run the "mapreduce" tests with indexeddb in firefox
-    $ TYPE=mapreduce CLIENT=selenium:firefox ADAPTERS=indexeddb npm test
+    $ TYPE=mapreduce CLIENT=firefox ADAPTERS=indexeddb npm test
 
 It's also important to check these tests against server-side adapters,
 specifically we need to ensure compatibility with CouchDB itself. We do this by
@@ -212,7 +218,7 @@ Sets the number of iterations each test uses by default.
 
 ### Running tests in the browser
 
-Normally we use `CLIENT=selenium:firefox` to run a set of tests in the browser
+Normally we use `CLIENT=firefox` to run a set of tests in the browser
 automatically. This opens a browser window, automatically runs the requested
 tests in it, and reports the results back to the shell.
 
@@ -240,6 +246,7 @@ command-line options and their query string equivalents are:
 | `ITERATIONS`         | `iterations`       |
 | `PLUGINS`            | `plugins`          |
 | `POUCHDB_SRC`        | `src`              |
+| `VIEW_ADAPTERS`      | `viewAdapters`     |
 
 
 ## Other test tasks

@@ -7,11 +7,6 @@ var adapters = [
   ['local', 'local']
 ];
 
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
-
-
 adapters.forEach(function (adapters) {
   var title = 'test.sync_events.js-' + adapters[0] + '-' + adapters[1];
   describe('suite2 ' + title, function () {
