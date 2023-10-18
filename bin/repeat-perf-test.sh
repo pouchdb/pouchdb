@@ -3,6 +3,10 @@
 scriptName="$(basename "$0")"
 log() { echo "[$scriptName] $*"; }
 
+npm_install() {
+  npm ci --no-fund --ignore-scripts --no-audit --prefer-offline --progress=false
+}
+
 mkdir -p ./perf-test-results
 flagFileDevServerRunning=./perf-test-results/.dev-server-started
 cleanup() {
@@ -66,6 +70,7 @@ for commit in "${commits[@]}"; do
   else
     log "Building commit $commit..."
     git checkout "$commit"
+    npm_install # in case of different deps on different branches
     npm run build
 
     mkdir -p "$targetDir"
@@ -76,6 +81,7 @@ for commit in "${commits[@]}"; do
 done
 
 log "Building tests..."
+npm_install # in case of different deps on different branches
 npm run build-test
 
 iterate_tests() {
