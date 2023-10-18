@@ -806,6 +806,47 @@ describe('migration', function () {
           });
         });
 
+        it('#2818 Testing attachments with compaction of dups (local docs)', function () {
+          var docs = [
+            {
+              _id: '_local/doc1',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            },
+            {
+              _id: '_local/doc2',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            }
+          ];
+
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          return oldPouch.bulkDocs(docs).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.get('_local/doc1').then(function (doc1) {
+              return newPouch.remove(doc1);
+            }).then(function () {
+              return newPouch.compact();
+            }).then(function () {
+              return newPouch.get('_local/doc2', {attachments: true});
+            }).then(function (doc2) {
+              doc2._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+            });
+          });
+        });
+
         it('#2890 PNG content after migration', function () {
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);

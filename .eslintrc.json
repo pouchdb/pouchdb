@@ -38,6 +38,7 @@
     "no-console": "off",
     "no-tabs": "error",
     "no-trailing-spaces": "error",
+    "no-undef-init": "error",
     "semi": ["error", "always"],
     "curly": ["error", "all"],
     "space-unary-ops": ["error", {"words": true}],
