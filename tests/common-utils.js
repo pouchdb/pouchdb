@@ -171,11 +171,7 @@ commonUtils.safeRandomDBName = function () {
 };
 
 commonUtils.createDocId = function (i) {
-  var intString = i.toString();
-  while (intString.length < 10) {
-    intString = '0' + intString;
-  }
-  return 'doc_' + intString;
+  return 'doc_' + i.toString().padStart(10, '0');
 };
 
 var PouchForCoverage = require('../packages/node_modules/pouchdb-for-coverage');
