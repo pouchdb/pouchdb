@@ -254,6 +254,12 @@ module.exports = function (PouchDB, callback) {
       assertions: 1,
       iterations: 0,
       setup: function (localDB, callback) {
+        // The NPM registry is a couchdb database.  "skimdb" is the NPM
+        // registry, minus the actual packages, found at
+        // https://skimdb.npmjs.com/registry, and an example of a real, public
+        // db with a lot of docs.
+        // FIXME this mirror is currently down, as is iriscouch.com; find an
+        // alternative mirror.
         var remoteCouchUrl = "http://skimdb.iriscouch.com/registry";
         var remoteDB = new PouchDB(remoteCouchUrl, {
           ajax: {pool: {maxSockets: 15}}
