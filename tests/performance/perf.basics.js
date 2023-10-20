@@ -136,6 +136,27 @@ module.exports = function (PouchDB, callback) {
       }
     },
     {
+      name: 'gets-open-revs',
+      assertions: 1,
+      iterations: 1,
+      setup: function (db, callback) {
+        var docs = [];
+        for (var i = 0; i < this.iterations; i++) {
+          const id = commonUtils.createDocId(i);
+          const numRevs = 400; //200; // repro "url too long" error with open_revs
+          for (var j = 0; j < numRevs; j++) {
+            const rev =  '1-' + commonUtils.rev();
+            docs.push({ _id: id, _rev: rev });
+          }
+        }
+        db.bulkDocs(docs, {new_edits: false}, callback);
+      },
+      test: function (db, itr, docs, done) {
+        const id = commonUtils.createDocId(itr);
+        db.get(id, { open_revs: 'all', revs_info: true, include_docs: true }, done);
+      }
+    },
+    {
       name: 'all-docs-skip-limit',
       assertions: 1,
       iterations: 10,
@@ -303,7 +324,15 @@ module.exports = function (PouchDB, callback) {
       name: 'pull-replication-one-generation',
       assertions: 1,
       iterations: 1,
-      setup: oneGen.setup(1, 1),
+      setup: oneGen.setup({ itr:1, gens:1 }),
+      test: oneGen.test(),
+      tearDown: oneGen.tearDown()
+    },
+    {
+      name: 'pull-replication-one-generation-reverse',
+      assertions: 1,
+      iterations: 1,
+      setup: oneGen.setup({ itr:1, gens:1, reverse:true }),
       test: oneGen.test(),
       tearDown: oneGen.tearDown()
     },
@@ -311,10 +340,50 @@ module.exports = function (PouchDB, callback) {
       name: 'pull-replication-two-generation',
       assertions: 1,
       iterations: 1,
-      setup: twoGen.setup(1, 2),
+      setup: twoGen.setup({ itr:1, gens:2 }),
       test: twoGen.test(),
       tearDown: twoGen.tearDown()
-    }
+    },
+    {
+      name: 'pull-replication-two-generation-reverse',
+      assertions: 1,
+      iterations: 1,
+      setup: twoGen.setup({ itr:1, gens:2, reverse:true }),
+      test: twoGen.test(),
+      tearDown: twoGen.tearDown()
+    },
+    {
+      name: 'pull-replication-one-generation-open-revs',
+      assertions: 1,
+      iterations: 1,
+      setup: oneGen.setup({ itr:1, gens:1, openRevs:20 }),
+      test: oneGen.test(),
+      tearDown: oneGen.tearDown()
+    },
+    {
+      name: 'pull-replication-one-generation-open-revs-reverse',
+      assertions: 1,
+      iterations: 1,
+      setup: oneGen.setup({ itr:1, gens:1, openRevs:20, reverse:true }),
+      test: oneGen.test(),
+      tearDown: oneGen.tearDown()
+    },
+    {
+      name: 'pull-replication-two-generation-open-revs',
+      assertions: 1,
+      iterations: 1,
+      setup: twoGen.setup({ itr:1, gens:2, openRevs:20 }),
+      test: twoGen.test(),
+      tearDown: twoGen.tearDown()
+    },
+    {
+      name: 'pull-replication-two-generation-open-revs-reverse',
+      assertions: 1,
+      iterations: 1,
+      setup: twoGen.setup({ itr:1, gens:2, openRevs:20, reverse:true }),
+      test: twoGen.test(),
+      tearDown: twoGen.tearDown()
+    },
   ];
 
   utils.runTests(PouchDB, 'basics', testCases, callback);
