@@ -125,7 +125,7 @@ module.exports = function (PouchDB, callback) {
       iterations: 1000,
       setup: function (db, callback) {
         var docs = [];
-        for (var i = 0; i < 1000; i++) {
+        for (var i = 0; i < this.iterations; i++) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
