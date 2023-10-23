@@ -163,9 +163,9 @@ async function startTest() {
   page.on('pageerror', err => {
     if (browserName === 'webkit' && err.toString()
         .match(/^Fetch API cannot load http.* due to access control checks.$/)) {
-      // This is an _uncatchable_, nonsensical error seen in playwright v1.36.1
-      // webkit.  If it is ignored, fetch() will also throw a _catchable_
-      // TypeError: Load failed
+      // This is an _uncatchable_, error seen in playwright v1.36.1 webkit. If
+      // it is ignored, fetch() will also throw a _catchable_:
+      // `TypeError: Load failed`
       console.log('Ignoring error:', err);
       return;
     }
