@@ -238,7 +238,7 @@ describe('test.escaping.js', function () {
     });
   });
 
-  it('handles escape patterns without collisions (with indexes)', function () {
+  it('#8808 handles escape patterns without collisions (with indexes)', function () {
     var db = context.db;
     var index1 = {
       "index": {
@@ -282,7 +282,7 @@ describe('test.escaping.js', function () {
     });
   });
 
-  it('handles escape patterns without collisions (no indexes)', function () {
+  it('#8808 handles escape patterns without collisions (no indexes)', function () {
     var db = context.db;
     return db.bulkDocs([
       {_id: 'doc1', 'foo/bar': 'a'},
