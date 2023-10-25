@@ -268,17 +268,17 @@ describe('test.escaping.js', function () {
     }).then(function () {
       return db.find({
         selector: {'foo/bar': 'a'},
-        fields: ['_id', 'foo/bar']
+        fields: ['_id', 'foo/bar', 'foo_c47_bar']
       });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ "_id": "doc1", "foo/bar": "a" }]);
+      res.docs.should.deep.equal([{ _id: 'doc1', 'foo/bar': 'a' }]);
     }).then(function () {
       return db.find({
         selector: {'foo_c47_bar': 'a'},
-        fields: ['_id', 'foo_c47_bar']
+        fields: ['_id', 'foo/bar', 'foo_c47_bar']
       });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ "_id": "doc2", "foo_c47_bar": "a" }]);
+      res.docs.should.deep.equal([{ _id: 'doc2', foo_c47_bar: 'a' }]);
     });
   });
 
@@ -290,17 +290,17 @@ describe('test.escaping.js', function () {
     ]).then(function () {
       return db.find({
         selector: {'foo/bar': 'a'},
-        fields: ['_id', 'foo/bar']
+        fields: ['_id', 'foo/bar', 'foo_c47_bar']
       });
     }).then(function (res) {
       res.docs.should.deep.equal([{ _id: 'doc1', 'foo/bar': 'a' }]);
     }).then(function () {
       return db.find({
         selector: {'foo_c47_bar': 'a'},
-        fields: ['_id', 'foo_c47_bar']
+        fields: ['_id', 'foo/bar', 'foo_c47_bar']
       });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ _id: 'doc2', 'foo_c47_bar': 'a' }]);
+      res.docs.should.deep.equal([{ _id: 'doc2', foo_c47_bar: 'a' }]);
     });
   });
 
@@ -341,21 +341,21 @@ describe('test.escaping.js', function () {
     }).then(function () {
       return db.createIndex(index2);
     }).then(function () {
-      return db.find({ selector: {'foo/bar': {$gt: 0}}, fields: ['_id', 'foo/bar'] });
+      return db.find({ selector: {'foo/bar': {$gt: 0}}, fields: ['_id', 'foo/bar', 'foo_c47_bar'] });
     }).then(function (res) {
       res.docs.length.should.equal(0);
     }).then(function () {
-      return db.find({ selector: {'foo/bar': {$lt: 0}}, fields: ['_id', 'foo/bar'] });
+      return db.find({ selector: {'foo/bar': {$lt: 0}}, fields: ['_id', 'foo/bar', 'foo_c47_bar'] });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ _id: 'doc', 'foo/bar': -1 }]);
+      res.docs.should.deep.equal([{ _id: 'doc', 'foo/bar': -1, foo_c47_bar: 2 }]);
     }).then(function () {
-      return db.find({ selector: {'foo_c47_bar': {$lt: 0}}, fields: ['_id', 'foo_c47_bar'] });
+      return db.find({ selector: {'foo_c47_bar': {$lt: 0}}, fields: ['_id', 'foo/bar', 'foo_c47_bar'] });
     }).then(function (res) {
       res.docs.length.should.equal(0);
     }).then(function () {
-      return db.find({ selector: {'foo_c47_bar': {$gt: 0}}, fields: ['_id', 'foo_c47_bar'] });
+      return db.find({ selector: {'foo_c47_bar': {$gt: 0}}, fields: ['_id', 'foo/bar', 'foo_c47_bar'] });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ _id: 'doc', 'foo_c47_bar': 2 } ]);
+      res.docs.should.deep.equal([{ _id: 'doc', 'foo/bar': -1, foo_c47_bar: 2 } ]);
     });
   });
 
@@ -374,21 +374,21 @@ describe('test.escaping.js', function () {
       results.rows[0].doc['foo/bar'].should.equal(-1);
       results.rows[0].doc['foo_c47_bar'].should.equal(2);
     }).then(function () {
-      return db.find({ selector: {'foo/bar': {$gt: 0}}, fields: ['_id', 'foo/bar'] });
+      return db.find({ selector: {'foo/bar': {$gt: 0}}, fields: ['_id', 'foo/bar', 'foo_c47_bar'] });
     }).then(function (res) {
       res.docs.length.should.equal(0, 'foo/bar should not be greater than 0');
     }).then(function () {
-      return db.find({ selector: {'foo/bar': {$lt: 0}}, fields: ['_id', 'foo/bar'] });
+      return db.find({ selector: {'foo/bar': {$lt: 0}}, fields: ['_id', 'foo/bar', 'foo_c47_bar'] });
     }).then(function (res) {
-      res.docs.should.deep.equal([ { _id: 'doc', 'foo/bar': -1 } ]);
+      res.docs.should.deep.equal([ { _id: 'doc', 'foo/bar': -1, foo_c47_bar: 2 } ]);
     }).then(function () {
-      return db.find({ selector: {'foo_c47_bar': {$lt: 0}}, fields: ['_id', 'foo_c47_bar'] });
+      return db.find({ selector: {'foo_c47_bar': {$lt: 0}}, fields: ['_id', 'foo/bar', 'foo_c47_bar'] });
     }).then(function (res) {
       res.docs.length.should.equal(0, 'foo_c47_bar should not be less than 0');
     }).then(function () {
-      return db.find({ selector: {'foo_c47_bar': {$gt: 0}}, fields: ['_id', 'foo_c47_bar'] });
+      return db.find({ selector: {'foo_c47_bar': {$gt: 0}}, fields: ['_id', 'foo/bar', 'foo_c47_bar'] });
     }).then(function (res) {
-      res.docs.should.deep.equal([ { _id: 'doc', 'foo_c47_bar': 2 } ]);
+      res.docs.should.deep.equal([ { _id: 'doc', 'foo/bar': -1, foo_c47_bar: 2 } ]);
     });
   });
 });
