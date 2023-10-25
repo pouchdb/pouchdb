@@ -376,19 +376,19 @@ describe('test.escaping.js', function () {
     }).then(function () {
       return db.find({ selector: {'foo/bar': {$gt: 0}}, fields: ['_id', 'foo/bar'] });
     }).then(function (res) {
-      res.docs.length.should.equal(0);
+      res.docs.length.should.equal(0, 'foo/bar should not be greater than 0');
     }).then(function () {
       return db.find({ selector: {'foo/bar': {$lt: 0}}, fields: ['_id', 'foo/bar'] });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ _id: 'doc', 'foo/bar': -1 }]);
+      res.docs.should.deep.equal([ { _id: 'doc', 'foo/bar': -1 } ]);
     }).then(function () {
       return db.find({ selector: {'foo_c47_bar': {$lt: 0}}, fields: ['_id', 'foo_c47_bar'] });
     }).then(function (res) {
-      res.docs.length.should.equal(0);
+      res.docs.length.should.equal(0, 'foo_c47_bar should not be less than 0');
     }).then(function () {
       return db.find({ selector: {'foo_c47_bar': {$gt: 0}}, fields: ['_id', 'foo_c47_bar'] });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ _id: 'doc', 'foo_c47_bar': 2 } ]);
+      res.docs.should.deep.equal([ { _id: 'doc', 'foo_c47_bar': 2 } ]);
     });
   });
 });
