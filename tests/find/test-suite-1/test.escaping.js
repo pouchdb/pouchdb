@@ -278,7 +278,7 @@ describe('test.escaping.js', function () {
         fields: ['_id', 'foo_c47_bar']
       });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ "_id": "doc", "foo_c47_bar": "a" }]);
+      res.docs.should.deep.equal([{ "_id": "doc2", "foo_c47_bar": "a" }]);
     });
   });
 
@@ -300,7 +300,7 @@ describe('test.escaping.js', function () {
         fields: ['_id', 'foo_c47_bar']
       });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ "_id": "doc", "foo_c47_bar": "a" }]);
+      res.docs.should.deep.equal([{ "_id": "doc2", "foo_c47_bar": "a" }]);
     });
   });
 });
