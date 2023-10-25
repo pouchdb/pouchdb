@@ -293,14 +293,14 @@ describe('test.escaping.js', function () {
         fields: ['_id', 'foo/bar']
       });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ "_id": "doc1", "foo/bar": "a" }]);
+      res.docs.should.deep.equal([{ _id: 'doc1', 'foo/bar': 'a' }]);
     }).then(function () {
       return db.find({
         selector: {'foo_c47_bar': 'a'},
         fields: ['_id', 'foo_c47_bar']
       });
     }).then(function (res) {
-      res.docs.should.deep.equal([{ "_id": "doc2", "foo_c47_bar": "a" }]);
+      res.docs.should.deep.equal([{ _id: 'doc2', 'foo_c47_bar': 'a' }]);
     });
   });
 });
