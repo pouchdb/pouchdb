@@ -338,8 +338,8 @@ adapters.forEach(function (adapter) {
         caughtErrors.push(err);
       });
 
-      await assert.isRejected(changes, "completes with an exception");
-      assert.lengthOf(caughtErrors, 1, "changes emitted the expected error");
+      await assert.isRejected(changes, 'completes with an exception');
+      assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
     });
 
     it('Changes with `filters` key not present in ddoc', async function () {
@@ -378,8 +378,8 @@ adapters.forEach(function (adapter) {
         caughtErrors.push(err);
       });
 
-      await assert.isRejected(changes, "completes with an exception");
-      assert.lengthOf(caughtErrors, 1, "changes emitted the expected error");
+      await assert.isRejected(changes, 'completes with an exception');
+      assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
     });
 
     it('Changes limit and filter', function (done) {
