@@ -177,7 +177,7 @@ describe('migration', function () {
         ];
 
         var oldPouch = new dbs.first.pouch(dbs.first.remote);
-        oldPouch.bulkDocs({docs: docs}, {}, function (err) {
+        oldPouch.bulkDocs({docs}, {}, function (err) {
           should.not.exist(err, 'got error in bulkDocs: ' +
                            JSON.stringify(err));
           var oldLocalPouch =  new dbs.first.pouch(dbs.first.local,
@@ -233,7 +233,7 @@ describe('migration', function () {
         ];
 
         var oldPouch = new dbs.first.pouch(dbs.first.remote);
-        oldPouch.bulkDocs({docs: docs}, {}, function (err) {
+        oldPouch.bulkDocs({docs}, {}, function (err) {
           should.not.exist(err, 'got error in bulkDocs: ' +
                            JSON.stringify(err));
           var oldLocalPouch = new dbs.first.pouch(dbs.first.local,
@@ -293,7 +293,7 @@ describe('migration', function () {
             { key: 3, id: '2', value: null },
             { key: 4, id: '3', value: null }
           ];
-          oldPouch.bulkDocs({docs: docs}, function (err) {
+          oldPouch.bulkDocs({docs}, function (err) {
             should.not.exist(err, 'bulkDocs');
             oldPouch.query('myview', function (err, res) {
               should.not.exist(err, 'query');
@@ -332,7 +332,7 @@ describe('migration', function () {
             { key: 3, id: '2', value: 9 },
             { key: 4, id: '3', value: 16 }
           ];
-          oldPouch.bulkDocs({docs: docs}, function (err) {
+          oldPouch.bulkDocs({docs}, function (err) {
             should.not.exist(err, 'bulkDocs');
             oldPouch.query('myview', function (err, res) {
               should.not.exist(err, 'query');
@@ -414,7 +414,7 @@ describe('migration', function () {
             { _id: '_local/foo' },
             { _id: '_local/bar' }
           ];
-          oldPouch.bulkDocs({docs: docs}).then(function () {
+          oldPouch.bulkDocs({docs}).then(function () {
             return oldPouch.close();
           }).then(function () {
             var newPouch = new dbs.second.pouch(dbs.second.local);
