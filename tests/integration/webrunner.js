@@ -27,7 +27,7 @@
           return function () {
             var args = Array.prototype.slice.call(arguments);
             logs.push({
-              type: type,
+              type,
               content: args.map(function (arg) {
                 return serializeLogItem(arg);
               }).join(' ')
@@ -55,7 +55,7 @@
         eventNames.forEach(function (name) {
           runner.on(name, function (obj, err) {
             testEventsBuffer.push({
-              name: name,
+              name,
               obj: obj && {
                 root: obj.root,
                 title: obj.title,
@@ -71,7 +71,7 @@
                 stack: err.stack,
                 uncaught: err.uncaught
               },
-              logs: logs
+              logs
             });
             logs = [];
           });
