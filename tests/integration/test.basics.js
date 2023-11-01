@@ -628,7 +628,7 @@ adapters.forEach(function (adapter) {
         if (++sent === TO_SEND) {
           clearInterval(timer);
         }
-        db.bulkDocs({docs: docs}, bulkCallback);
+        db.bulkDocs({docs}, bulkCallback);
       };
 
       timer = setInterval(save, 10);

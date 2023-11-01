@@ -72,7 +72,7 @@ adapters.forEach(function (adapter) {
         {_id: '10', integer: 10}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         var changeCount = 0;
         var promise = db.changes().on('change', function handler() {
           changeCount++;
@@ -309,32 +309,41 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Changes with filter not present in ddoc', function (done) {
-      this.timeout(15000);
-      var docs = [
+    it('Changes with filter not present in ddoc', async function () {
+      const docs = [
         {_id: '1', integer: 1},
         { _id: '_design/foo',
           integer: 4,
           filters: { even: 'function (doc) { return doc.integer % 2 === 1; }' }
         }
       ];
-      var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function () {
-        db.changes({
-          filter: 'foo/odd',
-          limit: 2,
-          include_docs: true
-        }).on('error', function (err) {
-          err.name.should.equal('not_found');
-          err.status.should.equal(testUtils.errors.MISSING_DOC.status,
-                                  'correct error status returned');
-          done();
-        });
+      const db = new PouchDB(dbs.name);
+
+      await testUtils.promisify(testUtils.writeDocs)(db, docs);
+
+      const caughtErrors = [];
+      const changes = db.changes({
+        filter: 'foo/odd',
+        limit: 2,
+        include_docs: true
       });
+
+      changes.on('error', (err) => {
+        assert.equal(
+          err.status,
+          testUtils.errors.MISSING_DOC.status,
+          'correct error status returned'
+        );
+        assert.equal(err.name, 'not_found');
+        caughtErrors.push(err);
+      });
+
+      await assert.isRejected(changes, 'completes with an exception');
+      assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
     });
 
-    it('Changes with `filters` key not present in ddoc', function (done) {
-      var docs = [
+    it('Changes with `filters` key not present in ddoc', async function () {
+      const docs = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {
@@ -343,24 +352,34 @@ adapters.forEach(function (adapter) {
           views: {
             even: {
               map: 'function (doc) { if (doc.integer % 2 === 1)' +
-               ' { emit(doc._id, null) }; }'
+                ' { emit(doc._id, null) }; }'
             }
           }
         }
       ];
-      var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function () {
-        db.changes({
-          filter: 'foo/even',
-          limit: 2,
-          include_docs: true
-        }).on('error', function (err) {
-          err.status.should.equal(testUtils.errors.MISSING_DOC.status,
-                                  'correct error status returned');
-          err.name.should.equal('not_found');
-          done();
-        });
+      const db = new PouchDB(dbs.name);
+
+      await testUtils.promisify(testUtils.writeDocs)(db, docs);
+
+      const caughtErrors = [];
+      const changes = db.changes({
+        filter: 'foo/even',
+        limit: 2,
+        include_docs: true
       });
+
+      changes.on('error', (err) => {
+        assert.equal(
+          err.status,
+          testUtils.errors.MISSING_DOC.status,
+          'correct error status returned'
+        );
+        assert.equal(err.name, 'not_found');
+        caughtErrors.push(err);
+      });
+
+      await assert.isRejected(changes, 'completes with an exception');
+      assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
     });
 
     it('Changes limit and filter', function (done) {
@@ -421,7 +440,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         var promise = db.changes({
           return_docs: true,
           filter: 'even',
@@ -753,7 +772,7 @@ adapters.forEach(function (adapter) {
         {_id: '3', integer: 3}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           limit: 0
@@ -794,7 +813,7 @@ adapters.forEach(function (adapter) {
         });
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err) {
+      db.bulkDocs({ docs }, function (err) {
         if (err) {
           return done(err);
         }
@@ -1442,7 +1461,7 @@ adapters.forEach(function (adapter) {
         });
       }
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({return_docs: true}).on('complete', function (res) {
           res.results.length.should.equal(num);
           done();
@@ -1559,7 +1578,7 @@ adapters.forEach(function (adapter) {
         docs.push({ _id: 'doc_' + i});
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err) {
+      db.bulkDocs({ docs }, function (err) {
         if (err) {
           return done(err);
         }
@@ -1724,7 +1743,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           selector: {"user": "foo"},
@@ -1752,7 +1771,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           selector: {"user": "foo"},
@@ -1795,7 +1814,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         return db.changes({
           return_docs: true,
           limit: 1,

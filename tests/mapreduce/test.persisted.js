@@ -397,7 +397,7 @@ describe('test.persisted.js', function () {
       );
     }
     var db = new PouchDB(dbName);
-    return db.bulkDocs({docs : docs}).then(function (responses) {
+    return db.bulkDocs({docs}).then(function (responses) {
       var tasks = [];
       for (var i = 0; i < docs.length; i++) {
         docs[i]._rev = responses[i].rev;
@@ -408,7 +408,7 @@ describe('test.persisted.js', function () {
       docs.forEach(function (doc) {
         doc._deleted = true;
       });
-      return db.bulkDocs({docs : docs});
+      return db.bulkDocs({docs});
     }).then(function () {
       return db.viewCleanup();
     });

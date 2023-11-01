@@ -38,6 +38,8 @@
     "no-console": "off",
     "no-tabs": "error",
     "no-trailing-spaces": "error",
+    "no-undef-init": "error",
+    "object-shorthand": ["error", "properties"],
     "semi": ["error", "always"],
     "curly": ["error", "all"],
     "space-unary-ops": ["error", {"words": true}],

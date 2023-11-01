@@ -17,15 +17,7 @@ describe.skip('browser.worker.js', function () {
   before(function () {
     worker = new Worker('worker.js');
 
-    var sourceFile = window && window.location.search.match(/[?&]sourceFile=([^&]+)/);
-
-    if (!sourceFile) {
-      sourceFile = '../../packages/node_modules/pouchdb/dist/pouchdb.js';
-    } else {
-      sourceFile = '../../packages/node_modules/pouchdb/dist/' + sourceFile[1];
-    }
-
-    worker.postMessage(['source', sourceFile]);
+    worker.postMessage(['source', testUtils.pouchdbSrc()]);
   });
 
   function workerPromise(message) {

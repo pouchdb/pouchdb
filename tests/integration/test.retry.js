@@ -594,7 +594,7 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       return db.bulkDocs({
-        docs: docs,
+        docs,
         new_edits: false
       }).then(function () {
         function replicatePromise(fromDB, toDB) {

@@ -279,13 +279,13 @@ adapters.forEach(function (adapter) {
           return Promise.all(
             doc._revisions.ids.map(function (id, i) {
               var rev = (start - i) + '-' + id;
-              return db.get(docId, {rev: rev}).then(function (doc) {
-                return { rev: rev, doc: doc };
+              return db.get(docId, {rev}).then(function (doc) {
+                return { rev, doc };
               }).catch(function (err) {
                 if (err.status !== 404) {
                   throw err;
                 }
-                return { rev: rev };
+                return { rev };
               });
             })).then(function (docsAndRevs) {
               combinedResult = combinedResult.concat(docsAndRevs);
@@ -637,7 +637,7 @@ adapters.forEach(function (adapter) {
       }).then(function (res) {
         rev2 = res.rev;
         return Promise.all([rev1, rev2].map(function (rev) {
-          return db.get('doc1', {rev: rev, attachments: true});
+          return db.get('doc1', {rev, attachments: true});
         }));
       }).then(function (docs) {
         var data1 = docs[0]._attachments['att.txt'].data;
@@ -710,7 +710,7 @@ adapters.forEach(function (adapter) {
       }).then(function (doc) {
         doc._attachments['newatt.txt'] = {
           content_type: "text/plain",
-          digest: digest,
+          digest,
           stub: true
         };
         return db.put(doc).then(function () {
@@ -772,13 +772,13 @@ adapters.forEach(function (adapter) {
       var digestsToForget = [];
       var digestsToRemember = [];
       return db.bulkDocs({
-        docs: docs,
+        docs,
         new_edits: false
       }).then(function () {
         return Promise.all([
           '1-a1', '2-a2', '3-a3', '1-b1'
         ].map(function (rev) {
-          return db.get('fubar', {rev: rev, attachments: true});
+          return db.get('fubar', {rev, attachments: true});
         }));
       }).then(function (docs) {
         digestsToForget.push(docs[0]._attachments['att.txt'].digest);
@@ -794,7 +794,7 @@ adapters.forEach(function (adapter) {
             _attachments: {
               'newatt.txt': {
                 content_type: "text/plain",
-                digest: digest,
+                digest,
                 stub: true
               }
             }
@@ -812,7 +812,7 @@ adapters.forEach(function (adapter) {
             _attachments: {
               'newatt.txt': {
                 content_type: "text/plain",
-                digest: digest,
+                digest,
                 stub: true
               }
             }
@@ -830,7 +830,7 @@ adapters.forEach(function (adapter) {
             _attachments: {
               'newatt.txt': {
                 content_type: "text/plain",
-                digest: digest,
+                digest,
                 stub: true
               }
             }
@@ -879,7 +879,7 @@ adapters.forEach(function (adapter) {
       }).then(function (doc) {
         doc._attachments['newatt.txt'] = {
           content_type: "text/plain",
-          digest: digest,
+          digest,
           stub: true
         };
         return db.put(doc);
@@ -905,7 +905,7 @@ adapters.forEach(function (adapter) {
           _attachments: {
             'foo.txt': {
               content_type: "text/plain",
-              digest: digest,
+              digest,
               stub: true
             }
           }
@@ -935,8 +935,8 @@ adapters.forEach(function (adapter) {
         }
       }];
       var digest;
-      return db.bulkDocs({docs: docs, new_edits: false}).then(function () {
-        return db.bulkDocs({docs: docs, new_edits: false});
+      return db.bulkDocs({docs, new_edits: false}).then(function () {
+        return db.bulkDocs({docs, new_edits: false});
       }).then(function () {
         return db.get('foo', {attachments: true});
       }).then(function (doc) {
@@ -947,7 +947,7 @@ adapters.forEach(function (adapter) {
           _attachments: {
             'foo.txt': {
               content_type: "text/plain",
-              digest: digest,
+              digest,
               stub: true
             }
           }
@@ -1144,7 +1144,7 @@ adapters.forEach(function (adapter) {
             _attachments: {
               'baz.txt' : {
                 stub: true,
-                digest: digest,
+                digest,
                 content_type: 'text/plain'
               }
             }
@@ -1157,7 +1157,7 @@ adapters.forEach(function (adapter) {
             _attachments: {
               'baz.txt' : {
                 stub: true,
-                digest: digest,
+                digest,
                 content_type: 'text/plain'
               }
             }
@@ -1344,7 +1344,7 @@ adapters.forEach(function (adapter) {
               _attachments: {
                 'baz.txt' : {
                   stub: true,
-                  digest: digest,
+                  digest,
                   content_type: 'text/plain'
                 }
               }
@@ -1357,7 +1357,7 @@ adapters.forEach(function (adapter) {
               _attachments: {
                 'baz.txt' : {
                   stub: true,
-                  digest: digest,
+                  digest,
                   content_type: 'text/plain'
                 }
               }
@@ -1407,7 +1407,7 @@ adapters.forEach(function (adapter) {
             _attachments: {
               'baz.txt' : {
                 stub: true,
-                digest: digest,
+                digest,
                 content_type: 'text/plain'
               }
             }
@@ -1678,7 +1678,7 @@ adapters.forEach(function (adapter) {
               _attachments: {
                 'baz.txt' : {
                   stub: true,
-                  digest: digest,
+                  digest,
                   content_type: 'text/plain'
                 }
               }
@@ -1691,7 +1691,7 @@ adapters.forEach(function (adapter) {
               _attachments: {
                 'baz.txt' : {
                   stub: true,
-                  digest: digest,
+                  digest,
                   content_type: 'text/plain'
                 }
               }
@@ -1812,7 +1812,7 @@ adapters.forEach(function (adapter) {
               _attachments: {
                 'baz.txt' : {
                   stub: true,
-                  digest: digest,
+                  digest,
                   content_type: 'text/plain'
                 }
               }
@@ -1825,7 +1825,7 @@ adapters.forEach(function (adapter) {
               _attachments: {
                 'baz.txt' : {
                   stub: true,
-                  digest: digest,
+                  digest,
                   content_type: 'text/plain'
                 }
               }
@@ -1875,7 +1875,7 @@ adapters.forEach(function (adapter) {
       }).then(function (doc) {
         doc._attachments['newatt.txt'] = {
           content_type: "text/plain",
-          digest: digest,
+          digest,
           stub: true
         };
         return db.put(doc);
@@ -1899,7 +1899,7 @@ adapters.forEach(function (adapter) {
           _attachments: {
             'foo.txt': {
               content_type: "text/plain",
-              digest: digest,
+              digest,
               stub: true
             }
           }
@@ -1929,8 +1929,8 @@ adapters.forEach(function (adapter) {
         }
       }];
       var digest;
-      return db.bulkDocs({docs: docs, new_edits: false}).then(function () {
-        return db.bulkDocs({docs: docs, new_edits: false});
+      return db.bulkDocs({docs, new_edits: false}).then(function () {
+        return db.bulkDocs({docs, new_edits: false});
       }).then(function () {
         return db.get('foo', {attachments: true});
       }).then(function (doc) {
@@ -1941,7 +1941,7 @@ adapters.forEach(function (adapter) {
           _attachments: {
             'foo.txt': {
               content_type: "text/plain",
-              digest: digest,
+              digest,
               stub: true
             }
           }
@@ -2104,7 +2104,7 @@ adapters.forEach(function (adapter) {
             _attachments: {
               'baz.txt' : {
                 stub: true,
-                digest: digest,
+                digest,
                 content_type: 'text/plain'
               }
             }

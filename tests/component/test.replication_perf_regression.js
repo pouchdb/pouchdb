@@ -71,7 +71,7 @@ describe('test.replication_perf_regression.js', function () {
       remote = new PouchDB(dbs.remote);
       return remote.bulkDocs({
         // to repro issue: docs exist at remote...nothing at local
-        docs: docs,
+        docs,
         new_edits: false
       });
     }).then(function () {
