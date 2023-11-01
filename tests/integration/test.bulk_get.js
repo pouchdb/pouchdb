@@ -21,7 +21,7 @@ adapters.forEach(function (adapter) {
         var rev = response.rev;
         db.bulkGet({
           docs: [
-            {id: 'foo', rev: rev}
+            {id: 'foo', rev}
           ]
         }).then(function (response) {
           var result = response.results[0];
@@ -80,7 +80,7 @@ adapters.forEach(function (adapter) {
         var rev = response.rev;
         db.bulkGet({
           docs: [
-            {id: 'foo', rev: rev}
+            {id: 'foo', rev}
           ]
         }).then(function (response) {
           var result = response.results[0];
@@ -96,7 +96,7 @@ adapters.forEach(function (adapter) {
         var rev = response.rev;
         db.bulkGet({
           docs: [
-            {id: 'constructor', rev: rev}
+            {id: 'constructor', rev}
           ]
         }).then(function (response) {
           var result = response.results[0];
@@ -113,7 +113,7 @@ adapters.forEach(function (adapter) {
         var rev = response.rev;
         db.bulkGet({
           docs: [
-            {id: 'foo', rev: rev}
+            {id: 'foo', rev}
           ],
           revs: true
         }).then(function (response) {
@@ -158,7 +158,7 @@ adapters.forEach(function (adapter) {
 
         db.bulkGet({
           docs: [
-            {id: 'foo', rev: rev}
+            {id: 'foo', rev}
           ]
         }).then(function (response) {
           var result = response.results[0];
@@ -184,7 +184,7 @@ adapters.forEach(function (adapter) {
 
         db.bulkGet({
           docs: [
-            {id: 'foo', rev: rev}
+            {id: 'foo', rev}
           ],
           attachments: true
         }).then(function (response) {
