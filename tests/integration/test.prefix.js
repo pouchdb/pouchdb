@@ -52,7 +52,7 @@ if (typeof process !== 'undefined' &&
 
       var prefix = './tmp/testfolder/';
       mkdirp.sync(prefix);
-      var CustomPouch = PouchDB.defaults({prefix: prefix});
+      var CustomPouch = PouchDB.defaults({prefix});
 
       var db = new CustomPouch('testdb');
 

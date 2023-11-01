@@ -635,7 +635,7 @@ adapters.forEach(function (adapters) {
             {_id: 'nofoo'},
             {_id: 'foo2', foo: 'object'}
           ];
-          return db.bulkDocs({docs: docs});
+          return db.bulkDocs({docs});
         }).then(function () {
           var sync = db.sync(dbs.remote);
           sync.on('denied', function (error) {
@@ -681,7 +681,7 @@ adapters.forEach(function (adapters) {
               {_id: 'nofoo'},
               {_id: 'foo2', foo: 'object'}
             ];
-            return db.bulkDocs({docs: docs});
+            return db.bulkDocs({docs});
           }).then(function () {
             var sync = remote.sync(db);
             sync.on('denied', function (error) {
@@ -707,7 +707,7 @@ adapters.forEach(function (adapters) {
         {_id: '3'}
       ];
 
-      db.bulkDocs({ docs: docs }, {}).then(function () {
+      db.bulkDocs({ docs }, {}).then(function () {
         var sync = db.sync(dbs.remote);
         sync.on('change', function (change) {
           syncedDocs = syncedDocs.concat(change.change.docs);
@@ -775,7 +775,7 @@ adapters.forEach(function (adapters) {
               sync.cancel();
             }
           };
-          var sync = db.sync(remote, {filter: filter, live: true, retry: true})
+          var sync = db.sync(remote, {filter, live: true, retry: true})
             .on('error', reject)
             .on('change', onChange)
             .on('complete', resolve);

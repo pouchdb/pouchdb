@@ -30,7 +30,7 @@ module.exports = function (PouchDB, callback) {
         for (var i = 0; i < 100; i++) {
           docs.push({much : 'docs', very : 'bulk'});
         }
-        callback(null, {docs : docs});
+        callback(null, {docs});
       },
       test: function (db, itr, docs, done) {
         db.bulkDocs(docs, done);
@@ -51,7 +51,7 @@ module.exports = function (PouchDB, callback) {
           docs.push(doc);
         }
 
-        callback(null, {docs : docs});
+        callback(null, {docs});
       },
       test: function (db, itr, docs, done) {
         db.bulkDocs(docs, done);
@@ -92,7 +92,7 @@ module.exports = function (PouchDB, callback) {
           docs.push(innerDoc(1));
         }
 
-        callback(null, {docs : docs});
+        callback(null, {docs});
       },
       test: function (db, itr, docs, done) {
         db.bulkDocs(docs, done);
@@ -129,7 +129,7 @@ module.exports = function (PouchDB, callback) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
-        db.bulkDocs({docs : docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         db.get(commonUtils.createDocId(itr), done);
@@ -145,7 +145,7 @@ module.exports = function (PouchDB, callback) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
-        db.bulkDocs({docs : docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         function taskFactory(i) {
@@ -175,7 +175,7 @@ module.exports = function (PouchDB, callback) {
             baz: 'quux'
           });
         }
-        db.bulkDocs({docs: docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         function taskFactory(i) {
@@ -205,7 +205,7 @@ module.exports = function (PouchDB, callback) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
-        db.bulkDocs({docs : docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         function randomDocId() {
@@ -217,7 +217,7 @@ module.exports = function (PouchDB, callback) {
           keys.push(randomDocId());
         }
         db.allDocs({
-          keys: keys,
+          keys,
           include_docs: true
         }, done);
       }
@@ -236,7 +236,7 @@ module.exports = function (PouchDB, callback) {
             _deleted: i % 2 === 1
           });
         }
-        db.bulkDocs({docs: docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         return db.allDocs({
@@ -271,8 +271,8 @@ module.exports = function (PouchDB, callback) {
         }
 
         return callback(null, {
-          localPouches: localPouches,
-          remoteDB: remoteDB
+          localPouches,
+          remoteDB
         });
       },
       test: function (ignoreDB, itr, testContext, done) {
