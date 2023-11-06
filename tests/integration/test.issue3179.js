@@ -130,7 +130,7 @@ adapters.forEach(function (adapters) {
             if (!revsEqual || !conflictsEqual) {
               // we can get caught in an infinite loop here when using adapters based
               // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
-              return new testUtils.Promise(function (resolve) {
+              return new Promise(function (resolve) {
                 setTimeout(resolve, 0);
               }).then(waitForUptodate);
             }
@@ -139,7 +139,7 @@ adapters.forEach(function (adapters) {
       }
 
       function waitForConflictsResolved() {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           var changes = remote.changes({
             live: true,
             include_docs: true,
@@ -154,7 +154,7 @@ adapters.forEach(function (adapters) {
       }
 
       function cleanup() {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           sync.on('complete', resolve);
           sync.on('error', reject);
           sync.cancel();
@@ -213,7 +213,7 @@ adapters.forEach(function (adapters) {
       var repl2 = local.replicate.from(remote, { live: true });
 
       function waitForConflictsResolved() {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           var changes = remote.changes({
             live: true,
             include_docs: true,
@@ -253,7 +253,7 @@ adapters.forEach(function (adapters) {
             if (!revsEqual || !conflictsEqual) {
               // we can get caught in an infinite loop here when using adapters based
               // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
-              return new testUtils.Promise(function (resolve) {
+              return new Promise(function (resolve) {
                 setTimeout(resolve, 0);
               }).then(waitForUptodate);
             }
@@ -262,7 +262,7 @@ adapters.forEach(function (adapters) {
       }
 
       function cleanup() {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var numDone = 0;
 
           function checkDone() {
