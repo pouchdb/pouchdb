@@ -21,6 +21,7 @@ function iterationsFor(testCase) {
 var adapterUsed;
 
 exports.runTests = function (PouchDB, suiteName, testCases, callback) {
+
   testCases = testCases.filter(function (testCase) {
     if (grep) {
       const regexp = new RegExp(grep);
@@ -81,7 +82,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
           } else {
             reporter.endIteration(testCase);
           }
-          if (++num < testCase.iterations) {
+          if (++num < iterations) {
             next();
           } else {
             t.ok(testName + ' completed');
