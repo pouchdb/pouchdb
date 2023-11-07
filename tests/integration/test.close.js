@@ -19,7 +19,7 @@ adapters.forEach(function (adapter) {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         db2.once('destroyed', resolve);
         db1.once('closed', function () {
           db2.destroy();
@@ -32,7 +32,7 @@ adapters.forEach(function (adapter) {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         // FIXME This should be 2 if close-then-destroy worked.
         var need = 1;
         function checkDone() {
@@ -60,7 +60,7 @@ adapters.forEach(function (adapter) {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         // FIXME This should be 2 if destroy-then-close worked.
         var need = 1;
         function checkDone() {
@@ -86,7 +86,7 @@ adapters.forEach(function (adapter) {
 
     it('test unref for coverage', function () {
       var db1 = new PouchDB('testdb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         PouchDB.once('unref', resolve);
         db1.close();
       });
@@ -97,7 +97,7 @@ adapters.forEach(function (adapter) {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
 
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         var need = 2;
         function checkDone() {
           if (--need === 0) {
@@ -122,7 +122,7 @@ adapters.forEach(function (adapter) {
       this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         // FIXME This should be 2 if close-then-destroy worked.
         var need = 1;
         function checkDone() {
@@ -147,7 +147,7 @@ adapters.forEach(function (adapter) {
       this.timeout(1000);
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         // FIXME This should be 2 if close-then-destroy worked.
         var need = 1;
         function checkDone() {
@@ -173,7 +173,7 @@ adapters.forEach(function (adapter) {
       var db1 = new PouchDB('testdb');
       var db2 = new PouchDB('testdb');
       var db3 = new PouchDB('testdb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         // FIXME This should be 3 if close-then-destroy worked.
         var need = 1;
         function checkDone() {
