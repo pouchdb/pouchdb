@@ -13,9 +13,9 @@ module.exports = function (PouchDB, Promise) {
     this.localPouches = [];
   };
 
-  PullRequestTestObject.prototype.setup = function (itr, _, gens) {
+  PullRequestTestObject.prototype.setup = function (itr, gens) {
     var self = this;
-    return function (localDB, callback) {
+    return function (localDB, _, callback) {
       var remoteDBOpts = {ajax: {pool: {maxSockets: MAX_SOCKETS}}};
       var remoteCouchUrl = commonUtils.couchHost() + "/" +
         commonUtils.safeRandomDBName();
