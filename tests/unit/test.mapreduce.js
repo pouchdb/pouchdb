@@ -4,7 +4,6 @@ var should = require('chai').should();
 var PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
 var upsert = PouchDB.utils.upsert;
 var utils = PouchDB.utils.mapReduceUtils;
-var Promise = PouchDB.utils.Promise;
 
 describe('test.mapreduce.js-upsert', function () {
   it('should throw an error if the doc errors', function () {
