@@ -4,8 +4,6 @@ describe('test.persisted.js', function () {
   var dbType = testUtils.adapterType();
   var dbName = testUtils.adapterUrl(dbType, 'testdb');
 
-  var Promise = testUtils.Promise;
-
   function setTimeoutPromise(time) {
     return new Promise(function (resolve) {
       setTimeout(function () { resolve(true); }, time);
@@ -85,7 +83,7 @@ describe('test.persisted.js', function () {
       return db.viewCleanup();
     }).then(function () {
       var views = ['name', 'title'];
-      return testUtils.Promise.all(views.map(function (view) {
+      return Promise.all(views.map(function (view) {
         return db.query(view).then(function () {
           throw new Error('expected an error');
         }, function (err) {
