@@ -24,6 +24,7 @@
     "FileReaderSync": true,
     "sqlitePlugin": true,
     "emit": true,
+    "globalThis": false,
     "PouchDB": true,
     "should": true,
     "assert": true,
