@@ -89,7 +89,7 @@ db.find({
 });
 ```
 
-Note that we are specifying that the `name` must be greater than or equal to `null`, which is a workaround for the fact that the Mango query language requires us to have a selector. In [CouchDB collation order](http://docs.couchdb.org/en/2.1.1/ddocs/views/collation.html), `null` is the "lowest" value, and so this will return all documents regardless of their `name` value.
+Note that we are specifying that the `name` must be greater than or equal to `null`, which is a workaround for the fact that the Mango query language requires us to have a selector. In [CouchDB collation order](https://docs.couchdb.org/en/stable/ddocs/views/collation.html), `null` is the "lowest" value, and so this will return all documents regardless of their `name` value.
 
 {% include anchor.html title="Pagination" hash="pagination" %}
 
@@ -105,7 +105,7 @@ db.find({
 });
 ```
 
-In this case, we only get 10 documents back, but they are the first 10 documents, sorted by name. This means that we have only read 10 documents out of the database into memory, which can be used for [efficient pagination](http://pouchdb.com/2014/04/14/pagination-strategies-with-pouchdb.html).
+In this case, we only get 10 documents back, but they are the first 10 documents, sorted by name. This means that we have only read 10 documents out of the database into memory, which can be used for [efficient pagination]({{ site.baseurl }}/2014/04/14/pagination-strategies-with-pouchdb.html).
 
 For instance, if we are displaying the first 10 results on a single page, and the user clicks "next" to see the next page, we can restructure our query based on the last result, to continue the pagination. Let's imagine the first 10 documents' `name`s are:
 
@@ -345,7 +345,7 @@ The Mango query language is quite large and supports many options. Some of the m
 
 There are many more options besides these, although note that not all of them can take advantage of indexes. For instance, `$regex`, `$ne`, and `$not` cannot use on-disk indexes, and must use in-memory filtering instead.
 
-The most complete documentation for selector options can be found in the [CouchDB `_find` documentation](http://docs.couchdb.org/en/2.0.0/api/database/find.html). You might also look at the [Cloudant Query Language](https://docs.cloudant.com/cloudant_query.html) documentation (which is nearly identical to Mango, other than `text` and other Cloudant-specific features). PouchDB uses CouchDB as the reference implementation; they ought to be functionally identical.
+The most complete documentation for selector options can be found in the [CouchDB `_find` documentation](https://docs.couchdb.org/en/stable/api/database/find.html). You might also look at the [Cloudant Query Language](https://docs.cloudant.com/cloudant_query.html) documentation (which is nearly identical to Mango, other than `text` and other Cloudant-specific features). PouchDB uses CouchDB as the reference implementation; they ought to be functionally identical.
 
 It should be noted that, over HTTP, this API currently works with CouchDB 2.0+, Cloudant, and PouchDB Server.
 CouchDB 2.0 is the reference implementation, so the API should be the same. CouchDB 1.6.1 and below is not supported.

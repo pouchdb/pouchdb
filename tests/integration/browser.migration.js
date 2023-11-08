@@ -1,27 +1,34 @@
-/* global PouchDBVersion110, PouchDBVersion200,
-   PouchDBVersion220, PouchDBVersion306, PouchDBVersion320,
-   PouchDBVersion360, PouchDBVersion731, PouchDBVersion801 */
 'use strict';
 
 describe('migration', function () {
 
-  function usingDefaultPreferredAdapters() {
+  function usingIdb() {
     var pref = PouchDB.preferredAdapters;
     // Firefox will have ['idb'], Chrome will have ['idb', 'websql']
     return (pref.length === 1 && pref[0] === 'idb') ||
       (pref.length === 2 && pref[0] === 'idb' && pref[1] === 'websql');
   }
 
-  var scenarios = [
-    'PouchDB v1.1.0',
-    'PouchDB v2.0.0',
-    'PouchDB v2.2.0',
-    'PouchDB v3.0.6',
-    'PouchDB v3.2.0',
-    'PouchDB v3.6.0',
-    'PouchDB v7.3.1',
-    'PouchDB v8.0.1',
-    'websql'
+  function usingIndexeddb() {
+    const pref = PouchDB.preferredAdapters;
+    // FUTURE: treat indexeddb adapter as the preferred option?
+    return pref.length === 1 && pref[0] === 'indexeddb';
+  }
+
+  function usingDefaultPreferredAdapters() {
+    return usingIdb() || usingIndexeddb();
+  }
+
+  const scenarios = [
+    { scenario: 'PouchDB v1.1.0', constructorName: 'PouchDBVersion110'} ,
+    { scenario: 'PouchDB v2.0.0', constructorName: 'PouchDBVersion200'} ,
+    { scenario: 'PouchDB v2.2.0', constructorName: 'PouchDBVersion220'} ,
+    { scenario: 'PouchDB v3.0.6', constructorName: 'PouchDBVersion306'} ,
+    { scenario: 'PouchDB v3.2.0', constructorName: 'PouchDBVersion320'} ,
+    { scenario: 'PouchDB v3.6.0', constructorName: 'PouchDBVersion360'} ,
+    { scenario: 'PouchDB v7.3.1', constructorName: 'PouchDBVersion731'} ,
+    { scenario: 'PouchDB v8.0.1', constructorName: 'PouchDBVersion801'} ,
+    { scenario: 'websql',         constructorName: 'PouchDB'} ,
   ];
 
   var skip = false;
@@ -36,100 +43,54 @@ describe('migration', function () {
     if (!usingDefaultPreferredAdapters() || window.msIndexedDB ||
       isNodeWebkit || skipMigration) {
       skip = true;
+      return this.skip();
     }
 
-    if (skip) {
-      return;
-    }
     // conditionally load all legacy PouchDB scripts to avoid pulling them in
     // for test runs that don't test migrations
-    return Promise.all(scenarios.map(function (scenario) {
+    return Promise.all(scenarios.map(function ({ scenario }) {
       var match = scenario.match(/PouchDB v([.\d]+)/);
       if (!match) {
-        return testUtils.Promise.resolve();
+        return Promise.resolve();
       }
-      return new testUtils.Promise(function (resolve, reject) {
-        var script = document.createElement('script');
-        script.onload = resolve;
-        script.onerror = reject;
-        script.src = 'deps/pouchdb-' + match[1] + '-postfixed.js';
-        document.body.appendChild(script);
-      });
+
+      const loader = testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-postfixed.js');
+
+      if (usingIndexeddb() && versionGte(scenario, '7.2.1')) {
+        return loader
+            .then(() => testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-indexeddb-postfixed.js'));
+      } else {
+        return loader;
+      }
     }));
   });
 
   after(function () {
-    if (skip) {
-      return;
-    }
     // free memory
-    delete window.PouchDBVersion110;
-    delete window.PouchDBVersion200;
-    delete window.PouchDBVersion220;
-    delete window.PouchDBVersion306;
-    delete window.PouchDBVersion320;
-    delete window.PouchDBVersion360;
-    delete window.PouchDBVersion731;
-    delete window.PouchDBVersion801;
+    scenarios.forEach(({ constructorName }) => {
+      if (constructorName !== 'PouchDB') {
+        delete window[constructorName];
+      }
+    });
   });
 
-  scenarios.forEach(function (scenario) {
+  scenarios.forEach(function ({ scenario, constructorName }) {
 
     describe('migrate from ' + scenario, function () {
 
       var dbs = {};
-      var constructors = {};
-
-      var post220 = [
-            'PouchDB v2.2.0',
-            'PouchDB v3.0.6',
-            'PouchDB v3.2.0',
-            'PouchDB v3.6.0',
-            'PouchDB v7.3.1',
-            'PouchDB v8.0.1',
-          ].indexOf(scenario) !== -1;
-      var post306 = [
-            'PouchDB v3.0.6',
-            'PouchDB v3.2.0',
-            'PouchDB v3.6.0',
-            'PouchDB v7.3.1',
-            'PouchDB v8.0.1',
-          ].indexOf(scenario) !== -1;
-      var post320 = [
-            'PouchDB v3.2.0',
-            'PouchDB v3.6.0',
-            'PouchDB v7.3.1',
-            'PouchDB v8.0.1',
-          ].indexOf(scenario) !== -1;
-      var post360 = [
-            'PouchDB v3.6.0',
-            'PouchDB v7.3.1',
-            'PouchDB v8.0.1',
-          ].indexOf(scenario) !== -1;
 
       beforeEach(function (done) {
         if (skip) {
-          return done();
+          return this.skip();
         }
-
-        constructors = {
-          'PouchDB v1.1.0': PouchDBVersion110,
-          'PouchDB v2.0.0': PouchDBVersion200,
-          'PouchDB v2.2.0': PouchDBVersion220,
-          'PouchDB v3.0.6': PouchDBVersion306,
-          'PouchDB v3.2.0': PouchDBVersion320,
-          'PouchDB v3.6.0': PouchDBVersion360,
-          'PouchDB v7.3.1': PouchDBVersion731,
-          'PouchDB v8.0.1': PouchDBVersion801,
-          PouchDB: PouchDB
-        };
 
         // need actual unique db names for these tests
         var localName = testUtils.adapterUrl('local', 'test_migration_local');
         var remoteName = testUtils.adapterUrl('http', 'test_migration_remote');
 
         dbs.first = {
-          pouch : constructors[scenario] || PouchDB,
+          pouch : window[constructorName] || PouchDB,
           local : localName,
           remote : remoteName,
           localOpts : {}
@@ -143,6 +104,12 @@ describe('migration', function () {
 
         if (scenario in PouchDB.adapters) {
           dbs.first.localOpts.adapter = scenario;
+        } else if (usingIndexeddb()) {
+          // use indexeddb adapter for both old and new DBs:
+          // * cannot currently migrate idb -> indexeddb automatically
+          // * in these tests, idb adapter is always the default for old PouchDB
+          //   bundles, even if indexeddb is available
+          dbs.first.localOpts.adapter = 'indexeddb';
         }
         // else scenario might not make sense for this browser, so just use
         // same adapter for both
@@ -152,10 +119,13 @@ describe('migration', function () {
       });
 
       afterEach(function (done) {
-        if (skip) {
-          return done();
-        }
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
+      });
+
+      before(function () {
+        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
+          return this.skip();
+        }
       });
 
       var origDocs = [
@@ -166,7 +136,6 @@ describe('migration', function () {
       ];
 
       it('Testing basic migration integrity', function (done) {
-        if (skip) { return done(); }
         var oldPouch =
           new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
           function (err) {
@@ -199,7 +168,6 @@ describe('migration', function () {
       });
 
       it("Test basic replication with migration", function (done) {
-        if (skip) { return done(); }
         var docs = [
           {_id: "0", integer: 0, string: '0'},
           {_id: "1", integer: 1, string: '1'},
@@ -209,7 +177,7 @@ describe('migration', function () {
         ];
 
         var oldPouch = new dbs.first.pouch(dbs.first.remote);
-        oldPouch.bulkDocs({docs: docs}, {}, function (err) {
+        oldPouch.bulkDocs({docs}, {}, function (err) {
           should.not.exist(err, 'got error in bulkDocs: ' +
                            JSON.stringify(err));
           var oldLocalPouch =  new dbs.first.pouch(dbs.first.local,
@@ -256,7 +224,6 @@ describe('migration', function () {
       });
 
       it("Test basic replication with migration + changes()", function (done) {
-        if (skip) { return done(); }
         var docs = [
           {_id: "0", integer: 0, string: '0'},
           {_id: "1", integer: 1, string: '1'},
@@ -266,7 +233,7 @@ describe('migration', function () {
         ];
 
         var oldPouch = new dbs.first.pouch(dbs.first.remote);
-        oldPouch.bulkDocs({docs: docs}, {}, function (err) {
+        oldPouch.bulkDocs({docs}, {}, function (err) {
           should.not.exist(err, 'got error in bulkDocs: ' +
                            JSON.stringify(err));
           var oldLocalPouch = new dbs.first.pouch(dbs.first.local,
@@ -307,9 +274,8 @@ describe('migration', function () {
         });
       });
 
-      if (post220) {
+      if (versionGte(scenario, '2.2.0')) {
         it("Test persistent views don't require update", function (done) {
-          if (skip) { return done(); }
           var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts);
           var docs = origDocs.slice().concat([{
             _id: '_design/myview',
@@ -327,7 +293,7 @@ describe('migration', function () {
             { key: 3, id: '2', value: null },
             { key: 4, id: '3', value: null }
           ];
-          oldPouch.bulkDocs({docs: docs}, function (err) {
+          oldPouch.bulkDocs({docs}, function (err) {
             should.not.exist(err, 'bulkDocs');
             oldPouch.query('myview', function (err, res) {
               should.not.exist(err, 'query');
@@ -349,7 +315,6 @@ describe('migration', function () {
 
         it("Test persistent views don't require update, with a value",
             function (done) {
-          if (skip) { return done(); }
           var oldPouch = new dbs.first.pouch(dbs.first.local, dbs.first.localOpts);
           var docs = origDocs.slice().concat([{
             _id: '_design/myview',
@@ -367,7 +332,7 @@ describe('migration', function () {
             { key: 3, id: '2', value: 9 },
             { key: 4, id: '3', value: 16 }
           ];
-          oldPouch.bulkDocs({docs: docs}, function (err) {
+          oldPouch.bulkDocs({docs}, function (err) {
             should.not.exist(err, 'bulkDocs');
             oldPouch.query('myview', function (err, res) {
               should.not.exist(err, 'query');
@@ -388,7 +353,6 @@ describe('migration', function () {
         });
 
         it('Returns ok for viewCleanup after modifying view', function (done) {
-          if (skip) { return done(); }
           var oldPouch =
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
               function (err) {
@@ -438,7 +402,6 @@ describe('migration', function () {
           }, done);
         });
         it('Remembers local docs', function (done) {
-          if (skip) { return done(); }
           var oldPouch =
             new dbs.first.pouch(dbs.first.local, dbs.first.localOpts,
               function (err) {
@@ -451,7 +414,7 @@ describe('migration', function () {
             { _id: '_local/foo' },
             { _id: '_local/bar' }
           ];
-          oldPouch.bulkDocs({docs: docs}).then(function () {
+          oldPouch.bulkDocs({docs}).then(function () {
             return oldPouch.close();
           }).then(function () {
             var newPouch = new dbs.second.pouch(dbs.second.local);
@@ -464,8 +427,6 @@ describe('migration', function () {
         });
 
         it('Testing migration with weird doc ids', function (done) {
-          if (skip) { return done(); }
-
           var origDocs = [
             {_id: 'foo::bar::baz'},
             {_id: '\u0000foo\u0000'}
@@ -489,11 +450,9 @@ describe('migration', function () {
         });
       }
 
-      if (post306) {
+      if (versionGte(scenario, '3.0.6')) {
         // attachments didn't really work until this release
         it('#2818 Testing attachments with compaction of dups', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -535,8 +494,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 2', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -579,8 +536,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 3', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -637,8 +592,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 4', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -691,8 +644,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 5', function () {
-          if (skip) { return; }
-
           var docs = [
             {
               _id: 'doc1',
@@ -766,8 +717,6 @@ describe('migration', function () {
         });
 
         it('#2818 Testing attachments with compaction of dups 6', function () {
-          if (skip) { return; }
-
           var docs = [];
 
           for (var i = 0; i < 40; i++) {
@@ -830,8 +779,6 @@ describe('migration', function () {
         });
 
         it('#2818 compaction of atts after many revs', function () {
-          if (skip) { return; }
-
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
 
@@ -859,9 +806,48 @@ describe('migration', function () {
           });
         });
 
-        it('#2890 PNG content after migration', function () {
-          if (skip) { return; }
+        it('#2818 Testing attachments with compaction of dups (local docs)', function () {
+          var docs = [
+            {
+              _id: '_local/doc1',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            },
+            {
+              _id: '_local/doc2',
+              _attachments: {
+                'att.txt': {
+                  data: 'Zm9vYmFy', // 'foobar'
+                  content_type: 'text/plain'
+                }
+              }
+            }
+          ];
 
+          var oldPouch = new dbs.first.pouch(
+            dbs.first.local, dbs.first.localOpts);
+          return oldPouch.bulkDocs(docs).then(function () {
+            return oldPouch.close();
+          }).then(function () {
+            var newPouch = new dbs.second.pouch(dbs.second.local,
+              {auto_compaction: false});
+            return newPouch.get('_local/doc1').then(function (doc1) {
+              return newPouch.remove(doc1);
+            }).then(function () {
+              return newPouch.compact();
+            }).then(function () {
+              return newPouch.get('_local/doc2', {attachments: true});
+            }).then(function (doc2) {
+              doc2._attachments['att.txt'].data.should.equal('Zm9vYmFy');
+            });
+          });
+        });
+
+        it('#2890 PNG content after migration', function () {
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
 
@@ -904,12 +890,8 @@ describe('migration', function () {
         });
       }
 
-      if (post320) {
+      if (versionGte(scenario, '3.2.0')) {
         it('#3136 Testing later winningSeqs', function () {
-          if (skip) {
-            return;
-          }
-
           var tree = [
             [
               {
@@ -941,7 +923,7 @@ describe('migration', function () {
 
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
-          var chain = testUtils.Promise.resolve();
+          var chain = Promise.resolve();
           tree.forEach(function (docs) {
             chain = chain.then(function () {
               return oldPouch.bulkDocs(docs, {new_edits: false});
@@ -987,12 +969,8 @@ describe('migration', function () {
         });
       }
 
-      if (post360) {
+      if (versionGte(scenario, '3.6.0')) {
         it('#3646 - Should finish with 0 documents', function () {
-          if (skip) {
-            return;
-          }
-
           var data = [
             {
               "docs": [
@@ -1229,3 +1207,18 @@ describe('migration', function () {
     });
   });
 });
+
+function versionGte(scenario, minimumRequired) {
+  const match = scenario.match(/^PouchDB v([.\d]+)$/);
+  if (!match) { return false; }
+  const actual = match[1].split('.').map(Number);
+
+  const min = minimumRequired.split('.').map(Number);
+
+  for (let i=0; i<min.length; ++i) {
+    if (actual[i] > min[i]) { return true; }
+    if (actual[i] < min[i]) { return false; }
+  }
+
+  return true;
+}

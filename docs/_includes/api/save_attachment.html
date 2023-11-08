@@ -8,7 +8,7 @@ Attaches a binary object to a document.
 
 This method will update an existing document to add the attachment, so it requires a `rev` if the document already exists. If the document doesn't already exist, then this method will create an empty document containing the attachment.
 
-What's the point of attachments? If you're dealing with large binary data (such as PNGs), you may incur a performance or storage penalty if you naïvely include them as base64- or hex-encoded strings inside your documents. But if you insert the binary data as an attachment, then PouchDB will attempt to store it in [the most efficient way possible](http://pouchdb.com/faq.html#data_types).
+What's the point of attachments? If you're dealing with large binary data (such as PNGs), you may incur a performance or storage penalty if you naïvely include them as base64- or hex-encoded strings inside your documents. But if you insert the binary data as an attachment, then PouchDB will attempt to store it in [the most efficient way possible]({{ site.baseurl }}/faq.html#data_types).
 
 For details, see the [CouchDB documentation on attachments](https://docs.couchdb.org/en/stable/api/document/attachments.html#put--db-docid-attname).
 
