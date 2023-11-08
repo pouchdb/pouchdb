@@ -9,27 +9,19 @@
 
   "env": {
     "browser": true,
-    "node": true,
-    "mocha": true
+    "node": true
   },
 
   "globals": {
     "Map": true,
     "Set": true,
     "Symbol": true,
-    "chrome": true,
     "Promise": true,
     "Uint8Array": true,
     "ArrayBuffer": true,
     "FileReaderSync": true,
-    "sqlitePlugin": true,
     "emit": true,
-    "PouchDB": true,
-    "should": true,
-    "assert": true,
-    "testUtils": true,
-    "importScripts": true,
-    "testCases": true
+    "PouchDB": true
   },
 
   "rules": {
