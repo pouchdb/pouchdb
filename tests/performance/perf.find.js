@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function (PouchDB, opts, callback) {
+module.exports = function (PouchDB, callback) {
 
   var utils = require('./utils');
 
@@ -22,7 +22,7 @@ module.exports = function (PouchDB, opts, callback) {
       name: 'create-index',
       assertions: 1,
       iterations: 1,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             callback();
@@ -42,7 +42,7 @@ module.exports = function (PouchDB, opts, callback) {
       name: 'simple-find-query',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             return db.createIndex({
@@ -66,7 +66,7 @@ module.exports = function (PouchDB, opts, callback) {
       name: 'simple-find-query-no-index',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             callback();
@@ -84,7 +84,7 @@ module.exports = function (PouchDB, opts, callback) {
       name: 'complex-find-query',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             return db.createIndex({
@@ -113,7 +113,7 @@ module.exports = function (PouchDB, opts, callback) {
       name: 'complex-find-query-no-index',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             callback();
@@ -136,7 +136,7 @@ module.exports = function (PouchDB, opts, callback) {
       name: 'multi-field-query',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             return db.createIndex({
@@ -161,5 +161,5 @@ module.exports = function (PouchDB, opts, callback) {
     }
   ];
 
-  utils.runTests(PouchDB, 'find', testCases, opts, callback);
+  utils.runTests(PouchDB, 'find', testCases, callback);
 };

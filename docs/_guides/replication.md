@@ -26,8 +26,8 @@ supports a **multi-master** architecture. You can think of this as a system wher
 </figure>
 
 When you use PouchDB, CouchDB, and other members of the Couch family, you
-don't have to worry which database is the "single source of truth." They all are. According to the CAP theorem, CouchDB is an AP database, meaning that it's **P**artitioned,
-every node is **A**vailable, and it's only eventually **C**onsistent.
+don't have to worry which database is the "single source of truth." They all are. According to the CAP theorem, a database can only have at most 2 of 3 properties: Consistency, Availability, or Partition-Tolerance.  Typical relational databases such as MySQL are CP, which means they are consistent and tolerant to node partitions, at the expense of availability. CouchDB is an AP database, meaning that it's **P**artition-Tolerant,
+every node is **A**vailable at all times, but it's only eventually **C**onsistent.
 
 To illustrate, imagine a multi-node architecture with CouchDB servers spread across several continents. As long as you're willing to wait, the data will eventually flow
 from Australia to Europe to North America to wherever. Users around the world running PouchDB in their browsers or [Couchbase Lite](https://github.com/couchbase/couchbase-lite-ios)/[Cloudant Sync](https://github.com/cloudant/CDTDatastore) in their smartphones experience the
@@ -171,7 +171,7 @@ Any PouchDB object can replicate to any other PouchDB object. So for instance, y
 
 This can be very powerful, because it enables lots of fancy scenarios. For example:
 
-1. You have an [in-memory PouchDB](http://pouchdb.com/adapters.html#pouchdb_in_the_browser) that replicates with a local PouchDB, acting as a cache.
+1. You have an [in-memory PouchDB]({{ site.baseurl }}/adapters.html#pouchdb_in_the_browser) that replicates with a local PouchDB, acting as a cache.
 2. You have many remote CouchDB databases that the user may access, and they are all replicated to the same local PouchDB.
 3. You have many local PouchDB databases, which are mirrored to a single remote CouchDB as a backup store.
 

@@ -38,7 +38,7 @@ describe('test.prefix.js', function () {
 if (typeof process !== 'undefined' &&
     !process.env.LEVEL_ADAPTER &&
     !process.env.LEVEL_PREFIX &&
-    !process.env.ADAPTER &&
+    !process.env.ADAPTERS &&
     // fails on windows with EBUSY - "resource busy or locked", not worth fixing
     require('os').platform() !== 'win32') {
 
@@ -52,7 +52,7 @@ if (typeof process !== 'undefined' &&
 
       var prefix = './tmp/testfolder/';
       mkdirp.sync(prefix);
-      var CustomPouch = PouchDB.defaults({prefix: prefix});
+      var CustomPouch = PouchDB.defaults({prefix});
 
       var db = new CustomPouch('testdb');
 

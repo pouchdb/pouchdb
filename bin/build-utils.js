@@ -12,7 +12,7 @@ var writeFileAsync = denodeify(fs.writeFile);
 var renameAsync = denodeify(fs.rename);
 var streamToPromise = require('stream-to-promise');
 
-var UglifyJS = require("uglify-js");
+var terser = require("terser");
 
 function addPath(pkgName, otherPath) {
   return path.resolve('packages/node_modules/' + pkgName, otherPath);
@@ -29,7 +29,7 @@ function writeFile(filename, contents) {
 }
 
 function doUglify(pkgName, code, prepend, fileOut) {
-  var miniCode = prepend + UglifyJS.minify(code).code;
+  var miniCode = prepend + terser.minify(code, { output: { ascii_only: true }}).code;
   return writeFile(addPath(pkgName, fileOut), miniCode);
 }
 

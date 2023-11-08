@@ -32,6 +32,10 @@ Encrypt a PouchDB/CouchDB database.
 
 Replicate from PouchDB to Dat.
 
+#### [PouchDB Hyperbee](https://github.com/RangerMauve/pouchdb-adapter-hyperbee)
+
+Sparsely load data from Hyperbee over p2p networks in Node and the Browser.
+
 #### [Pouch Datalog](https://github.com/dahjelle/pouch-datalog)
 
 Implement the Datalog query language on PouchDB, with indexes.
@@ -54,7 +58,7 @@ Fully replicate two PouchDB/CouchDB databases, preserving absolutely all revisio
 
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
-Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
+Google Query Language (GQL) queries with PouchDB. ([Documentation]({{ site.baseurl }}/gql.html))
 
 #### [PouchDB Hoodie API](https://github.com/hoodiehq/pouchdb-hoodie-api)
 

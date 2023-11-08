@@ -137,14 +137,6 @@ db.remove('docid', '2-y').then(function (doc) {
 
 If you want to resolve the conflict by creating a new revision, you simply `put()` a new document on top of the current winner, and make sure that the losing revision is deleted.
 
-{% include alert/start.html variant="info" %}
-{% markdown %}
-PouchDB deviates from CouchDB's replication algorithm in one small way: revision hashes aren't deterministic. PouchDB is forced to do this, because CouchDB calculates its revision hashes in an Erlang-specific way.
-
-In practice, this just means that PouchDB's replication algorithm is slightly less efficient than CouchDB's, for some very unlikely edge cases. For details, see [this comment](https://github.com/pouchdb/pouchdb/issues/2451#issuecomment-77386826).
-{% endmarkdown %}
-{% include alert/end.html %}
-
 {% include anchor.html title="Accountants don't use erasers" hash="accountants-dont-use-erasers" %}
 
 Another conflict resolution strategy is to design your database so that conflicts are impossible. In practice, this means that you never update or remove existing documents &ndash; you only create new documents.

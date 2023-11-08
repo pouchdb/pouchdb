@@ -17,7 +17,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Create a pouch without new keyword', function () {
-      /* jshint newcap:false */
       var db = PouchDB(dbs.name);
       db.should.be.an.instanceof(PouchDB);
     });
@@ -584,6 +583,28 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    if (adapter === 'local') {
+      // This test fails in the http adapter, if it is used with CouchDB version <3
+      // or PouchDB-Server. Which is expected.
+      it('Allows _access field in documents (#8171)', function (done) {
+        var doc = {
+          '_access': ['alice']
+        };
+        var db = new PouchDB(dbs.name);
+        db.post(doc, function (err, resp) {
+          should.not.exist(err);
+
+          db.get(resp.id, function (err, doc2) {
+            should.not.exist(err);
+
+            doc2._access.should.eql(['alice']);
+
+            done();
+          });
+        });
+      });
+    }
+
     it('Testing issue #48', function (done) {
       var docs = [
         {'_id': '0'}, {'_id': '1'}, {'_id': '2'},
@@ -607,7 +628,7 @@ adapters.forEach(function (adapter) {
         if (++sent === TO_SEND) {
           clearInterval(timer);
         }
-        db.bulkDocs({docs: docs}, bulkCallback);
+        db.bulkDocs({docs}, bulkCallback);
       };
 
       timer = setInterval(save, 10);
@@ -1026,7 +1047,6 @@ adapters.forEach(function (adapter) {
 
     it('3968, keeps all object fields', function () {
       var db =  new PouchDB(dbs.name);
-      /* jshint -W001 */
       var doc = {
         _id: "x",
         type: "testdoc",
@@ -1043,7 +1063,7 @@ adapters.forEach(function (adapter) {
       return db.put(doc).then(function () {
         return db.get(doc._id);
       }).then(function (savedDoc) {
-        // We shouldnt need to delete from doc here (#4273)
+        // We shouldn't need to delete from doc here (#4273)
         should.not.exist(doc._rev);
         should.not.exist(doc._rev_tree);
 
@@ -1106,6 +1126,29 @@ adapters.forEach(function (adapter) {
       return db.put(doc).then(function () {
         return doc._id;
       }).then(db.get);
+    });
+
+    it('Test rev purge', function () {
+      const db = new PouchDB(dbs.name);
+
+      if (typeof db._purge === 'undefined') {
+        console.log('purge is not implemented for adapter', db.adapter);
+        return;
+      }
+
+      const doc = { _id: 'foo' };
+      return db.put(doc).then(function (res) {
+        return db.purge(doc._id, res.rev);
+      }).then(function () {
+        return db.get(doc._id);
+      }).then(function () {
+        assert.fail('doc should not exist');
+      }).catch(function (err) {
+        if (!err.status) {
+          throw err;
+        }
+        err.status.should.equal(404, 'doc should not exist');
+      });
     });
 
     if (adapter === 'local') {

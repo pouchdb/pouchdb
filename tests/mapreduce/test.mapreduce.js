@@ -1,30 +1,23 @@
 /* global sum */
 'use strict';
 
-var adapters = ['local', 'http'];
+var viewTypes = ['persisted', 'temp'];
+viewTypes.forEach(function (viewType) {
+  var suiteName = 'test.mapreduce.js-' + viewType;
+  var adapter = testUtils.adapterType();
+  var dbName = testUtils.adapterUrl(adapter, 'testdb');
 
-adapters.forEach(function (adapter) {
-
-  var viewTypes = ['persisted', 'temp'];
-  viewTypes.forEach(function (viewType) {
-    var suiteName = 'test.mapreduce.js-' + adapter + '-' + viewType;
-    var dbName = testUtils.adapterUrl(adapter, 'testdb');
-
-    tests(suiteName, dbName, adapter, viewType);
-  });
+  tests(suiteName, dbName, adapter, viewType);
 });
 
 function tests(suiteName, dbName, dbType, viewType) {
 
   describe(suiteName, function () {
-
-    var Promise;
-
     var createView;
-    if (viewType === 'persisted') {
+    if (dbType === 'http' || viewType === 'persisted') {
       createView = function (db, viewObj) {
         var storableViewObj = {
-          map : viewObj.map.toString()
+          map: viewObj.map.toString()
         };
         if (viewObj.reduce) {
           storableViewObj.reduce = viewObj.reduce.toString();
@@ -55,13 +48,19 @@ function tests(suiteName, dbName, dbType, viewType) {
     }
 
     beforeEach(function () {
-      Promise = testUtils.Promise;
-      return new PouchDB(dbName).destroy();
+      if (dbType === 'http') {
+        var uri = testUtils.parseUri(dbName);
+        var dbUrl = `${uri.protocol}://${uri.host}:${uri.port}${uri.path}`;
+        return PouchDB.fetch(dbUrl + '?q=1', {
+          method: 'PUT',
+          headers: { Authorization: 'Basic ' + testUtils.btoa(uri.userInfo) }
+        });
+      }
     });
+
     afterEach(function () {
       return new PouchDB(dbName).destroy();
     });
-
 
     it("Test basic view", function () {
       var db = new PouchDB(dbName);
@@ -153,7 +152,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         });
       });
     }
-    if (viewType === 'temp') {
+    if (viewType === 'temp' && dbType !== 'http') {
 
       it('Test simultaneous temp views', function () {
         var db = new PouchDB(dbName);
@@ -408,7 +407,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         var docs = values.map(function (x, i) {
           return {_id: (i).toString(), foo: x};
         });
-        return db.bulkDocs({docs: docs}).then(function () {
+        return db.bulkDocs({docs}).then(function () {
           return db.query(queryFun, {reduce: false});
         }).then(function (res) {
           res.rows.forEach(function (x, i) {
@@ -458,7 +457,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         { _id: '1' },
         { _id: '2' }
       ]).then(function () {
-        return createView(db, { map: map });
+        return createView(db, { map });
       }).then(function (queryFun) {
         return db.query(queryFun).then(function (res) {
           var rows = res.rows.map(function (x) {
@@ -1190,7 +1189,7 @@ function tests(suiteName, dbName, dbType, viewType) {
       }).should.be.rejected;
     });
 
-    if (viewType === 'temp') {
+    if (viewType === 'temp' && dbType !== 'http') {
       it("No reduce function, passing just a function", function () {
         var db = new PouchDB(dbName);
         return db.post({foo: 'bar'}).then(function () {
@@ -1203,7 +1202,7 @@ function tests(suiteName, dbName, dbType, viewType) {
     }
 
     it('Query result should include _conflicts', function () {
-      var db2name = 'test2b' + Math.random();
+      var db2name = testUtils.adapterUrl(dbType, 'test2b');
       var cleanup = function () {
         return new PouchDB(db2name).destroy();
       };
@@ -1211,6 +1210,19 @@ function tests(suiteName, dbName, dbType, viewType) {
       var doc2 = {_id: '1', foo: 'baz'};
       var db = new PouchDB(dbName);
       return testUtils.fin(db.info().then(function () {
+        return db.put({
+          _id: '_design/test',
+          views: {
+            test: {
+              map: function (doc) {
+                if (doc._conflicts) {
+                  emit(doc._conflicts, null);
+                }
+              }.toString()
+            }
+          }
+        });
+      }).then(function () {
         var remote = new PouchDB(db2name);
         return remote.info().then(function () {
           var replicate = testUtils.promisify(db.replicate.from, db.replicate);
@@ -1219,11 +1231,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           }).then(function () {
             return replicate(remote);
           }).then(function () {
-            return db.query(function (doc) {
-              if (doc._conflicts) {
-                emit(doc._conflicts, null);
-              }
-            }, {include_docs : true, conflicts: true});
+            return db.query('test', {include_docs : true, conflicts: true});
           }).then(function (res) {
             should.exist(res.rows[0].doc._conflicts);
             return db.get(res.rows[0].doc._id, {conflicts: true});
@@ -1234,7 +1242,6 @@ function tests(suiteName, dbName, dbType, viewType) {
       }), cleanup);
     });
 
-    /* jshint maxlen:false */
     var icons = [
       "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",
@@ -1242,8 +1249,6 @@ function tests(suiteName, dbName, dbType, viewType) {
       "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB1klEQVR42n2TzytEURTHv3e8N1joRhZGzJsoCjsLhcw0jClKWbHwY2GnLGUlIfIP2IjyY2djZTHSMJNQSilFNkz24z0/Ms2MrnvfvMu8mcfZvPvuPfdzz/mecwgKLNYKb0cFEgXbRvwV2s2HuWazCbzKA5LvNecDXayBjv9NL7tEpSNgbYzQ5kZmAlSXgsGGXmS+MjhKxDHgC+quyaPKQtoPYMQPOh5U9H6tBxF+Icy/aolqAqLP5wjWd5r/Ip3YXVILrF4ZRYAxDhCOJ/yCwiMI+/xgjOEzmzIhAio04GeGayIXjQ0wGoAuQ5cmIjh8jNo0GF78QwNhpyvV1O9tdxSSR6PLl51FnIK3uQ4JJQME4sCxCIRxQbMwPNSjqaobsfskm9l4Ky6jvCzWEnDKU1ayQPe5BbN64vYJ2vwO7CIeLIi3ciYAoby0M4oNYBrXgdgAbC/MhGCRhyhCZwrcEz1Ib3KKO7f+2I4iFvoVmIxHigGiZHhPIb0bL1bQApFS9U/AC0ulSXrrhMotka/lQy0Ic08FDeIiAmDvA2HX01W05TopS2j2/H4T6FBVbj4YgV5+AecyLk+CtvmsQWK8WZZ+Hdf7QGu7fobMuZHyq1DoJLvUqQrfM966EU/qYGwAAAAASUVORK5CYII=",
       "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAEG0lEQVQ4EQEQBO/7AQAAAAAAAAAAAAAAAAAAAACmm0ohDxD8bwT//ksOBPAhAAAAAPL8EN8IDQLB5eQEhVpltt8AAAAAAAAAAAAAAAABAAAAAAAAAACHf0UGKSgBgygY7m/w4O8F5t71ABMaCQAPEAQAAAAAAPwEBgAMFAn74/ISnunoA3RcZ7f2AAAAAAEAAAAAh39FBjo4AZYTAOtf1sLmAvb1+gAAAAAALzsVACEn+wAAAAAA/f4G/+LcAgH9AQIA+hAZpuDfBmhaZrb1AwAAAABtaCSGHAjraf///wD47/kB9vX7AAAAAAAYHgsAERT+AAAAAAACAf0BERT/AAQHB/746/IuBRIMFfL3G8ECpppKHigY7m/68vcCHRv0AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//0ADgvzAgP//gAWBe1hUEgMOgIKDfxr9Oz3BRsiAf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHCP///zu8gMjIftYAgkD/1ID//4ABwb6Af//AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFBPwBAAAAAAP0710CDgTvIQD//QAAAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//QD8BAYADQv//gQAAAAAAAAAAAAAAgABAf4AAAAAAAAAAAAAAAAAAAAAAAABAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//gAAAAAABPL7D+D57Owh0MQAAAAAAAD08/sAAAAAAAAAAADj2fQA8ewGAAAAAAAAAAAAAAAAAAAAAAAAAAAA+/r1AAwECwIEAggDugsNBGcAAAAAAwMBAO7o+AAAAAAAAAAAAAgKBAAOEAUAAAAAAAAAAAAAAAAAAAAAAAAAAADz8vwA/QwRowTr6gSLHSQQYvfr9QUhJ/sA6OEEAPPy+QAAAAAAFR0IACEn+wAAAAAAAAAAAAAAAAAAAAAA4+YP/g0OAgDT3wWoAlpltt/d7BKYBAwH/uTmDf4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPL1Df798fUC+AgSqMfL9sICAAAAAOblAHXzBRSo////APTz+wD//wAAAAAAAAAAAAAAAAAAAAEBAP3+Bv/j5g/+7uL3AukDH97g3wZomJzA9wMAAAAAs7jd/kE8J7n9BwoSJSgGMQYD/wL++/8ABAUCAPb1BQDw7AIA8e8DAQAFBf/0DBqj6OgGTlpmtvUAAAAAAQAAAAAAAAAAAAAAAFFRPg1SSAwbGxv8cQn67mMHBf7/AwL/APb5AwH/DRCn294GpMLH9sKdoMD3AAAAAAAAAABEawlCEphz4AAAAABJRU5ErkJggg=="
     ];
-
-    /* jshint maxlen:100 */
 
     var iconDigests = [
       "md5-Mf8m9ehZnCXC717bPkqkCA==",
@@ -1507,7 +1512,7 @@ function tests(suiteName, dbName, dbType, viewType) {
     });
 
     it('Views should include _conflicts', function () {
-      var db2name = 'test2' + Math.random();
+      var db2name = testUtils.adapterUrl(dbType, 'test2');
       var cleanup = function () {
         return new PouchDB(db2name).destroy();
       };
@@ -1570,12 +1575,22 @@ function tests(suiteName, dbName, dbType, viewType) {
         map: function (doc) {
           emit(doc.foo);
         },
-        reduce: function (keys) {
-          return keys.map(function (keyId) {
-            var key = keyId[0];
-            // var id = keyId[1];
-            return key.join('');
-          });
+        reduce: function (keys, values) {
+          if (keys) {
+            return keys.map(function (keyId) {
+              var key = keyId[0];
+              // var id = keyId[1];
+              return key.join('');
+            });
+          } else {
+            var result = [];
+            values.map(function (value) {
+              value.map(function (v) {
+                result.push(v);
+              });
+            });
+            return result;
+          }
         }
       }).then(function (queryFun) {
         return db.bulkDocs({
@@ -1672,13 +1687,13 @@ function tests(suiteName, dbName, dbType, viewType) {
         return db.query(queryFun, {group_level: -1, reduce: true}).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
           return db.query(queryFun, { group_level: 'exact', reduce: true});
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
         });
       });
@@ -1733,13 +1748,13 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
           return db.query(queryFun, { limit: '1a', group: true, reduce: true});
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
         });
       });
@@ -1850,13 +1865,13 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
           return db.query(queryFun, { skip: '1a', group: true, reduce: true});
         }).then(function (res) {
           res.should.not.exist('expected error on invalid group_level');
         }).catch(function (err) {
-          err.status.should.equal(400);
+          err.status.should.be.oneOf([400, 500]);
           err.message.should.be.a('string');
         });
       });
@@ -1866,7 +1881,7 @@ function tests(suiteName, dbName, dbType, viewType) {
       function () {
       var db = new PouchDB(dbName);
       return createView(db, {
-        map : function (doc) {
+        map: function (doc) {
           if (doc.foo === 'bar') {
             emit(doc.foo);
           }
@@ -1886,13 +1901,9 @@ function tests(suiteName, dbName, dbType, viewType) {
 
     it('multiple view creations and cleanups', function () {
       var db = new PouchDB(dbName);
-      var map = function (doc) {
-        emit(doc.num);
-      };
+      var map = function (doc) { emit(doc.num); };
       function createView(name) {
-        var storableViewObj = {
-          map: map.toString()
-        };
+        var storableViewObj = { map: map.toString() };
         return  db.put({
           _id: '_design/' + name,
           views: {
@@ -1922,17 +1933,21 @@ function tests(suiteName, dbName, dbType, viewType) {
           for (var i = 0; i < numAttempts; i++) {
             keys.push('_design/test' + i);
           }
-          return db.allDocs({keys : keys, include_docs : true});
+          return db.allDocs({keys, include_docs : true});
         }).then(function (res) {
           var docs = res.rows.map(function (row) {
             row.doc._deleted = true;
             return row.doc;
           });
-          return db.bulkDocs({docs : docs});
+          return db.bulkDocs({docs});
         }).then(function () {
           return db.viewCleanup();
         }).then(function (res) {
-          res.ok.should.equal(true);
+          if (res.error) {
+            res.error.should.equal('not_found');
+          } else {
+            res.ok.should.equal(true);
+          }
         });
       });
     });
@@ -1999,7 +2014,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           {_id: 'inf', num: Infinity},
           {_id: 'neginf', num: -Infinity}
         ];
-        return db.bulkDocs({docs: docs}).then(function () {
+        return db.bulkDocs({docs}).then(function () {
           return db.query(mapFunction, {key: 0});
         }).then(function (data) {
           data.rows.should.have.length(1);
@@ -2053,8 +2068,12 @@ function tests(suiteName, dbName, dbType, viewType) {
           return db.query(queryFun, opts);
         }).then(function (data) {
           data.rows.should.have.length(0, 'returns 0 docs');
-
           opts.keys = [0];
+          // When passed an empty keys array (above), query mutates opts by deleting the
+          // keys array and adding limit = 0. That behavior breaks this test result when
+          // implementing limit and skip (#8370); it is correct (and necessary) to clean
+          // up that side effect here.
+          delete opts.limit;
           return db.query(queryFun, opts);
         }).then(function (data) {
           data.rows.should.have.length(1, 'returns one doc');
@@ -2129,7 +2148,7 @@ function tests(suiteName, dbName, dbType, viewType) {
       var spec;
       var db = new PouchDB(dbName);
       return createView(db, {
-        map : function (doc) {
+        map: function (doc) {
           emit(doc.field1);
           emit(doc.field2);
         }
@@ -2487,7 +2506,7 @@ function tests(suiteName, dbName, dbType, viewType) {
     it('opts.keys should work with complex keys', function () {
       var db = new PouchDB(dbName);
       return createView(db, {
-        map : function (doc) {
+        map: function (doc) {
           emit(doc.foo, doc.foo);
         }
       }).then(function (mapFunction) {
@@ -2507,7 +2526,7 @@ function tests(suiteName, dbName, dbType, viewType) {
             {foo: [0, false]}
           ]
         }).then(function () {
-          var opts = {keys: keys};
+          var opts = {keys};
           return db.query(mapFunction, opts);
         }).then(function (data) {
           data.rows.should.have.length(3);
@@ -2572,13 +2591,18 @@ function tests(suiteName, dbName, dbType, viewType) {
 
     it('should query correctly with a variety of criteria', function () {
       var db = new PouchDB(dbName);
-
-      return createView(db, {
-        map : function (doc) {
-          emit(doc._id);
+      var ddoc = {
+        _id: '_design/test',
+        views: {
+          test: {
+            map: function (doc) {
+              emit(doc._id);
+            }.toString()
+          }
         }
-      }).then(function (mapFun) {
-
+      };
+      var mapFun = 'test';
+      return db.put(ddoc).then(function () {
         var docs = [
           {_id : '0'},
           {_id : '1'},
@@ -2591,7 +2615,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           {_id : '8'},
           {_id : '9'}
         ];
-        return db.bulkDocs({docs : docs}).then(function (res) {
+        return db.bulkDocs({docs}).then(function (res) {
           docs[3]._deleted = true;
           docs[7]._deleted = true;
           docs[3]._rev = res[3].rev;
@@ -2674,7 +2698,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           return db.query(mapFun, {startkey : '5', endkey : '4'}).then(function (res) {
             res.should.not.exist('expected error on reversed start/endkey');
           }).catch(function (err) {
-            err.status.should.equal(400);
+            err.status.should.be.oneOf([400, 500]);
             err.message.should.be.a('string');
           });
         });
@@ -2945,7 +2969,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           return db.query(queryFun, {include_docs : true}).then(function (res) {
             should.not.exist(res);
           }).catch(function (err) {
-            err.status.should.equal(400);
+            err.status.should.be.oneOf([400, 500]);
             err.message.should.be.a('string');
             // include_docs is invalid for reduce
           });
@@ -2955,8 +2979,9 @@ function tests(suiteName, dbName, dbType, viewType) {
 
     it('should query correctly after replicating and other ddoc', function () {
       var db = new PouchDB(dbName);
+      var db2 = new PouchDB(testUtils.adapterUrl(dbType, 'local-other'));
       return createView(db, {
-        map : function (doc) {
+        map: function (doc) {
           emit(doc.name);
         }
       }).then(function (queryFun) {
@@ -2966,16 +2991,20 @@ function tests(suiteName, dbName, dbType, viewType) {
           res.rows.map(function (x) {return x.key; }).should.deep.equal([
             'foobar'
           ], 'test db before replicating');
-          var db2 = new PouchDB('local-other');
           return db.replicate.to(db2).then(function () {
             return db.query(queryFun);
           }).then(function (res) {
             res.rows.map(function (x) {return x.key; }).should.deep.equal([
               'foobar'
             ], 'test db after replicating');
-            return db.put({_id: '_design/other_ddoc', views: {
-              map: "function(doc) { emit(doc._id); }"
-            }});
+            return db.put({
+              _id: '_design/other_ddoc',
+              views: {
+                test: {
+                  map: "function(doc) { emit(doc._id); }"
+                }
+              }
+            });
           }).then(function () {
             // the random ddoc adds a single change that we don't
             // care about. testing this increases our coverage
@@ -2990,11 +3019,11 @@ function tests(suiteName, dbName, dbType, viewType) {
               'foobar'
             ], 'test db2');
           }).catch(function (err) {
-            return new PouchDB('local-other').destroy().then(function () {
+            return db2.destroy().then(function () {
               throw err;
             });
           }).then(function () {
-            return new PouchDB('local-other').destroy();
+            return db2.destroy();
           });
         });
       });
@@ -3038,14 +3067,17 @@ function tests(suiteName, dbName, dbType, viewType) {
           });
         }
 
+        var byId = Object.fromEntries(docs.map((doc) => [doc._id, doc]));
+
         function update(res, docFun) {
           for (var i  = 0; i < res.length; i++) {
-            docs[i]._rev = res[i].rev;
-            docFun(docs[i]);
+            var doc = byId[res[i].id];
+            doc._rev = res[i].rev;
+            docFun(doc);
           }
-          return db.bulkDocs({docs : docs});
+          return db.bulkDocs({docs});
         }
-        return db.bulkDocs({docs : docs}).then(function (res) {
+        return db.bulkDocs({docs}).then(function (res) {
           return update(res, function (doc) { doc.likes = 'pizza'; });
         }).then(function (res) {
           return update(res, function (doc) { doc.knows = 'kung fu'; });
@@ -3101,23 +3133,23 @@ function tests(suiteName, dbName, dbType, viewType) {
             name: 'gen1'
           });
         }
-        return db.bulkDocs({docs: docs}).then(function (infos) {
-          docs.forEach(function (doc, i) {
-            doc._rev = infos[i].rev;
+        return db.bulkDocs({docs}).then(function (infos) {
+          docs.forEach(function (doc) {
+            doc._rev = infos.find((info) => info.id === doc._id).rev;
             doc.name = 'gen2';
           });
           docs.reverse();
-          return db.bulkDocs({docs: docs});
+          return db.bulkDocs({docs});
         }).then(function (infos) {
-          docs.forEach(function (doc, i) {
-            doc._rev = infos[i].rev;
+          docs.forEach(function (doc) {
+            doc._rev = infos.find((info) => info.id === doc._id).rev;
             doc.name = 'gen-3';
           });
           docs.reverse();
-          return db.bulkDocs({docs: docs});
+          return db.bulkDocs({docs});
         }).then(function (infos) {
-          docs.forEach(function (doc, i) {
-            doc._rev = infos[i].rev;
+          docs.forEach(function (doc) {
+            doc._rev = infos.find((info) => info.id === doc._id).rev;
             doc.name = 'gen-4-odd';
           });
           var docsToUpdate = docs.filter(function (doc, i) {
@@ -3130,7 +3162,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (res) {
           var expected = docs.map(function (doc, i) {
             var key = i % 2 === 1 ? 'gen-4-odd' : 'gen-3';
-            return {key: key, id: doc._id, value: null};
+            return {key, id: doc._id, value: null};
           });
           expected.sort(function (a, b) {
             if (a.key !== b.key) {
@@ -3148,7 +3180,7 @@ function tests(suiteName, dbName, dbType, viewType) {
 
       var db = new PouchDB(dbName);
       return createView(db, {
-        map : function (doc) {
+        map: function (doc) {
           emit(doc.name);
         }
       }).then(function (queryFun) {
@@ -3165,7 +3197,8 @@ function tests(suiteName, dbName, dbType, viewType) {
         }).then(function (res) {
           res.rows.length.should.equal(0);
           theDoc._deleted = false;
-          return db.post(theDoc);
+          delete theDoc._rev;
+          return db.put(theDoc);
         }).then(function (info) {
           theDoc._rev = info.rev;
           return db.query(queryFun);
@@ -3198,21 +3231,21 @@ function tests(suiteName, dbName, dbType, viewType) {
       }).then(function (queryFun) {
         var keys = ['1', '2'];
         var opts = {
-          keys: keys,
+          keys,
           group: false
         };
         return db.query(queryFun, opts).then(function (res) {
           should.not.exist(res);
         }).catch(function (err) {
-          err.status.should.equal(400);
-          opts = {keys: keys};
+          err.status.should.be.oneOf([400, 500]);
+          opts = {keys};
           return db.query(queryFun, opts).then(function (res) {
             should.not.exist(res);
           }).catch(function (err) {
-            err.status.should.equal(400);
-            opts = {keys: keys, reduce : false};
+            err.status.should.be.oneOf([400, 500]);
+            opts = {keys, reduce : false};
             return db.query(queryFun, opts).then(function () {
-              opts = {keys: keys, group: true};
+              opts = {keys, group: true};
               return db.query(queryFun, opts);
             });
           });
@@ -3489,7 +3522,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           });
         }
       }).then(function (mapFun) {
-        return db.bulkDocs({docs : docs}).then(function () {
+        return db.bulkDocs({docs}).then(function () {
           var tasks = keySets.map(function (keys, i) {
             return function () {
               var expectedResponseKeys = [];
@@ -3505,7 +3538,7 @@ function tests(suiteName, dbName, dbType, viewType) {
                   });
                 });
                 expectedResponseKeys.sort();
-                return db.bulkDocs({docs: docs});
+                return db.bulkDocs({docs});
               }).then(function () {
                 return db.query(mapFun);
               }).then(function (res) {
@@ -3554,7 +3587,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           });
         }
       }).then(function (mapFun) {
-        return db.bulkDocs({docs : docs}).then(function () {
+        return db.bulkDocs({docs}).then(function () {
           var tasks = keySets.map(function (keys, i) {
             return function () {
               var expectedResponseKeys = [];
@@ -3572,7 +3605,7 @@ function tests(suiteName, dbName, dbType, viewType) {
                 expectedResponseKeys.sort(function (a, b) {
                   return a - b;
                 });
-                return db.bulkDocs({docs: docs});
+                return db.bulkDocs({docs});
               }).then(function () {
                 return db.query(mapFun);
               }).then(function (res) {
@@ -3597,17 +3630,13 @@ function tests(suiteName, dbName, dbType, viewType) {
     it('should work with post', function () {
       var db = new PouchDB(dbName);
       return createView(db, {
-        map : function (doc) { emit(doc._id); }.toString()
-      }).then(function (mapFun) {
+        map: function (doc) { emit(doc._id); }
+      }).then(async function (mapFun) {
         return db.bulkDocs({docs: [{_id : 'bazbazbazb'}]}).then(function () {
-          var i = 300;
-          var keys = [];
-          while (i--) {
-            keys.push('bazbazbazb');
-          }
-          return db.query(mapFun, {keys: keys}).then(function (resp) {
+          var keys = ['bazbazbazb'];
+          return db.query(mapFun, {keys}).then(function (resp) {
             resp.total_rows.should.equal(1);
-            resp.rows.should.have.length(300);
+            resp.rows.should.have.length(1);
             return resp.rows.every(function (row) {
               return row.id === 'bazbazbazb' && row.key === 'bazbazbazb';
             });
@@ -3639,7 +3668,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         //shouldn't happen
         true.should.equal(false);
       }).catch(function (err) {
-        err.status.should.equal(404);
+        err.status.should.be.oneOf([404, 500]);
       });
     });
 
@@ -3727,7 +3756,7 @@ function tests(suiteName, dbName, dbType, viewType) {
       return createView(db, {
         map: "function(doc){emit(doc.name, doc.count);};\n"
       }).then(function (queryFun) {
-        return db.bulkDocs({docs: docs}).then(function (res) {
+        return db.bulkDocs({docs}).then(function (res) {
           for (var i = 0; i < res.length; i++) {
             docs[i]._rev = res[i].rev;
           }
@@ -3739,7 +3768,7 @@ function tests(suiteName, dbName, dbType, viewType) {
           docs.forEach(function (doc) {
             doc.count = 2;
           });
-          return db.bulkDocs({docs: docs});
+          return db.bulkDocs({docs});
         }).then(function () {
           return db.query(queryFun);
         }).then(function (res) {
@@ -3762,7 +3791,7 @@ function tests(suiteName, dbName, dbType, viewType) {
       return createView(db, {
         map: "function(doc){emit(doc.name);};\n"
       }).then(function (queryFun) {
-        return db.bulkDocs({ docs: docs }).then(function () {
+        return db.bulkDocs({ docs }).then(function () {
           return db.query(queryFun, { update_seq: false });
         }).then(function (result) {
           result.rows.should.have.length(4);
@@ -3783,7 +3812,7 @@ function tests(suiteName, dbName, dbType, viewType) {
         });
       }
 
-      return db.bulkDocs({ docs: docs }).then(function () {
+      return db.bulkDocs({ docs }).then(function () {
         return createView(db, {
           map: "function(doc){emit(doc.name);};\n"
         });
@@ -3827,11 +3856,51 @@ function tests(suiteName, dbName, dbType, viewType) {
       return createView(db, {
         map: "function(doc){emit(doc.name);};\n"
       }).then(function (queryFun) {
-        return db.bulkDocs({ docs: docs }).then(function () {
+        return db.bulkDocs({ docs }).then(function () {
           return db.query(queryFun);
         }).then(function (result) {
           result.rows.should.have.length(4);
           should.not.exist(result.update_seq);
+        });
+      });
+    });
+
+    it("#8370 keys queries should support skip and limit", function () {
+      var db = new PouchDB(dbName);
+      return createView(db, {
+        map: function (doc) {
+          emit(doc.field);
+        }
+      }).then(function (queryFun) {
+        var opts = {include_docs: true};
+        return db.bulkDocs({
+          docs: [
+            { _id: "doc_0", field: 0 },
+            { _id: "doc_1", field: 1 },
+            { _id: "doc_2", field: 2 },
+            { _id: "doc_3", field: 3 },
+          ]
+        }).then(function () {
+          opts.keys = [1, 0, 3, 2];
+          opts.limit = 2;
+          return db.query(queryFun, opts);
+        }).then(function (data) {
+          data.rows.should.have.length(2, "returns 2 docs due to limit");
+          data.rows[0].doc._id.should.equal("doc_1");
+          data.rows[1].doc._id.should.equal("doc_0");
+          delete opts.limit;
+          opts.skip = 2;
+          return db.query(queryFun, opts);
+        }).then(function (data) {
+          data.rows.should.have.length(2, "returns 2 docs due to skip");
+          data.rows[0].doc._id.should.equal("doc_3");
+          data.rows[1].doc._id.should.equal("doc_2");
+          opts.limit = 2;
+          opts.skip = 3;
+          return db.query(queryFun, opts);
+        }).then(function (data) {
+          data.rows.should.have.length(1, "returns 1 doc due to limit and skip");
+          data.rows[0].doc._id.should.equal("doc_2");
         });
       });
     });

@@ -1,6 +1,6 @@
 import { collate } from 'pouchdb-collate';
 import { clone } from 'pouchdb-utils';
-import { getKey, getValue } from 'pouchdb-selector-core';
+import { getKey, getValue, massageSelector, parseField, getFieldFromDoc } from 'pouchdb-selector-core';
 
 // normalize the "sort" value
 function massageSort(sort) {
@@ -40,6 +40,11 @@ function massageIndexDef(indexDef) {
     }
     return field;
   });
+  if (indexDef.partial_filter_selector) {
+    indexDef.partial_filter_selector = massageSelector(
+      indexDef.partial_filter_selector
+    );
+  }
   return indexDef;
 }
 
@@ -47,7 +52,7 @@ function getKeyFromDoc(doc, index) {
   var res = [];
   for (var i = 0; i < index.def.fields.length; i++) {
     var field = getKey(index.def.fields[i]);
-    res.push(doc[field]);
+    res.push(getFieldFromDoc(doc, parseField(field)));
   }
   return res;
 }

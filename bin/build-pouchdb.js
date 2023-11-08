@@ -14,7 +14,6 @@ var rollupPlugins = require('./rollupPlugins');
 var rimraf = denodeify(require('rimraf'));
 var mkdirp = denodeify(require('mkdirp'));
 var all = Promise.all.bind(Promise);
-var argsarray = require('argsarray');
 var buildUtils = require('./build-utils');
 var addPath = buildUtils.addPath;
 var doUglify = buildUtils.doUglify;
@@ -28,7 +27,7 @@ var builtInModules = require('builtin-modules');
 var external = Object.keys(require('../package.json').dependencies)
   .concat(builtInModules);
 
-var plugins = ['localstorage', 'memory', 'find'];
+var plugins = ['indexeddb', 'localstorage', 'memory', 'find'];
 
 var currentYear = new Date().getFullYear();
 
@@ -40,6 +39,8 @@ var comments = {
   'version 2.0.' +
   '\n// For all details and documentation:' +
   '\n// http://pouchdb.com\n',
+
+  'indexeddb': '// PouchDB indexeddb plugin ' + version + '\n',
 
   'memory': '// PouchDB in-memory plugin ' + version +
   '\n// Based on MemDOWN: https://github.com/rvagg/memdown' +
@@ -73,16 +74,15 @@ function doRollup(input, browser, formatsToFiles) {
   var start = process.hrtime();
   return rollup.rollup({
     input: addPath('pouchdb', input),
-    external: external,
+    external,
     plugins: rollupPlugins({
-      jsnext: true,
-      browser: browser,
-      main: false  // don't use "main"s that are CJS
+      mainFields: ["module"],
+      browser
     })
   }).then(function (bundle) {
     return Promise.all(Object.keys(formatsToFiles).map(function (format) {
       var fileOut = formatsToFiles[format];
-      return bundle.generate({format: format}).then(function (bundle) {
+      return bundle.generate({format}).then(function (bundle) {
         if (DEV_MODE) {
           var ms = Math.round(process.hrtime(start)[1] / 1000000);
           console.log('    took ' + ms + ' ms to rollup ' +
@@ -146,7 +146,7 @@ function buildPluginsForBrowser() {
   });
 }
 
-var rimrafMkdirp = argsarray(function (args) {
+var rimrafMkdirp = function (...args) {
   return all(args.map(function (otherPath) {
     return rimraf(addPath('pouchdb', otherPath));
   })).then(function () {
@@ -154,15 +154,15 @@ var rimrafMkdirp = argsarray(function (args) {
       return mkdirp(addPath('pouchdb', otherPath));
     }));
   });
-});
+};
 
-var doAll = argsarray(function (args) {
+var doAll = function (...args) {
   return function () {
     return all(args.map(function (promiseFactory) {
       return promiseFactory();
     }));
   };
-});
+};
 
 function doBuildNode() {
   return mkdirp(addPath('pouchdb', 'lib/plugins'))

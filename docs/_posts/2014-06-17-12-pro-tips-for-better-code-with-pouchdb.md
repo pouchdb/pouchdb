@@ -109,7 +109,7 @@ You are taking this thing which is meant to sort and organize data, and you're g
 
 ### 5. Use plugins
 
-[PouchDB has plugins](http://pouchdb.com/external.html).  Use them, and if inspiration ever strikes, [write your own](https://github.com/pouchdb/plugin-seed)!
+[PouchDB has plugins]({{ site.baseurl }}/external.html).  Use them, and if inspiration ever strikes, [write your own](https://github.com/pouchdb/plugin-seed)!
 
 ### 6. Don't just update docs for the hell of it
 
@@ -117,9 +117,9 @@ Every time you modify a document, another revision is added to its revision hist
 
 ### 7. Use and abuse your doc IDs
 
-I already wrote [a blog post about this](http://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html), but basically, if you don't want bad performance from your secondary indexes, the best strategy is to avoid secondary indexes altogether. The primary index should be sufficient for sorting and searching in nearly all of your applications, or at least for the hot-path code.
+I already wrote [a blog post about this]({{ site.baseurl }}/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html), but basically, if you don't want bad performance from your secondary indexes, the best strategy is to avoid secondary indexes altogether. The primary index should be sufficient for sorting and searching in nearly all of your applications, or at least for the hot-path code.
 
-Also, if you really want to get fancy with your doc IDs, you can use [PouchDB Collate](https://github.com/pouchdb/collate/) to serialize arbitrary data into strings that are sorted according to [CouchDB collation ordering](https://wiki.apache.org/couchdb/View_collation).  This allows you to index on arrays, objects, numbers &ndash; whatever you want:
+Also, if you really want to get fancy with your doc IDs, you can use [PouchDB Collate](https://github.com/pouchdb/collate/) to serialize arbitrary data into strings that are sorted according to [CouchDB collation ordering](https://docs.couchdb.org/en/latest/ddocs/views/collation.html).  This allows you to index on arrays, objects, numbers &ndash; whatever you want:
 
 ```js
 var pouchCollate = require('pouchdb-collate');
@@ -178,7 +178,7 @@ if (!pouch.adapter) { // websql not supported by this browser
 
 ### 9. Move logic from the map function to query()
 
-If you only remember one thing from [my blog post about secondary indexes](http://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html), remember this: every `map` function you write has to be executed for every single document in your database.  No exceptions.
+If you only remember one thing from [my blog post about secondary indexes]({{ site.baseurl }}/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html), remember this: every `map` function you write has to be executed for every single document in your database.  No exceptions.
 
 On the other hand, the `query()` options like `startkey`, `endkey`, `key`, and `keys` have been optimized to hell, and they leverage the native indexes in the database to deliver the maximum possible performance.
 
@@ -235,7 +235,7 @@ function getPostsBetween(startTime, endTime) {
 }
 ```
 
-(That `createDesignDoc()` helper function comes from [this blost post](http://pouchdb.com/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html).)
+(That `createDesignDoc()` helper function comes from [this blost post]({{ site.baseurl }}/2014/05/01/secondary-indexes-have-landed-in-pouchdb.html).)
 
 Not only is the above code much simpler, but it's also faster and more tweakable. No need to completely rebuild the index when your query changes; just switch around `startkey`/`endkey`/`descending` and friends at query time to get the data you want.
 

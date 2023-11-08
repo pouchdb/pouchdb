@@ -7,10 +7,6 @@ var adapters = [
   ['local', 'local']
 ];
 
-if ('saucelabs' in testUtils.params()) {
-  adapters = [['local', 'http'], ['http', 'local']];
-}
-
 adapters.forEach(function (adapters) {
   describe('test.issue3179.js-' + adapters[0] + '-' + adapters[1], function () {
 
@@ -48,6 +44,7 @@ adapters.forEach(function (adapters) {
         });
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
@@ -86,6 +83,7 @@ adapters.forEach(function (adapters) {
         return local.sync(remote);
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
@@ -105,9 +103,7 @@ adapters.forEach(function (adapters) {
     it('#3179 conflicts synced, live sync', function () {
       var local = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-
       var sync = local.sync(remote, { live: true });
-
       function waitForUptodate() {
 
         function defaultToEmpty(promise) {
@@ -134,7 +130,7 @@ adapters.forEach(function (adapters) {
             if (!revsEqual || !conflictsEqual) {
               // we can get caught in an infinite loop here when using adapters based
               // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
-              return new testUtils.Promise(function (resolve) {
+              return new Promise(function (resolve) {
                 setTimeout(resolve, 0);
               }).then(waitForUptodate);
             }
@@ -143,7 +139,7 @@ adapters.forEach(function (adapters) {
       }
 
       function waitForConflictsResolved() {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           var changes = remote.changes({
             live: true,
             include_docs: true,
@@ -158,7 +154,7 @@ adapters.forEach(function (adapters) {
       }
 
       function cleanup() {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           sync.on('complete', resolve);
           sync.on('error', reject);
           sync.cancel();
@@ -186,6 +182,7 @@ adapters.forEach(function (adapters) {
         return waitForUptodate();
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {
@@ -216,7 +213,7 @@ adapters.forEach(function (adapters) {
       var repl2 = local.replicate.from(remote, { live: true });
 
       function waitForConflictsResolved() {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           var changes = remote.changes({
             live: true,
             include_docs: true,
@@ -256,7 +253,7 @@ adapters.forEach(function (adapters) {
             if (!revsEqual || !conflictsEqual) {
               // we can get caught in an infinite loop here when using adapters based
               // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
-              return new testUtils.Promise(function (resolve) {
+              return new Promise(function (resolve) {
                 setTimeout(resolve, 0);
               }).then(waitForUptodate);
             }
@@ -265,7 +262,7 @@ adapters.forEach(function (adapters) {
       }
 
       function cleanup() {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var numDone = 0;
 
           function checkDone() {
@@ -306,6 +303,7 @@ adapters.forEach(function (adapters) {
         return waitForUptodate();
       }).then(function () {
         return local.get('1', {conflicts: true}).then(function (doc) {
+          should.exist(doc._conflicts, 'conflicts expected, but none were found');
           return local.remove(doc._id, doc._conflicts[0]);
         });
       }).then(function () {

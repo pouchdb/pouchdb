@@ -96,6 +96,36 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Indexing event', async () => {
+      const docs1 = [
+        doc,
+        {_id: 'dale', score: 3},
+        {_id: 'mikeal', score: 5},
+        {_id: 'max', score: 4},
+        {_id: 'nuno', score: 3},
+      ];
+      let db = new PouchDB(dbs.name);
+      // Test invalid if adapter doesnt support mapreduce
+      if (!db.query || adapter !== 'local') {
+        return;
+      }
+
+      let indexingEvents = [];
+
+      db.on('indexing', (result) => {
+        indexingEvents.push(result);
+      });
+
+      await db.bulkDocs({ docs: docs1 });
+      await db.query('foo/scores', { reduce: false });
+
+      indexingEvents.length.should.equal(2);
+      indexingEvents[0]['indexed_docs'].should.equal(0);
+      indexingEvents[1]['last_seq'].should.equal(5);
+      indexingEvents[1]['results_count'].should.equal(5);
+      indexingEvents[1]['indexed_docs'].should.equal(5);
+    });
+
     it('Concurrent queries', function (done) {
       var db = new PouchDB(dbs.name);
       // Test invalid if adapter doesnt support mapreduce
@@ -122,6 +152,34 @@ adapters.forEach(function (adapter) {
             done();
           }
         });
+      });
+    });
+
+    it('Test rev purge with a view', function () {
+      const db = new PouchDB(dbs.name);
+
+      if (typeof db._purge === 'undefined') {
+        console.log('purge is not implemented for adapter', db.adapter);
+        return;
+      }
+
+      return db.bulkDocs({
+        docs: [
+          doc,
+          {_id: 'dale', score: 3},
+          {_id: 'mikeal', score: 5},
+        ],
+      }).then(function () {
+        return db.query('foo/scores');
+      }).then(function () {
+        return db.get('dale');
+      }).then(function (_doc) {
+        return db.purge(_doc._id, _doc._rev);
+      }).then(function () {
+        return db.query('foo/scores');
+      }).then(function (res) {
+        res.rows.length.should.equal(1);
+        res.rows[0].value.should.equal(5);
       });
     });
 

@@ -8,7 +8,6 @@ var repl_adapters = [
   ['local', 'local']
 ];
 
-/* jshint maxlen:false */
 var icons = [
   "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",
@@ -243,7 +242,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       var docs = [binAttDoc, binAttDoc2, pngAttDoc];
       return db.bulkDocs(docs).then(function () {
-        return testUtils.Promise.all(docs.map(function (doc) {
+        return Promise.all(docs.map(function (doc) {
           var attName = Object.keys(doc._attachments)[0];
           var expected = doc._attachments[attName];
           return db.get(doc._id, {
@@ -268,7 +267,7 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
       var docs = [binAttDoc, binAttDoc2, pngAttDoc, {_id: 'foo'}];
       return db.bulkDocs(docs).then(function () {
-        return testUtils.Promise.all(docs.map(function (doc) {
+        return Promise.all(docs.map(function (doc) {
           var atts = doc._attachments;
           var attName = atts && Object.keys(atts)[0];
           var expected = atts && atts[attName];
@@ -311,7 +310,7 @@ adapters.forEach(function (adapter) {
           var savedDocs = res.rows.map(function (x) {
             return x.doc;
           });
-          return testUtils.Promise.all(docs.map(function (doc) {
+          return Promise.all(docs.map(function (doc) {
             var atts = doc._attachments;
             var attName = atts && Object.keys(atts)[0];
             var expected = atts && atts[attName];
@@ -351,7 +350,7 @@ adapters.forEach(function (adapter) {
           var savedDocs = res.rows.map(function (x) {
             return x.doc;
           });
-          return testUtils.Promise.all(docs.filter(function (doc) {
+          return Promise.all(docs.filter(function (doc) {
             return !doc._deleted;
           }).map(function (doc) {
             var atts = doc._attachments;
@@ -420,7 +419,7 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.rows.should.have.length(5);
 
-          return testUtils.Promise.all(res.rows.map(function (row, i) {
+          return Promise.all(res.rows.map(function (row, i) {
             if (docs[i]._deleted) {
               should.not.exist(row.doc);
               return;
@@ -501,13 +500,13 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.rows.should.have.length(5);
 
-          return testUtils.Promise.all(res.rows.map(function (row) {
+          return Promise.all(res.rows.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
             var atts = doc._attachments;
             var attNames = Object.keys(atts);
-            return testUtils.Promise.all(attNames.map(function (attName) {
+            return Promise.all(attNames.map(function (attName) {
               var expected = atts && atts[attName];
               var savedDoc = row.doc;
               var att = savedDoc._attachments[attName];
@@ -589,7 +588,7 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.rows.should.have.length(8);
 
-          return testUtils.Promise.all(res.rows.map(function (row) {
+          return Promise.all(res.rows.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
@@ -603,7 +602,7 @@ adapters.forEach(function (adapter) {
               return;
             }
             var attNames = Object.keys(atts);
-            return testUtils.Promise.all(attNames.map(function (attName) {
+            return Promise.all(attNames.map(function (attName) {
               var expected = atts && atts[attName];
               var savedDoc = row.doc;
               var att = savedDoc._attachments[attName];
@@ -635,7 +634,7 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.results.should.have.length(5);
 
-          return testUtils.Promise.all(res.results.map(function (row) {
+          return Promise.all(res.results.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
@@ -720,13 +719,13 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.results.should.have.length(5);
 
-          return testUtils.Promise.all(res.results.map(function (row) {
+          return Promise.all(res.results.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
             var atts = doc._attachments;
             var attNames = Object.keys(atts);
-            return testUtils.Promise.all(attNames.map(function (attName) {
+            return Promise.all(attNames.map(function (attName) {
               var expected = atts && atts[attName];
               var savedDoc = row.doc;
               var att = savedDoc._attachments[attName];
@@ -809,7 +808,7 @@ adapters.forEach(function (adapter) {
         }).then(function (res) {
           res.results.should.have.length(9);
 
-          return testUtils.Promise.all(res.results.map(function (row) {
+          return Promise.all(res.results.map(function (row) {
             var doc = docs.filter(function (x) {
               return x._id === row.id;
             })[0];
@@ -819,7 +818,7 @@ adapters.forEach(function (adapter) {
               return;
             }
             var attNames = Object.keys(atts);
-            return testUtils.Promise.all(attNames.map(function (attName) {
+            return Promise.all(attNames.map(function (attName) {
               var expected = atts && atts[attName];
               var savedDoc = row.doc;
               var att = savedDoc._attachments[attName];
@@ -894,7 +893,7 @@ adapters.forEach(function (adapter) {
         }}
       ];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           db.changes({
             return_docs: true,
             attachments: true,
@@ -902,7 +901,7 @@ adapters.forEach(function (adapter) {
             include_docs: true
           }).on('error', reject).on('complete', resolve);
         }).then(function (results) {
-            return testUtils.Promise.all(results.results.map(function (row) {
+            return Promise.all(results.results.map(function (row) {
               var doc = docs.filter(function (x) {
                 return x._id === row.id;
               })[0];
@@ -917,7 +916,7 @@ adapters.forEach(function (adapter) {
                 return;
               }
               var attNames = Object.keys(atts);
-              return testUtils.Promise.all(attNames.map(function (attName) {
+              return Promise.all(attNames.map(function (attName) {
                 var expected = atts && atts[attName];
                 var att = savedDoc._attachments[attName];
                 should.not.exist(att.stub);
@@ -940,7 +939,7 @@ adapters.forEach(function (adapter) {
         {_id: 'bar'},
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             return_docs: true,
             attachments: true,
@@ -951,7 +950,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1052,7 +1051,7 @@ adapters.forEach(function (adapter) {
         }}
       ];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             return_docs: true,
             attachments: true,
@@ -1063,7 +1062,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1090,7 +1089,7 @@ adapters.forEach(function (adapter) {
                 return doneWithDoc();
               }
               var attNames = Object.keys(atts);
-              return testUtils.Promise.all(attNames.map(function (attName) {
+              return Promise.all(attNames.map(function (attName) {
                 var expected = atts && atts[attName];
                 var att = savedDoc._attachments[attName];
                 should.not.exist(att.stub);
@@ -1114,7 +1113,7 @@ adapters.forEach(function (adapter) {
         {_id: 'bar'},
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             return_docs: true,
             attachments: true,
@@ -1125,7 +1124,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1175,7 +1174,7 @@ adapters.forEach(function (adapter) {
         {_id: 'bar'},
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             include_docs: true,
             binary: true,
@@ -1184,7 +1183,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1230,7 +1229,7 @@ adapters.forEach(function (adapter) {
         {_id: 'bar'},
         {_id: 'foo', deleted: true}];
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var ret = db.changes({
             attachments: true,
             binary: true,
@@ -1239,7 +1238,7 @@ adapters.forEach(function (adapter) {
             .on('change', handleChange)
             .on('complete', resolve);
 
-          var promise = testUtils.Promise.resolve();
+          var promise = Promise.resolve();
           var done = 0;
 
           function doneWithDoc() {
@@ -1389,7 +1388,7 @@ adapters.forEach(function (adapter) {
 
       function liveChangesPromise(opts) {
         opts.live = true;
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var retChanges = {results: []};
           var changes = db.changes(opts)
             .on('change', function (change) {
@@ -1530,7 +1529,7 @@ adapters.forEach(function (adapter) {
       function liveChangesPromise(opts) {
         opts.live = true;
         opts.return_docs = true;
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var retChanges = {results: []};
           var changes = db.changes(opts)
             .on('change', function (change) {
@@ -1896,7 +1895,7 @@ adapters.forEach(function (adapter) {
             id: "doc",
             key: "doc",
             value: {
-              rev: rev,
+              rev,
               deleted: true
             }
           }
@@ -2139,7 +2138,7 @@ adapters.forEach(function (adapter) {
       function sort(a, b) {
         return a.id.localeCompare(b.id);
       }
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.allDocs({ include_docs: true }, function (err, res) {
           for (var i = 0; i < docs.length; i++) {
             var attachmentsNb = typeof docs[i]._attachments !== 'undefined' ?
@@ -2156,7 +2155,7 @@ adapters.forEach(function (adapter) {
             return_docs: true,
             include_docs: true
           }).on('change', function (change) {
-            var i = +change.id.substr(3);
+            var i = +change.id.slice(3);
             if (i === 0) {
               should.not.exist(res.rows[0].doc._attachments,
                                '(onChange) doc0 contains no attachments');
@@ -2195,7 +2194,7 @@ adapters.forEach(function (adapter) {
       return db.putAttachment('doc', 'att', null, 'Zm9v', 'text/plain').then(function () {
         return db.getAttachment('doc', 'att');
       }).then(function (blob) {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           testUtils.base64Blob(blob, function (data) {
             data.should.equal('Zm9v', 'should get the correct base64 back');
             resolve();
@@ -2492,7 +2491,7 @@ adapters.forEach(function (adapter) {
           var doc = res.rows[0].doc;
           doc._attachments['foo.txt'].stub.should.equal(true);
           doc._attachments['foo.txt'].length.should.equal(29);
-          return new testUtils.Promise(function (resolve, reject) {
+          return new Promise(function (resolve, reject) {
             var change;
             var changes = db.changes({include_docs: true, live: true})
               .on('change', function (x) {
@@ -2805,7 +2804,7 @@ adapters.forEach(function (adapter) {
       }).then(function (blob) {
         should.exist(blob);
 
-        return testUtils.Promise.all([
+        return Promise.all([
           db.getAttachment('a', 'foo.txt', {rev: rev1}),
           db.getAttachment('a', 'foo.txt', {rev: '3-fake'}),
           db.getAttachment('a', 'foo.txt'),
@@ -2865,7 +2864,7 @@ adapters.forEach(function (adapter) {
           [db.getAttachment('a', 'foo.txt', {rev: rev1}), 'foo']
         ];
 
-        return testUtils.Promise.all(testCases.map(function (testCase) {
+        return Promise.all(testCases.map(function (testCase) {
           var promise = testCase[0];
           var expected = testCase[1];
           return promise.then(function (blob) {
@@ -3059,7 +3058,7 @@ adapters.forEach(function (adapter) {
         return db.get('doc', {attachments: true});
       }).then(function (doc) {
         doc._attachments['foo.txt'].data.should.equal('dG90bw==');
-        return db.get('doc', {rev: rev, attachments: true});
+        return db.get('doc', {rev, attachments: true});
       }).then(function (doc) {
         doc._attachments['foo.txt'].data.should.equal('Zm9vYmFy');
       });
@@ -3102,10 +3101,7 @@ adapters.forEach(function (adapter) {
     });
 
 
-    var isSafari = (typeof process === 'undefined' || process.browser) &&
-      /Safari/.test(window.navigator.userAgent) &&
-      !/Chrome/.test(window.navigator.userAgent);
-    if (!isSafari && !testUtils.isIE()) {
+    if (!testUtils.isSafari() && !testUtils.isIE()) {
       // skip in safari/ios because of size limit popup
       it('putAttachment and getAttachment with big png data', function (done) {
 
@@ -3114,15 +3110,9 @@ adapters.forEach(function (adapter) {
             var bigimage = require('./deps/bigimage.js');
             cb(null, bigimage);
           } else { // browser
-            var script = document.createElement('script');
-            script.src = 'deps/bigimage.js';
-            document.body.appendChild(script);
-            var timeout = setInterval(function () {
-              if (window.bigimage) {
-                clearInterval(timeout);
-                cb(null, window.bigimage);
-              }
-            }, 500);
+            testUtils.asyncLoadScript('deps/bigimage.js')
+                .then(() => cb(null, window.bigimage))
+                .catch(err => cb(err));
           }
         }
 
@@ -3245,7 +3235,7 @@ adapters.forEach(function (adapter) {
       return db.bulkDocs(docs).then(function () {
         keys = ['bin_doc', 'thisDocIsNotInDB'];
         return db.allDocs({
-          keys: keys,
+          keys,
           attachments: true,
           binary: true,
           include_docs: true
@@ -3253,6 +3243,38 @@ adapters.forEach(function (adapter) {
       }).then(function (result) {
         should.exist(result.rows[0].doc._attachments);
         result.rows[1].error.should.equal('not_found');
+      });
+    });
+
+    it('Test rev purge with attachment', function () {
+      const db = new PouchDB(dbs.name);
+
+      if (typeof db._purge === 'undefined') {
+        console.log('purge is not implemented for adapter', db.adapter);
+        return;
+      }
+
+      const doc = { _id: 'foo' };
+      const base64 =
+        'iVBORw0KGgoAAAANSUhEUgAAAhgAAAJLCAYAAAClnu9J' +
+        'AAAgAElEQVR4Xuy9B7ylZXUu/p62T5nOMAPM0BVJICQi' +
+        'ogjEJN5ohEgQ';
+
+      return db.put(doc).then(function (res) {
+        return db.putAttachment('foo', 'foo.bin', res.rev, base64, 'image/png');
+      }).then(function () {
+        return db.get(doc._id);
+      }).then(function (_doc) {
+        return db.purge(doc._id, _doc._rev);
+      }).then(function () {
+        return db.getAttachment(doc._id, 'foo.bin');
+      }).then(function () {
+        assert.fail('attachment should not exist');
+      }).catch(function (err) {
+        if (!err.status) {
+          throw err;
+        }
+        err.status.should.equal(404, 'attachment should not exist');
       });
     });
 
@@ -3300,7 +3322,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.sync(remote);
       }).then(function () {
-        return testUtils.Promise.all([db, remote].map(function (pouch) {
+        return Promise.all([db, remote].map(function (pouch) {
           return pouch.allDocs({
             include_docs: true,
             attachments: true
@@ -3347,7 +3369,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.sync(remote);
       }).then(function () {
-        return testUtils.Promise.all([db, remote].map(function (pouch) {
+        return Promise.all([db, remote].map(function (pouch) {
           return pouch.allDocs({
             include_docs: true,
             attachments: true
@@ -3394,7 +3416,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.sync(remote);
       }).then(function () {
-        return testUtils.Promise.all([db, remote].map(function (pouch) {
+        return Promise.all([db, remote].map(function (pouch) {
           return pouch.allDocs({
             include_docs: true,
             attachments: true
@@ -3578,11 +3600,7 @@ repl_adapters.forEach(function (adapters) {
       });
     });
 
-    // Currently this test is causing occasional CI selenium:firefox
-    // failures. Under advice of @daleharvey, we will skip this test
-    // to not block other development/tests and track this issue.
-    // See issue #6835 and #6831 for further info  
-    it.skip('#3961 Many attachments on same doc', function () {
+    it('#3961 Many attachments on same doc', function () {
         var doc = {_id: 'foo', _attachments: {}};
 
         var db = new PouchDB(dbs.name);
@@ -3598,7 +3616,7 @@ repl_adapters.forEach(function (adapters) {
         return db.put(doc).then(function () {
           return db.replicate.to(remote);
         }).then(function () {
-          return testUtils.Promise.all([
+          return Promise.all([
             db, remote
           ].map(function (pouch) {
             return pouch.get('foo', {attachments: true}).then(function (doc) {
@@ -3647,7 +3665,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.allDocs();
       }).then(function (res) {
-        return testUtils.Promise.all(res.rows.map(function (row) {
+        return Promise.all(res.rows.map(function (row) {
           return db.get(row.id, {attachments: true});
         }));
       }).then(function (docs) {
@@ -3687,7 +3705,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.allDocs();
       }).then(function (res) {
-        return testUtils.Promise.all(res.rows.map(function (row) {
+        return Promise.all(res.rows.map(function (row) {
           return db.get(row.id, {attachments: true});
         }));
       }).then(function (docs) {
@@ -3705,7 +3723,7 @@ repl_adapters.forEach(function (adapters) {
           };
         }));
 
-        return testUtils.Promise.all(docs.map(function (doc) {
+        return Promise.all(docs.map(function (doc) {
           return db.get(doc._id);
         }));
       }).then(function (docs) {
@@ -3767,7 +3785,7 @@ repl_adapters.forEach(function (adapters) {
       }).then(function () {
         return db.replicate.to(remote);
       }).then(function () {
-        return testUtils.Promise.all([db, remote].map(function (pouch) {
+        return Promise.all([db, remote].map(function (pouch) {
           return pouch.get('test1', {attachments: true}).then(function (doc) {
             var filenames = Object.keys(doc._attachments);
             filenames.should.have.length(2);
@@ -3896,5 +3914,74 @@ repl_adapters.forEach(function (adapters) {
       }
     });
 
+    it('#8456 bad attachment rev after replication', function (done) {
+      var db = new PouchDB(dbs.name, {});
+      var remote = new PouchDB(dbs.remote, {});
+      var doc_1a, doc_2a, doc_3a, doc_2b, attachment;
+
+      db.put({ _id: 'doc', key: '1a' }).then(function (res) {
+        doc_1a = res;
+        return PouchDB.sync(db, remote);
+      }).then(function () {
+        return db.put({
+          _id: 'doc',
+          _rev: doc_1a.rev,
+          key: '2a',
+        });
+      }).then(function (res) {
+        doc_2a = res;
+        return db.put({
+          _id: 'doc',
+          _rev: doc_2a.rev,
+          key: '3a',
+          _attachments: {
+            'attachment.txt': {
+              content_type: 'text/plain',
+              data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=',
+            },
+          },
+        });
+      }).then(function (res) {
+        doc_3a = res;
+        return remote.put({
+          _id: 'doc',
+          _rev: doc_1a.rev,
+          key: '2-b',
+        });
+      }).then(function (res) {
+        doc_2b = res;
+        return PouchDB.sync(db, remote);
+      }).then(function () {
+        return db.get('doc', { attachments: true });
+      }).then(function (doc) {
+        attachment = doc._attachments['attachment.txt'];
+        return db.remove('doc', doc_3a.rev);
+      }).then(function () {
+        return db.compact();
+      }).then(function () {
+        db.put({
+          _id: 'doc',
+          _rev: doc_2b.rev,
+          key: '3-b',
+          _attachments: {
+            'attachment.txt': {
+              stub: true,
+              digest: attachment.digest,
+              content_type: attachment.content_type,
+              length: attachment.data.length,
+              revpos: attachment.revpos,
+            },
+          },
+        }, function (err) {
+          if (!err || err.status !== 412) {
+            done('error 412 is expected to be thrown (attachment should not exist)');
+          } else {
+            done();
+          }
+        });
+      }).catch(function (err) {
+        done(err);
+      });
+    });
   });
 });

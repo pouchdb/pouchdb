@@ -6,22 +6,22 @@ Welcome, so you are thinking about contributing to PouchDB? Awesome, this is a g
 Get in Touch
 ------------
 
-The following documentation should answer most of the common questions about how to get starting contributing, if you have any questions, please feel free to get in touch @ [Freenode IRC](https://www.irccloud.com/invite?channel=pouchdb&hostname=irc.freenode.net&port=6697&ssl=1), in [the Google Groups mailing list](https://groups.google.com/forum/#!forum/pouchdb), and [on StackOverflow](http://stackoverflow.com/questions/tagged/pouchdb). Or you can [tweet @pouchdb](http://twitter.com/pouchdb).
+The following documentation should answer most of the common questions about how to get starting contributing, if you have any questions, please feel free to get in touch @ [the Google Groups mailing list](https://groups.google.com/forum/#!forum/pouchdb), and [on StackOverflow](http://stackoverflow.com/questions/tagged/pouchdb). Or you can [tweet @pouchdb](http://twitter.com/pouchdb).
 
-Most project discussions should happen on the Mailing list / Bug Tracker and IRC, however if you are a first time contributor and want some help getting started feel free to send a private email to any of the following maintainers:
+Most project discussions should happen on the Mailing list / Bug Tracker, however if you are a first time contributor and want some help getting started feel free to send a private email to any of the following maintainers:
 
- * Dale Harvey (dale@arandomurl.com, daleharvey on IRC)
- * Nolan Lawson (nolan@nolanlawson.com, nolanlawson on IRC)
- * Calvin Metcalf (calvin.metcalf@gmail.com, calvinmetcalf on IRC)
-
-#### PouchDB meeting
-
-We hold a weekly 'office hours' meeting on IRC (irc.freenode.net#pouchdb) on Mondays at 5:00PM UTC (9:00 AM Pacific, 12:00 PM Eastern, 10:30 PM IST), this is open to anyone and a time when developers and users discuss issues they are having or working on.
+ * Dale Harvey (dale@arandomurl.com)
 
 Help Wanted
 ----------------
 
-If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [help wanted](https://github.com/pouchdb/pouchdb/issues?labels=help%20wanted&state=open).
+If you are looking for something to work on, we try to maintain a list of issues that should be suitable for first time contributions, they can be found tagged [help-wanted](https://github.com/pouchdb/pouchdb/issues?labels=help-wanted&state=open).
+
+Triage
+----------------
+
+Bugs that get filed have no labels [and are triaged](https://github.com/pouchdb/pouchdb/issues?q=is%3Aissue+is%3Aopen+no%3Alabel). A bug should be given one of the following labels: bug, enhancement, needs-reproducing, question during triage. Issues with the `bug` label will not be marked stale.
+
 
 Guide to Contributions
 --------------------------------------
@@ -29,7 +29,6 @@ Guide to Contributions
   * Almost all Pull Requests for features or bug fixes will need tests
   * We follow [Felix's Node.js Style Guide](https://github.com/felixge/node-style-guide)
   * Almost all Pull Requests for features or bug fixes will need tests (seriously, it's really important)
-  * Before opening a pull request run `$ npm test` to lint test the changes and run node tests. Preferably run the browser tests as well.
   * Commit messages should follow the following style:
 
 ```
@@ -46,11 +45,6 @@ Dependencies
 PouchDB needs the following to be able to build and test your build, if you haven't installed them then best to do so now, we will wait.
 
   * [Node.js](http://nodejs.org/)
-  * [CouchDB](http://couchdb.apache.org/)
-
-CouchDB must be running and available at `http://localhost:5984`. If you can open that URL in a browser and see `"couchdb": "Welcome"`, then it's working.
-
-You'll also need to ensure that CORS is enabled on the CouchDB. You can easily do this by running `npm install -g add-cors-to-couchdb` and then `add-cors-to-couchdb`.
 
 **On Windows?** PouchDB's build and tests work on Windows, but you will have to follow [Microsoft's guidelines for Windows](https://github.com/Microsoft/nodejs-guidelines/blob/master/windows-environment.md#environment-setup-and-configuration) to ensure you can install and compile native add-ons. Also, we recommend [Git Bash for Windows](https://git-scm.com/download/win) because our build relies on many Bash- and Unix-isms. Another option is [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux).
 
@@ -72,40 +66,46 @@ UMD module to `dist/`. All of this logic is in `bin/build.sh`.
 Testing PouchDB
 --------------------------------------
 
-Running PouchDB tests is really simple (5 minutes), go to [TESTING](./TESTING.md) for instructions.
+The main PouchDB test suite can be run with:
 
-Debugging PouchDB
---------------------------------------
+    $ npm test
 
-PouchDB uses the `debug` [module](https://www.npmjs.org/package/debug) for debug
-logging, to turn on the log output enable the debug flag in node:
+If you would like to test against your a CouchDB instance you are currently running you can specify that with `COUCH_HOST`:
 
-    DEBUG=pouchdb:*
+    $ COUCH_HOST="http://127.0.0.1:5984" npm test
 
-Or in the browser:
-
-    PouchDB.debug.enable('pouchdb:*');
+There is more information about the various test suites and testing options in [TESTING](./TESTING.md).
 
 Git Essentials
 --------------------------------------
 
 Workflows can vary, but here is a very simple workflow for contributing a bug fix:
 
-    $ git clone git@github.com:myfork/pouchdb.git
-    $ git remote add pouchdb https://github.com/pouchdb/pouchdb.git
-
+    $ git clone https://github.com/pouchdb/pouchdb.git
     $ git checkout -b 121-issue-keyword master
     # Write tests + code
     $ git add src/afile.js
     $ git commit -m "(#121) - A brief description of what I changed"
+
+Once you have some code to push, fork the [PouchDB repository](https://github.com/pouchdb/pouchdb) then push your changes to your fork:
+
+    $ git remote add myfork https://github.com/myfork/pouchdb.git
     $ git push origin 121-issue-keyword
+
+Now when you visit https://github.com/myfork/pouchdb there should be a button that will let you create a pull request.
 
 Building PouchDB Documentation
 --------------------------------------
 
-The source for the website http://pouchdb.com is stored inside the `docs` directory of the PouchDB repository, you can make changes and submit pull requests as with any other patch. To build and view the website locally you will need to install [jekyll](http://jekyllrb.com/) and a few other gems.  Jekyll is installed using [bundler](http://bundler.io/) so you need to install that first.
+The source for the website http://pouchdb.com is stored inside the `docs` directory of the PouchDB repository, you can make changes and submit pull requests as with any other patch. To build and view the website locally you will need to have the Ruby development package installed.
+On Ubuntu this is done with:
 
-    $ gem install bundler
+    $ sudo apt install -y ruby-dev
+
+You then neet to install [jekyll](http://jekyllrb.com/) and a few other gems. Jekyll is installed using [bundler](http://bundler.io/) so you need to install that first.
+On Ubuntu you will need root permissions to do this so prefix the ```gem``` command with ```sudo```
+
+    $ [sudo] gem install bundler
     $ npm run install-jekyll
 
 If you haven't already done so, you'll also need to run `npm install` to pull in packages for the dev server:
@@ -136,9 +136,9 @@ Committers!
 
 With great power comes great responsibility yada yada yada:
 
- * Code is peer reviewed, you should (almost) never push your own code.
- * Please don't accidentally force push to master.
- * Cherry Pick / Rebase commits, **don't use the big green button**, see below for instructions on how to
+ * Code is peer reviewed, you should not merge un-reviewed code.
+ * Pushing to `master` is blocked by GitHub.
+ * Cherry Pick / Rebase commits, **don't use merge commits**, see below for instructions on how to
  merge a pull request.
  * Ensure reviewed code follows the above contribution guidelines, if it doesn't feel free to amend and make note.
  * Please try to watch when Pull Requests are made and review and / or commit them in a timely manner.
@@ -146,14 +146,13 @@ With great power comes great responsibility yada yada yada:
  * Thanks, you are all awesome human beings.
 
 **How to merge a pull request**
- * Go to the pouchdb repository on your machine
- * Get the link to the patch of the pull request, which can be found under 'view command line instructions'
- next to the green 'Merge pull request' button on the page on GitHub for the pull request
- * In your command line, run the following:
-    * `curl https://patch-diff.githubusercontent.com/raw/pouchdb/pouchdb/pull/[PATCH NUMBER].patch | git am - && git push origin master`, replacing [PATCH NUMBER] with the number of the patch you want to merge.
- * Close the pull request once it has been merged, so no-one accidentally tries to merge it themselves
- * Make sure the issue associated with the pull request is closed, if the issue was resolved by that pull
- request
+  * Use the github Pull Request UI.
+  * Generally, use _Squash and merge_.
+  * In special circumstances, _Rebase and merge_ may be used.  It may be appropriate where intermediate commits in a pull request:
+    * meet standard requirements for commit messages; and
+    * are important for future understanding of a sequence of related changes; and
+    * cannot be broken down into separate pull requests.
+  * Make sure the issue associated with the pull request is closed, if the issue was resolved by that pull request.
 
 Release Procedure
 -----------------
@@ -161,8 +160,8 @@ Release Procedure
  * Copy the last release post from ./docs/_posts/date-pouchdb-version.md, amend date and version and fill in release notes
  * Push release post
  * `npm run set-version -- $VERSION`
- * `npm run release`
- * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` after you upload it.
+ * `npm run release`. Note that with 2FA in npm, it will request you an OTP for every package.
+ * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` (same with `pouchdb.js`) after you upload it.
  * Update docs/_config.yml to the current version
  * Push updated versions to master
  * `npm run publish-site`

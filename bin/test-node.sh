@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/bash -e
 
-: ${TIMEOUT:=50000}
+: ${TIMEOUT:=5000}
 : ${REPORTER:="spec"}
 : ${BAIL:=1}
 : ${TYPE:="integration"}
@@ -12,6 +12,12 @@ else
 fi
 
 if [ $TYPE = "integration" ]; then
+    if  (: < /dev/tcp/127.0.0.1/3010) 2>/dev/null; then
+        echo "down-server port already in use"
+    else
+        node bin/down-server.js 3010 & export DOWN_SERVER_PID=$!
+    fi
+
     TESTS_PATH="tests/integration/test.*.js"
 fi
 if [ $TYPE = "fuzzy" ]; then
@@ -33,22 +39,27 @@ if [ $PERF ]; then
 elif [ ! $COVERAGE ]; then
     ./node_modules/.bin/mocha \
         $BAIL_OPT \
-        --timeout $TIMEOUT \
+        --timeout "$TIMEOUT" \
         --require=./tests/integration/node.setup.js \
-        --reporter=$REPORTER \
-        --grep=$GREP \
+        --reporter="$REPORTER" \
+        --grep="$GREP" \
         $TESTS_PATH
 else
     ./node_modules/.bin/istanbul cover \
        --no-default-excludes -x 'tests/**' -x 'node_modules/**' \
        ./node_modules/mocha/bin/_mocha -- \
         $BAIL_OPT \
-        --timeout $TIMEOUT \
+        --timeout "$TIMEOUT" \
         --require=./tests/integration/node.setup.js \
-        --reporter=$REPORTER \
-        --grep=$GREP \
+        --reporter="$REPORTER" \
+        --grep="$GREP" \
         $TESTS_PATH
 
     ./node_modules/.bin/istanbul check-coverage --line 100
 fi
 
+EXIT_STATUS=$?
+if [[ ! -z $DOWN_SERVER_PID ]]; then
+  kill $DOWN_SERVER_PID
+fi
+exit $EXIT_STATUS

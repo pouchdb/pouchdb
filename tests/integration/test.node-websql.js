@@ -1,6 +1,6 @@
 'use strict';
 
-if (process.env.ADAPTER === 'websql') {
+if (process.env.ADAPTERS === 'websql') {
   describe('test.node-websql.js', function () {
     it('should run websql when we are actually testing websql', function () {
       var db = new PouchDB('testdb');

@@ -81,23 +81,23 @@ adapters.forEach(function (adapter) {
       var keys;
       return db.bulkDocs(origDocs).then(function () {
         keys = ['3', '1'];
-        return db.allDocs({keys: keys});
+        return db.allDocs({keys});
       }).then(function (result) {
         result.rows.map(keyFunc).should.deep.equal(keys);
         keys = ['2', '0', '1000'];
-        return db.allDocs({ keys: keys });
+        return db.allDocs({ keys });
       }).then(function (result) {
         result.rows.map(keyFunc).should.deep.equal(keys);
         result.rows[2].error.should.equal('not_found');
         return db.allDocs({
-          keys: keys,
+          keys,
           descending: true
         });
       }).then(function (result) {
         result.rows.map(keyFunc).should.deep.equal(['1000', '0', '2']);
         result.rows[0].error.should.equal('not_found');
         return db.allDocs({
-          keys: keys,
+          keys,
           startkey: 'a'
         });
       }).then(function () {
@@ -105,7 +105,7 @@ adapters.forEach(function (adapter) {
       }, function (err) {
         should.exist(err);
         return db.allDocs({
-          keys: keys,
+          keys,
           endkey: 'a'
         });
       }).then(function () {
@@ -120,7 +120,7 @@ adapters.forEach(function (adapter) {
         return db.remove(doc);
       }).then(function () {
         return db.allDocs({
-          keys: keys,
+          keys,
           include_docs: true
         });
       }).then(function (result) {
@@ -180,7 +180,7 @@ adapters.forEach(function (adapter) {
 
       db.info(function (err, info) {
         var update_seq = info.update_seq;
-        
+
         testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
           function () {
           db.get('1', function (err, doc) {
@@ -209,8 +209,8 @@ adapters.forEach(function (adapter) {
 
       db.info(function (err, info) {
         var update_seq = info.update_seq;
-        
-        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)), 
+
+        testUtils.writeDocs(db, JSON.parse(JSON.stringify(origDocs)),
           function () {
           db.get('3', function (err, doc) {
             doc.updated = 'totally';
@@ -358,7 +358,7 @@ adapters.forEach(function (adapter) {
         {_id : '8'},
         {_id : '9'}
       ];
-      db.bulkDocs({docs : docs}).then(function (res) {
+      db.bulkDocs({docs}).then(function (res) {
         docs[3]._deleted = true;
         docs[7]._deleted = true;
         docs[3]._rev = res[3].rev;
@@ -590,7 +590,7 @@ adapters.forEach(function (adapter) {
         { _id: '3' },
         { _id: '4' }
       ];
-      return db.bulkDocs({docs: docs}).then(function () {
+      return db.bulkDocs({docs}).then(function () {
         return db.allDocs({inclusive_end: false, endkey: '2'});
       }).then(function (res) {
         res.rows.should.have.length(1);
@@ -710,7 +710,7 @@ adapters.forEach(function (adapter) {
       return db.bulkDocs(docs).then(function () {
         return paginate().then(function () {
           // try running all queries at once to try to isolate race condition
-          return testUtils.Promise.all(allkeys.map(function (key) {
+          return Promise.all(allkeys.map(function (key) {
             return db.allDocs({
               limit: 100,
               include_docs: true,
@@ -778,7 +778,7 @@ adapters.forEach(function (adapter) {
         should.not.exist(result.rows[0].doc._conflicts);
       });
     });
-    
+
     it('#6230 Test allDocs opts update_seq: false', function () {
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(origDocs).then(function () {
@@ -790,8 +790,8 @@ adapters.forEach(function (adapter) {
         should.not.exist(result.update_seq);
       });
     });
-    
-    
+
+
     it('#6230 Test allDocs opts update_seq: true', function () {
 
       var db = new PouchDB(dbs.name);

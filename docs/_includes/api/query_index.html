@@ -107,17 +107,13 @@ If there's no index that matches your `selector`/`sort`, then this method will i
 {% highlight js %}
 {
   "docs": [ /* ... */ ],
-  "warning": "no matching index found, create an index to optimize query time"
+  "warning": "No matching index found, create an index to optimize query time."
 }
 {% endhighlight %}
 
-The best index will be chosen automatically. If you want to see the query plan for your query, then turn on debugging:
+The best index will be chosen automatically.
 
-{% highlight js %}
-PouchDB.debug.enable('pouchdb:find');
-{% endhighlight %}
-
-See the [CouchDB `_find` documentation](http://docs.couchdb.org/en/2.0.0/api/database/find.html) for more details on
+See the [CouchDB `_find` documentation](https://docs.couchdb.org/en/stable/api/database/find.html) for more details on
 selectors and the Mango query language.
 
 ### More examples

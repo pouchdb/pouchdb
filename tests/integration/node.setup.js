@@ -1,5 +1,4 @@
 "use strict";
-
 // throw an error if any EventEmitter adds too many listeners
 require('throw-max-listeners-error');
 
@@ -19,15 +18,10 @@ exec('mkdir -p ' + testsDir, function () {
   process.on('exit', cleanup);
 });
 global.testUtils = require('./utils.js');
+global.PouchDB = testUtils.loadPouchDB();
 var chai = require('chai');
 chai.use(require('chai-as-promised'));
 global.should = chai.should();
 global.assert = chai.assert;
-
-if (process.env.PLUGINS && !process.env.COVERAGE) {
-  // in coverage, these plugins are explicitly included
-  // in pouchdb-for-coverage
-  process.env.PLUGINS.split(',').forEach(function (plugin) {
-    PouchDB.plugin(require('../../packages/node_modules/' + plugin));
-  });
-}
+require('mkdirp').sync('./tmp');
+global.fs = require('fs');

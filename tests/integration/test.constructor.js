@@ -25,6 +25,19 @@ describe('constructor errors', function () {
     }
   });
 
+  it('should error on an undefined view adapter', function (done) {
+    try {
+      new PouchDB('foo', {view_adapter : 'myFakeViewAdapter'});
+      done('Should have thrown');
+    } catch (err) {
+      should.equal(err instanceof Error, true, 'should be an error');
+      err.message.should
+        .equal('Invalid View Adapter: myFakeViewAdapter',
+               'should give the correct error message');
+      done();
+    }
+  });
+
   it('should error on a null name', function (done) {
     try {
       new PouchDB(null);

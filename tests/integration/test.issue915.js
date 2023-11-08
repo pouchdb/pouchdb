@@ -2,10 +2,9 @@
 if (!process.env.LEVEL_ADAPTER &&
     !process.env.LEVEL_PREFIX &&
     !process.env.AUTO_COMPACTION &&
-    !process.env.ADAPTER) {
+    !process.env.ADAPTERS) {
   // these tests don't make sense for anything other than default leveldown
   var fs = require('fs');
-  var bufferFrom = require('buffer-from');
   describe('test.issue915.js', function () {
     afterEach(function (done) {
       fs.unlink('./tmp/_pouch_veryimportantfiles/something', function () {
@@ -17,7 +16,7 @@ if (!process.env.LEVEL_ADAPTER &&
     it('Put a file in the db, then destroy it', function (done) {
       var db = new PouchDB('veryimportantfiles');
       fs.writeFile('./tmp/_pouch_veryimportantfiles/something',
-                   bufferFrom('lalala'), function () {
+        Buffer.from('lalala', 'utf8'), function () {
         db.destroy(function (err) {
           if (err) {
             return done(err);

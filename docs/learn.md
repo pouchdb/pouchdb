@@ -12,7 +12,7 @@ PouchDB is a free open-source project, written in JavaScript and driven by our [
 
 {% include anchor.html class="h3" title="Browser Support" hash="browser_support" %}
 
-PouchDB supports all modern browsers, using [IndexedDB][] under the hood and falling back to [WebSQL][] where IndexedDB isn't supported. It is [fully tested](https://travis-ci.org/pouchdb/pouchdb/) and supported in:
+PouchDB supports all modern browsers, using [IndexedDB][] under the hood and falling back to [WebSQL][] where IndexedDB isn't supported. It is [fully tested](https://github.com/pouchdb/pouchdb/actions) and supported in:
 
  * Firefox 29+ (Including Firefox OS and Firefox for Android)
  * Chrome 30+
@@ -23,7 +23,7 @@ PouchDB supports all modern browsers, using [IndexedDB][] under the hood and fal
  * iOS 7.1+
  * Windows Phone 8+
 
-PouchDB also runs in [Cordova/PhoneGap](https://github.com/nolanlawson/pouchdb-phonegap-cordova), [NW.js](https://github.com/nolanlawson/pouchdb-nw), [Electron](https://github.com/nolanlawson/pouchdb-atom-shell), and [Chrome apps](https://github.com/nolanlawson/pouchdb-chrome-app). It is framework-agnostic, and you can use it with Angular, React, Ember, Backbone, or your framework of choice. There are [many adapters](http://pouchdb.com/external.html#framework_adapters), or you can just use PouchDB as-is.
+PouchDB also runs in [Cordova/PhoneGap](https://github.com/nolanlawson/pouchdb-phonegap-cordova), [NW.js](https://github.com/nolanlawson/pouchdb-nw), [Electron](https://github.com/nolanlawson/pouchdb-atom-shell), and [Chrome apps](https://github.com/nolanlawson/pouchdb-chrome-app). It is framework-agnostic, and you can use it with Angular, React, Ember, Backbone, or your framework of choice. There are [many adapters]({{ site.baseurl }}/external.html#framework_adapters), or you can just use PouchDB as-is.
 
 PouchDB requires a modern ES5 environment, so if you need to support older browsers (IE <10, Android <4.0, Opera Mini), then you should include the [es5-shim](https://github.com/es-shims/es5-shim) library.  You can also use the [LocalStorage and in-memory adapters](/adapters.html#pouchdb_in_the_browser), or fall back to a live CouchDB.
 
@@ -35,4 +35,4 @@ PouchDB can also run as its own CouchDB-compatible web server, using [PouchDB Se
 
 [IndexedDB]: http://caniuse.com/#feat=indexeddb
 [WebSQL]: http://caniuse.com/#feat=sql-storage
-[LevelDB]: http://leveldb.org/
+[LevelDB]: https://github.com/google/leveldb

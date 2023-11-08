@@ -1,9 +1,6 @@
-/* global PouchDB */
-/* jshint -W079 */
 'use strict';
 
-var path = require('path');
-var testUtils = {};
+var testUtils = Object.create(require('../common-utils'));
 
 function uniq(list) {
   var map = {};
@@ -18,6 +15,11 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
+testUtils.isChrome = function () {
+  return (typeof window !== 'undefined') && window.navigator &&
+      /Google Inc/.test(window.navigator.vendor);
+};
+
 testUtils.isIE = function () {
   var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
       navigator.userAgent.toLowerCase() : '';
@@ -27,45 +29,18 @@ testUtils.isIE = function () {
   return (isIE || isTrident || isEdge);
 };
 
-testUtils.params = function () {
-  if (typeof process !== 'undefined' && !process.browser) {
-    return process.env;
-  }
-  var paramStr = document.location.search.slice(1);
-  return paramStr.split('&').reduce(function (acc, val) {
-    if (!val) {
-      return acc;
-    }
-    var tmp = val.split('=');
-    acc[tmp[0]] = decodeURIComponent(tmp[1]) || true;
-    return acc;
-  }, {});
+testUtils.isSafari = function () {
+  return (typeof process === 'undefined' || process.browser) &&
+      /Safari/.test(window.navigator.userAgent) &&
+      !/Chrome/.test(window.navigator.userAgent);
 };
 
-testUtils.couchHost = function () {
-  if (typeof window !== 'undefined' && window.cordova) {
-    // magic route to localhost on android emulator
-    return 'http://10.0.2.2:5984';
-  }
-
-  if (typeof window !== 'undefined' && window.COUCH_HOST) {
-    return window.COUCH_HOST;
-  }
-
-  if (typeof process !== 'undefined' && process.env.COUCH_HOST) {
-    return process.env.COUCH_HOST;
-  }
-
-  if ('couchHost' in testUtils.params()) {
-    // Remove trailing slash from url if the user defines one
-    return testUtils.params().couchHost.replace(/\/$/, '');
-  }
-
-  return 'http://localhost:5984';
+testUtils.adapterType = function () {
+  return testUtils.adapters().indexOf('http') < 0 ? 'local' : 'http';
 };
 
 testUtils.readBlob = function (blob, callback) {
-  if (typeof process !== 'undefined' && !process.browser) {
+  if (testUtils.isNode()) {
     callback(blob.toString('binary'));
   } else {
     var reader = new FileReader();
@@ -86,13 +61,13 @@ testUtils.readBlob = function (blob, callback) {
 };
 
 testUtils.readBlobPromise = function (blob) {
-  return new testUtils.Promise(function (resolve) {
+  return new Promise(function (resolve) {
     testUtils.readBlob(blob, resolve);
   });
 };
 
 testUtils.base64Blob = function (blob, callback) {
-  if (typeof process !== 'undefined' && !process.browser) {
+  if (testUtils.isNode()) {
     callback(blob.toString('base64'));
   } else {
     testUtils.readBlob(blob, function (binary) {
@@ -189,8 +164,20 @@ testUtils.putTree = function (db, tree, callback) {
   insert(0);
 };
 
+function parseHostWithCreds(host) {
+  var uriObj = testUtils.parseUri(host);
+  var url = `${uriObj.protocol}://${uriObj.host}:${uriObj.port}${uriObj.path}`;
+  var options = {};
+  if (uriObj.userInfo) {
+    options.headers = {};
+    options.headers['Authorization'] = 'Basic: ' + testUtils.btoa(uriObj.userInfo);
+  }
+  return { url, options };
+}
+
 testUtils.isCouchDB = function (cb) {
-  PouchDB.fetch(testUtils.couchHost(), {}).then(function (response) {
+  var {url, options} = parseHostWithCreds(testUtils.couchHost());
+  PouchDB.fetch(url, options).then(function (response) {
     return response.json();
   }).then(function (res) {
     cb('couchdb' in res || 'express-pouchdb' in res);
@@ -218,7 +205,7 @@ testUtils.eliminateDuplicates = function (arr) {
     obj[arr[i]] = 0;
   }
   for (element in obj) {
-    if (obj.hasOwnProperty(element)) {
+    if (Object.hasOwnProperty.call(obj, element)) {
       out.push(element);
     }
   }
@@ -252,7 +239,7 @@ testUtils.promisify = function (fun, context) {
     for (var i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];
     }
-    return new testUtils.Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       args.push(function (err, res) {
         if (err) {
           return reject(err);
@@ -272,7 +259,6 @@ var pouchUtils = PouchForCoverage.utils;
 testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
 testUtils.btoa = pouchUtils.btoa;
 testUtils.atob = pouchUtils.atob;
-testUtils.Promise = pouchUtils.Promise;
 testUtils.ajax = PouchForCoverage.ajax;
 testUtils.uuid = pouchUtils.uuid;
 testUtils.rev = pouchUtils.rev;
@@ -282,9 +268,9 @@ testUtils.assign = pouchUtils.assign;
 testUtils.generateReplicationId = pouchUtils.generateReplicationId;
 
 testUtils.makeBlob = function (data, type) {
-  if (typeof process !== 'undefined' && !process.browser) {
+  if (testUtils.isNode()) {
     // "global.Buffer" is to avoid Browserify pulling this in
-    return new global.Buffer(data, 'binary');
+    return global.Buffer.from(data, 'binary');
   } else {
     return pouchUtils.blob([data], {
       type: (type || 'text/plain')
@@ -337,42 +323,7 @@ testUtils.sortById = function (a, b) {
   return a._id < b._id ? -1 : 1;
 };
 
-if (typeof process !== 'undefined' && !process.browser) {
-  if (process.env.COVERAGE) {
-    global.PouchDB = require('../../packages/node_modules/pouchdb-for-coverage');
-  } else { // no need to check for coverage
-    // string addition is to avoid browserify pulling in whole thing
-    global.PouchDB = require('../../packages/' + 'node_modules/pouchdb');
-  }
-
-  if (process.env.AUTO_COMPACTION) {
-    // test autocompaction
-    global.PouchDB = global.PouchDB.defaults({
-      auto_compaction: true,
-      prefix: './tmp/_pouch_'
-    });
-  } else if (process.env.ADAPTER === 'websql') {
-    // test WebSQL in Node
-    // (the two strings are just to fool Browserify because sqlite3 fails
-    // in Node 0.11-0.12)
-   global.PouchDB.plugin(require('../../packages/node_modules/' +
-      'pouchdb-adapter-node-websql'));
-    global.PouchDB.preferredAdapters = ['websql', 'leveldb'];
-    global.PouchDB = global.PouchDB.defaults({
-      prefix: path.resolve('./tmp/_pouch_')
-    });
-  } else if (process.env.ADAPTER === 'memory') {
-    global.PouchDB.plugin(require('../../packages/node_modules/' +
-      'pouchdb-adapter-memory'));
-    global.PouchDB.preferredAdapters = ['memory', 'leveldb'];
-  } else {
-    // test regular leveldown in node
-    global.PouchDB = global.PouchDB.defaults({
-      prefix: path.resolve('./tmp/_pouch_')
-    });
-  }
-
-  require('mkdirp').sync('./tmp');
+if (testUtils.isNode()) {
   module.exports = testUtils;
 } else {
   window.testUtils = testUtils;

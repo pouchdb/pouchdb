@@ -5,6 +5,11 @@ sidebar: nav.html
 ---
 
 A list of known products and services that are using PouchDB.
+## Newt
+
+{% include img.html width=100 src="newt.png" alt="Newt" %}
+
+[Newt](https://newt.to) lets you read, listen and write thousands of books across devices natively. It runs on Windows, Linux, macOS, Android, iOS & web. Its backed is powered by CouchDB and it uses PouchDB on the web client, desktop client and mobile native app for offline access, live sync, revisions and much more.
 
 ## BikeCommute
 
