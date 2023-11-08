@@ -326,7 +326,7 @@ adapters.forEach(function (adapter) {
         });
       }
 
-      return testUtils.Promise.all(tasks.map(function (task) {
+      return Promise.all(tasks.map(function (task) {
         return getDocWithDefault(db, task, {foo: 'bar'});
       }));
     });
@@ -365,7 +365,7 @@ adapters.forEach(function (adapter) {
         });
       }
 
-      return testUtils.Promise.all(tasks.map(function (task) {
+      return Promise.all(tasks.map(function (task) {
         return getDocWithDefault(db, task, {foo: 'bar'});
       }));
     });
