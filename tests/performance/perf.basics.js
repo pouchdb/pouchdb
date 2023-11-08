@@ -14,7 +14,7 @@ module.exports = function (PouchDB, callback) {
       name: 'basic-inserts',
       assertions: 1,
       iterations: 1000,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         callback(null, {'yo': 'dawg'});
       },
       test: function (db, itr, doc, done) {
@@ -25,7 +25,7 @@ module.exports = function (PouchDB, callback) {
       name: 'bulk-inserts',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 100; i++) {
           docs.push({much : 'docs', very : 'bulk'});
@@ -40,7 +40,7 @@ module.exports = function (PouchDB, callback) {
       name: 'bulk-inserts-large-docs',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
 
         for (var d = 0; d < 100; d++) {
@@ -61,7 +61,7 @@ module.exports = function (PouchDB, callback) {
       name: 'bulk-inserts-massive-docs',
       assertions: 1,
       iterations: 10,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
 
         // Depth is an important factor here. Depth makes any kind of recursive
@@ -102,7 +102,7 @@ module.exports = function (PouchDB, callback) {
       name: 'basic-updates',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 100; i++) {
           docs.push({});
@@ -123,9 +123,9 @@ module.exports = function (PouchDB, callback) {
       name: 'basic-gets',
       assertions: 1,
       iterations: 1000,
-      setup: function (db, callback) {
+      setup: function (db, { iterations }, callback) {
         var docs = [];
-        for (var i = 0; i < this.iterations; i++) {
+        for (var i = 0; i < iterations; i++) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
@@ -139,7 +139,7 @@ module.exports = function (PouchDB, callback) {
       name: 'all-docs-skip-limit',
       assertions: 1,
       iterations: 10,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({_id : commonUtils.createDocId(i),
@@ -166,7 +166,7 @@ module.exports = function (PouchDB, callback) {
       name: 'all-docs-startkey-endkey',
       assertions: 1,
       iterations: 10,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({
@@ -199,7 +199,7 @@ module.exports = function (PouchDB, callback) {
       name: 'all-docs-keys',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({_id : commonUtils.createDocId(i),
@@ -226,7 +226,7 @@ module.exports = function (PouchDB, callback) {
       name: 'all-docs-include-docs',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({
@@ -253,7 +253,7 @@ module.exports = function (PouchDB, callback) {
       name: 'pull-replication-perf-skimdb',
       assertions: 1,
       iterations: 0,
-      setup: function (localDB, callback) {
+      setup: function (localDB, { iterations }, callback) {
         // The NPM registry is a couchdb database.  "skimdb" is the NPM
         // registry, minus the actual packages, found at
         // https://skimdb.npmjs.com/registry, and an example of a real, public
@@ -266,7 +266,7 @@ module.exports = function (PouchDB, callback) {
         });
         var localPouches = [];
 
-        for (var i = 0; i < this.iterations; ++i) {
+        for (var i = 0; i < iterations; ++i) {
           localPouches[i] = new PouchDB(commonUtils.safeRandomDBName());
         }
 
