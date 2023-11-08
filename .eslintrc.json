@@ -13,15 +13,15 @@
   },
 
   "globals": {
-    "Map": true,
-    "Set": true,
-    "Symbol": true,
-    "Promise": true,
-    "Uint8Array": true,
-    "ArrayBuffer": true,
-    "FileReaderSync": true,
-    "emit": true,
-    "PouchDB": true
+    "Map": "readonly",
+    "Set": "readonly",
+    "Symbol": "readonly",
+    "Promise": "readonly",
+    "Uint8Array": "readonly",
+    "ArrayBuffer": "readonly",
+    "FileReaderSync": "readonly",
+    "emit": "readonly",
+    "PouchDB": "readonly"
   },
 
   "rules": {
