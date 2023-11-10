@@ -1,8 +1,6 @@
 'use strict';
 
 describe('test.explain.js', function () {
-  var Promise = testUtils.Promise;
-
   beforeEach(function () {
     var db = context.db;
     return db.bulkDocs([

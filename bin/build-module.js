@@ -83,7 +83,7 @@ function buildModule(filepath) {
           var file = (isBrowser ? 'lib/index-browser' : 'lib/index') +
             (format === 'es' ? '.es.js' : '.js');
           return bundle.write({
-            format: format,
+            format,
             file: path.resolve(filepath, file)
           }).then(function () {
             console.log('  \u2713' + ' wrote ' +

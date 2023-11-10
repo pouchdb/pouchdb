@@ -39,7 +39,7 @@ module.exports = function (PouchDB, callback) {
       name: 'basic-attachments',
       assertions: 1,
       iterations: 1000,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
 
         var blob = randomBlob(50000);
         db._blob = blob;
@@ -56,7 +56,7 @@ module.exports = function (PouchDB, callback) {
       name: 'many-attachments-base64',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         const doc = {
           _id: 'doc1',
           _attachments: {},
@@ -77,7 +77,7 @@ module.exports = function (PouchDB, callback) {
       name: 'many-attachments-binary',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         const doc = {
           _id: 'doc1',
           _attachments: {},

@@ -112,14 +112,12 @@
   },
   "// greenkeeper": [
     "// chai-as-promised is pinned because of breaking changes in 6.0.0",
-    "// immediate is pinned to use the same version as lie for a smaller bundle",
     "// readable-stream has breaking changes in 2.0.0",
     "// stream-to-promise is pinned because there's a breaking change in 2.0.0"
   ],
   "greenkeeper": {
     "ignore": [
       "chai-as-promised",
-      "immediate",
       "readable-stream",
       "stream-to-promise"
     ]
