@@ -58,7 +58,7 @@ adapters.forEach(function (adapter) {
         }},
         {_id: 'part/doc3', int: 3}
       ];
-      db.bulkDocs({ docs: docs }, function (err, res) {
+      db.bulkDocs({ docs }, function (err, res) {
         for (var i = 0; i < 3; i++) {
           res[i].ok.should.equal(true, 'correctly inserted ' + docs[i]._id);
         }
