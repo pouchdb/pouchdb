@@ -12,7 +12,7 @@ PouchDB is a free open-source project, written in JavaScript and driven by our [
 
 {% include anchor.html class="h3" title="Browser Support" hash="browser_support" %}
 
-PouchDB supports all modern browsers, using [IndexedDB][] under the hood and falling back to [WebSQL][] where IndexedDB isn't supported. It is [fully tested](https://travis-ci.org/pouchdb/pouchdb/) and supported in:
+PouchDB supports all modern browsers, using [IndexedDB][] under the hood and falling back to [WebSQL][] where IndexedDB isn't supported. It is [fully tested](https://github.com/pouchdb/pouchdb/actions) and supported in:
 
  * Firefox 29+ (Including Firefox OS and Firefox for Android)
  * Chrome 30+
