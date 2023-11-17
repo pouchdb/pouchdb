@@ -57,10 +57,10 @@ testUrl += '?';
 testUrl += new URLSearchParams(pickBy(qs, identity));
 
 class RemoteRunner {
-  constructor() {
+  constructor(browser) {
+    this.browser = browser;
     this.handlers = {};
-    this.completed = false;
-    this.failed = false;
+    this.handleEvent = this.handleEvent.bind(this);
   }
 
   on(name, handler) {
@@ -72,46 +72,49 @@ class RemoteRunner {
     handlers[name].push(handler);
   }
 
-  handleEvents(events) {
-    var handlers = this.handlers;
-
-    events.forEach((event) => {
-      this.completed = this.completed || event.name === 'end';
-      this.failed = this.failed || event.name === 'fail';
-
+  async handleEvent(event) {
+    try {
       var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
         slow: event.obj.slow ? function () { return event.obj.slow; } : function () { return 60; },
         fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
       };
       var obj = Object.assign({}, event.obj, additionalProps);
 
-      handlers[event.name].forEach(function (handler) {
+      this.handlers[event.name].forEach(function (handler) {
         handler(obj, event.err);
       });
 
-      if (event.logs && event.logs.length > 0) {
-        event.logs.forEach(function (line) {
-          if (line.type === 'log') {
-            console.log(line.content);
-          } else if (line.type === 'error') {
-            console.error(line.content);
-          } else {
-            console.error('Invalid log line', line);
-          }
-        });
-        console.log();
+      switch (event.name) {
+        case 'fail': this.handleFailed(); break;
+        case 'end': this.handleEnd(); break;
       }
-    });
+    } catch (e) {
+      console.error('Tests failed:', e);
+
+      await this.browser.close();
+      process.exit(3);
+    }
   }
 
-  bail() {
-    var handlers = this.handlers;
+  async handleEnd(failed) {
+    await this.browser.close();
+    process.exit(!process.env.PERF && failed ? 1 : 0);
+  }
 
-    handlers['end'].forEach(function (handler) {
-      handler();
-    });
+  handleFailed() {
+    if (bail) {
+      try {
+        this.handlers['end'].forEach(function (handler) {
+          handler();
+        });
 
-    this.completed = true;
+        this.handleEnd(true);
+      } catch (e) {
+        // Temporary debugging of bailing failure
+        console.log('An error occurred while bailing:');
+        console.log(e);
+      }
+    }
   }
 }
 
@@ -142,7 +145,13 @@ async function startTest() {
 
   console.log('Starting', browserName, 'on', testUrl);
 
-  const runner = new RemoteRunner();
+  const options = {
+    headless: true,
+  };
+  const browser = await playwright[browserName].launch(options);
+  const page = await browser.newPage();
+
+  const runner = new RemoteRunner(browser);
   new MochaSpecReporter(runner);
   new BenchmarkConsoleReporter(runner);
 
@@ -154,11 +163,14 @@ async function startTest() {
     new BenchmarkJsonReporter(runner);
   }
 
-  const options = {
-    headless: true,
-  };
-  const browser = await playwright[browserName].launch(options);
-  const page = await browser.newPage();
+  page.exposeFunction('handleMochaEvent', runner.handleEvent);
+  page.addInitScript(() => {
+    window.addEventListener('message', (e) => {
+      if (e.data.type === 'mocha') {
+        window.handleMochaEvent(e.data.details);
+      }
+    });
+  });
 
   page.on('pageerror', err => {
     if (browserName === 'webkit' && err.toString()
@@ -174,46 +186,14 @@ async function startTest() {
     process.exit(1);
   });
 
-  if (process.env.BROWSER_CONSOLE) {
-    page.on('console', message => {
-      const { url, lineNumber } = message.location();
-      console.log('BROWSER', message.type().toUpperCase(), `${url}:${lineNumber}`, message.text());
-    });
-  }
+  page.on('console', message => {
+    console.log(message.text());
+  });
 
   await page.goto(testUrl);
 
   const userAgent = await page.evaluate('navigator.userAgent');
   console.log('Testing on:', userAgent);
-
-  const interval = setInterval(async () => {
-    try {
-      const events = await page.evaluate('window.testEvents()');
-      runner.handleEvents(events);
-
-      if (runner.completed || (runner.failed && bail)) {
-        if (!runner.completed && runner.failed) {
-          try {
-            runner.bail();
-          } catch (e) {
-            // Temporary debugging of bailing failure
-            console.log('An error occurred while bailing:');
-            console.log(e);
-          }
-        }
-
-        clearInterval(interval);
-        await browser.close();
-        process.exit(!process.env.PERF && runner.failed ? 1 : 0);
-      }
-    } catch (e) {
-      console.error('Tests failed:', e);
-
-      clearInterval(interval);
-      await browser.close();
-      process.exit(3);
-    }
-  }, 1000);
 }
 
 devserver.start(function () {
