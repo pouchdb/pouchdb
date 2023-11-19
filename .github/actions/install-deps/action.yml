@@ -25,3 +25,9 @@ runs:
     - uses: iamssen/couchdb-github-action@master
       with:
         couchdb-version: ${{ inputs.couchdb-version }}
+
+    - run: sudo npx playwright install-deps
+      shell: bash
+
+    - run: sudo npx playwright install
+      shell: bash

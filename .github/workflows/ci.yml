@@ -95,7 +95,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           couchdb-version: ${{ matrix.couchdb }}
-      - run: sudo npx playwright install --with-deps webkit
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -169,7 +168,6 @@ jobs:
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: sudo npx playwright install --with-deps webkit
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -207,7 +205,6 @@ jobs:
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: sudo npx playwright install --with-deps webkit
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -230,7 +227,7 @@ jobs:
       matrix:
         node: [14, 16]
         cmd:
-          - sudo npx playwright install --with-deps webkit && CLIENT=webkit npm run test-webpack
+          - CLIENT=webkit npm run test-webpack
           - AUTO_COMPACTION=true npm test
           - PERF=1 npm test
           - npm run test-unit
