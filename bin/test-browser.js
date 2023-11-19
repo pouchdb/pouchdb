@@ -170,7 +170,7 @@ async function startTest() {
         return;
       }
 
-      console.log('Unhandled error in test page:', err);
+      console.log('Unhandled error in test page:', err.message, err.stack);
       process.exit(1);
     });
 
