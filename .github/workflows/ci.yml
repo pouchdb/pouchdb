@@ -19,15 +19,6 @@ env:
 
 jobs:
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - run: npm run eslint
-
   # Run the integration, find and mapreduce tests using pouchdb-server as the
   # remote adapter. This checks that pouchdb-server works with the current
   # PouchDB source tree. We run this on Node.js and on every target browser.
@@ -35,7 +26,6 @@ jobs:
   # out into a distinct job.
 
   pouchdb-server:
-    needs: lint
     strategy:
       fail-fast: false
       matrix:
