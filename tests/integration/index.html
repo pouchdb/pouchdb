@@ -21,44 +21,59 @@
       // * allow re-use in other integration tests
       // * make sure it's linted
 
-      const pendingFetches = {};
-      let fetchNumber = 0;
+      let fetches = [];
 
       const originalFetch = fetch;
       fetch = async (...args) => {
-        const id = ++fetchNumber;
-        pendingFetches[id] = { stack:new Error().stack, args };
+        const log = { stack:new Error().stack, args };
+        fetches.push(log);
         try {
           return await originalFetch(...args);
         } finally {
-          delete pendingFetches[id];
+          log.done = true;
         }
       };
 
       mocha.setup({
         timeout: 20_000,
-        ui: 'bdd'
+        ui: 'bdd',
       });
       var should = chai.should();
       var assert = chai.assert;
 
+      let testTimeout;
+
+      function showOpenConnections() {
+        for(let f of fetches) {
+          console.log('showOpenConnections()', this.test.title, '   *', JSON.stringify(f, null, 2));
+        }
+      }
+
+      beforeEach(() => {
+        fetches = [];
+        testTimeout = setTimeout(showOpenConnections, 15_000);
+      });
+
       afterEach(function (done) {
-        if (!Object.values(pendingFetches).length) {
+        clearTimeout(testTimeout);
+        if (fetches.every(f => f.done)) {
           return done();
         }
         setTimeout(() => {
-          const open = Object.values(pendingFetches);
-          if(open.length) {
-            console.log('afterEach()', this.test.title, 'open:', open.length);
-            open.forEach(r => {
-              console.log('afterEach()', this.test.title, '   *', JSON.stringify(r, null, 2));
-            });
-            done(new Error(`pendingFetches: ${this.test.title} ${JSON.stringify(open)}`));
+          const unfinished = fetches.filter(f => !f.done);
+          if(unfinished.length) {
+            console.log('afterEach()', this.test.title, 'unfinished:', unfinished.length);
+            for(let f of fetches) {
+              console.log('afterEach()', this.test.title, '   *', JSON.stringify(f, null, 2));
+            }
+            done(new Error(`Pending fetches after test complete: ${this.test.title} ${JSON.stringify(fetches)}`));
           } else {
             done();
           }
         }, 1000); // TODO consider trying smaller timeouts
       });
+
+      after(() => console.log('after() called!'));
     </script>
     <script src='utils-bundle.js'></script>
     <script src='test.setup_global_hooks.js'></script>
