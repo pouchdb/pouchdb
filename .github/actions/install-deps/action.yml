@@ -28,3 +28,6 @@ runs:
 
     - run: sudo npx playwright install-deps
       shell: bash
+
+    - run: sudo npx playwright install
+      shell: bash
