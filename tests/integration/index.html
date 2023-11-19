@@ -11,6 +11,11 @@
     <script src="../../node_modules/chai/chai.js"></script>
     <script src="../../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
     <script>
+      // Track fetch() calls to ensure that none are left running from a
+      // previous test before the subsequent test begins.  This makes the suite
+      // more reliable on Webkit, where tests were otherwise failing due to
+      // hanging requests caused by too many simultaneous requests to the same
+      // domain (the couchdb/pouchdb-server).
       const pendingFetches = {};
       let fetchNumber = 0;
 
