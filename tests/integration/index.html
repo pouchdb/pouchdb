@@ -48,8 +48,8 @@
         }
         setTimeout(() => {
           const open = Object.values(pendingFetches);
-          console.log('afterEach()', this.test.title, 'open:', open.length);
           if(open.length) {
+            console.log('afterEach()', this.test.title, 'open:', open.length);
             open.forEach(r => {
               console.log('afterEach()', this.test.title, '   *', JSON.stringify(r, null, 2));
             });
