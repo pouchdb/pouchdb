@@ -7,17 +7,48 @@
   </head>
   <body>
     <div id="mocha"></div>
-    <script src="../../node_modules/whatwg-fetch/fetch.js"></script>
     <script src="../../node_modules/mocha/mocha.js"></script>
     <script src="../../node_modules/chai/chai.js"></script>
     <script src="../../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
     <script>
+      const pendingFetches = {};
+      let fetchNumber = 0;
+
+      const originalFetch = fetch;
+      fetch = async (...args) => {
+        const id = ++fetchNumber;
+        pendingFetches[id] = { stack:new Error().stack, args };
+        try {
+          return await originalFetch(...args);
+        } finally {
+          delete pendingFetches[id];
+        }
+      };
+
       mocha.setup({
         timeout: 20_000,
         ui: 'bdd'
       });
       var should = chai.should();
       var assert = chai.assert;
+
+      afterEach(function (done) {
+        if (!Object.values(pendingFetches).length) {
+          return done();
+        }
+        setTimeout(() => {
+          const open = Object.values(pendingFetches);
+          console.log('afterEach()', this.test.title, 'open:', open.length);
+          if(open.length) {
+            open.forEach(r => {
+              console.log('afterEach()', this.test.title, '   *', JSON.stringify(r, null, 2));
+            });
+            done(new Error(`pendingFetches: ${this.test.title} ${JSON.stringify(open)}`));
+          } else {
+            done();
+          }
+        }, 100);
+      });
     </script>
     <script src='utils-bundle.js'></script>
     <script src='test.setup_global_hooks.js'></script>
