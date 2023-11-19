@@ -139,81 +139,85 @@ function BenchmarkJsonReporter(runner) {
 }
 
 async function startTest() {
+  try {
+    console.log('Starting', browserName, 'on', testUrl);
 
-  console.log('Starting', browserName, 'on', testUrl);
+    const runner = new RemoteRunner();
+    new MochaSpecReporter(runner);
+    new BenchmarkConsoleReporter(runner);
 
-  const runner = new RemoteRunner();
-  new MochaSpecReporter(runner);
-  new BenchmarkConsoleReporter(runner);
+    if (process.env.JSON_REPORTER) {
+      if (!process.env.PERF) {
+        console.log('!!! JSON_REPORTER should only be set if PERF is also set.');
+        process.exit(1);
+      }
+      new BenchmarkJsonReporter(runner);
+    }
 
-  if (process.env.JSON_REPORTER) {
-    if (!process.env.PERF) {
-      console.log('!!! JSON_REPORTER should only be set if PERF is also set.');
+    const options = {
+      headless: true,
+    };
+    const browser = await playwright[browserName].launch(options);
+    const page = await browser.newPage();
+
+    page.on('pageerror', err => {
+      if (browserName === 'webkit' && err.toString()
+          .match(/^Fetch API cannot load http.* due to access control checks.$/)) {
+        // This is an _uncatchable_, error seen in playwright v1.36.1 webkit. If
+        // it is ignored, fetch() will also throw a _catchable_:
+        // `TypeError: Load failed`
+        console.log('Ignoring error:', err);
+        return;
+      }
+
+      console.log('Unhandled error in test page:', err);
       process.exit(1);
-    }
-    new BenchmarkJsonReporter(runner);
-  }
-
-  const options = {
-    headless: true,
-  };
-  const browser = await playwright[browserName].launch(options);
-  const page = await browser.newPage();
-
-  page.on('pageerror', err => {
-    if (browserName === 'webkit' && err.toString()
-        .match(/^Fetch API cannot load http.* due to access control checks.$/)) {
-      // This is an _uncatchable_, error seen in playwright v1.36.1 webkit. If
-      // it is ignored, fetch() will also throw a _catchable_:
-      // `TypeError: Load failed`
-      console.log('Ignoring error:', err);
-      return;
-    }
-
-    console.log('Unhandled error in test page:', err);
-    process.exit(1);
-  });
-
-  if (process.env.BROWSER_CONSOLE) {
-    page.on('console', message => {
-      const { url, lineNumber } = message.location();
-      console.log('BROWSER', message.type().toUpperCase(), `${url}:${lineNumber}`, message.text());
     });
-  }
 
-  await page.goto(testUrl);
+    if (process.env.BROWSER_CONSOLE) {
+      page.on('console', message => {
+        const { url, lineNumber } = message.location();
+        console.log('BROWSER', message.type().toUpperCase(), `${url}:${lineNumber}`, message.text());
+      });
+    }
 
-  const userAgent = await page.evaluate('navigator.userAgent');
-  console.log('Testing on:', userAgent);
+    await page.goto(testUrl);
 
-  const interval = setInterval(async () => {
-    try {
-      const events = await page.evaluate('window.testEvents()');
-      runner.handleEvents(events);
+    const userAgent = await page.evaluate('navigator.userAgent');
+    console.log('Testing on:', userAgent);
 
-      if (runner.completed || (runner.failed && bail)) {
-        if (!runner.completed && runner.failed) {
-          try {
-            runner.bail();
-          } catch (e) {
-            // Temporary debugging of bailing failure
-            console.log('An error occurred while bailing:');
-            console.log(e);
+    const interval = setInterval(async () => {
+      try {
+        const events = await page.evaluate('window.testEvents()');
+        runner.handleEvents(events);
+
+        if (runner.completed || (runner.failed && bail)) {
+          if (!runner.completed && runner.failed) {
+            try {
+              runner.bail();
+            } catch (e) {
+              // Temporary debugging of bailing failure
+              console.log('An error occurred while bailing:');
+              console.log(e);
+            }
           }
+
+          clearInterval(interval);
+          await browser.close();
+          process.exit(!process.env.PERF && runner.failed ? 1 : 0);
         }
+      } catch (e) {
+        console.error('Tests failed:', e);
 
         clearInterval(interval);
         await browser.close();
-        process.exit(!process.env.PERF && runner.failed ? 1 : 0);
+        process.exit(3);
       }
-    } catch (e) {
-      console.error('Tests failed:', e);
-
-      clearInterval(interval);
-      await browser.close();
-      process.exit(3);
-    }
-  }, 1000);
+    }, 1000);
+  } catch (err) {
+    console.log('Error starting tests:', err);
+    process.exit(1);
+  }
 }
 
 devserver.start(function () {
