@@ -44,8 +44,9 @@
       let testTimeout;
 
       function showOpenConnections() {
+        console.log('showOpenConnections()', 'Test has nearly timed out; perhaps there is a pending fetch:');
         for(let f of fetches) {
-          console.log('showOpenConnections()', this.test.title, '   *', JSON.stringify(f, null, 2));
+          console.log('showOpenConnections()', '   *', JSON.stringify(f, null, 2));
         }
       }
 
