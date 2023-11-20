@@ -31,7 +31,7 @@
           controller = options._abortController;
           delete options._abortController;
         }
-        const log = { stack:new Error().stack, args, controller };
+        const log = { stack:new Error().stack, args, controller, done:false };
         fetches.push(log);
         try {
           return await originalFetch(...args);
