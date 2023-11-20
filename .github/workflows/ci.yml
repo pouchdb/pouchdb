@@ -161,7 +161,8 @@ jobs:
           - TYPE=mapreduce npm test
     runs-on: ubuntu-latest
     env:
-      POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
+      # FIXME: min removed to show proper stacktraces
+      #POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
       CLIENT: ${{ matrix.client }}
       ADAPTERS: ${{ matrix.adapter }}
     steps:
