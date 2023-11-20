@@ -30,7 +30,7 @@ function buildCSS() {
 }
 
 function buildJekyll(path) {
-  // Dont rebuild on website artifacts being written
+  // Don't rebuild on website artifacts being written
   if (path && /^_site/.test(path.relative)) {
     return;
   }
