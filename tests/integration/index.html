@@ -53,7 +53,7 @@
         console.log('showOpenConnections()', 'Test has nearly timed out; perhaps there is a pending fetch:');
         for(let f of fetches) {
           console.log('showOpenConnections()', '   *', JSON.stringify(f, null, 2));
-          if (!f.done && f.controller) {
+          if (!f.done && typeof f.controller !== 'string') {
             console.log('showOpenConnections()', '   -> aborting...');
             f.controller.abort();
           }
