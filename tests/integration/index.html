@@ -62,9 +62,7 @@
           const unfinished = fetches.filter(f => !f.done);
           if(unfinished.length) {
             console.log('afterEach()', this.test.title, 'unfinished:', unfinished.length);
-            for(let f of fetches) {
-              console.log('afterEach()', this.test.title, '   *', JSON.stringify(f, null, 2));
-            }
+            console.log('afterEach()', this.test.title, JSON.stringify(fetches, null, 2));
             //done(new Error(`Pending fetches after test complete: ${this.test.title} ${JSON.stringify(unfinished)}`));
             done(); // For now, just warn when there are open connections
           } else {
