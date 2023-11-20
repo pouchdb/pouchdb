@@ -25,7 +25,13 @@
 
       const originalFetch = fetch;
       fetch = async (...args) => {
-        const log = { stack:new Error().stack, args };
+        let controller;
+        if (args.length === 2) {
+          const options = args[1];
+          controller = options._abortController;
+          delete options._abortController;
+        }
+        const log = { stack:new Error().stack, args, controller };
         fetches.push(log);
         try {
           return await originalFetch(...args);
@@ -47,6 +53,10 @@
         console.log('showOpenConnections()', 'Test has nearly timed out; perhaps there is a pending fetch:');
         for(let f of fetches) {
           console.log('showOpenConnections()', '   *', JSON.stringify(f, null, 2));
+          if (!f.done && f.controller) {
+            console.log('showOpenConnections()', '   -> aborting...');
+            f.controller.abort();
+          }
         }
       }
 
