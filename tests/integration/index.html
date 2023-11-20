@@ -45,9 +45,7 @@
 
       function showOpenConnections() {
         console.log('showOpenConnections()', 'Test has nearly timed out; perhaps there is a pending fetch:');
-        for(let f of fetches) {
-          console.log('showOpenConnections()', '   *', JSON.stringify(f, null, 2));
-        }
+        console.log('showOpenConnections()', JSON.stringify(fetches, null, 2));
       }
 
       beforeEach(() => {
