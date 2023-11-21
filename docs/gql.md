@@ -169,7 +169,7 @@ The above query will return
 
 ## Functions
 
-GQL contains a number of operators and functions that can operate on retrived documents.
+GQL contains a number of operators and functions that can operate on retrieved documents.
 
 ### Aggregation Functions
 
