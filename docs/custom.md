@@ -535,7 +535,7 @@ npm install --save-exact pouchdb-utils
 ### sublevel-pouchdb
 
 Fork of [level-sublevel](https://github.com/dominictarr/level-sublevel)
-with ony the subset of the API that PouchDB uses.
+with only the subset of the API that PouchDB uses.
 
 #### Example usage
 

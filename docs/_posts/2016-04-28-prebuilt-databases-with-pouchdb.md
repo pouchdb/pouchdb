@@ -297,7 +297,7 @@ Assuming the dump file is hosted on our web site, we can then load it using `db.
     if (err.name !== 'not_found') {
       throw err;
     }
-    // we got a 404, so the local docuent doesn't exist. so let's preload!
+    // we got a 404, so the local document doesn't exist. so let's preload!
     return db.load('turtles.txt').then(function () {
       // create the local document to note that we've preloaded
       return db.put({_id: '_local/preloaded'});
