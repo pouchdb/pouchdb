@@ -43,7 +43,7 @@ User agent sniffing! Yes, we should be ashamed of ourselves. But here's why we d
 * Additionally, if you specify anywhere between 0 and 5000000, Safari and iOS will use that size as a hint for when, precisely, to show the popup. And in the case of PouchDB, we need to avoid the popup in our automated tests, because Selenium doesn't give us a way to press the "OK" button, meaning our tests would just fail if we request too much. So the ideal size to request is 0.
 * However, in **PhantomJS** and older WebKit (Safari ~5), if you request 0, then it will blow up.
 
-For the recored, here's what the dreaded Safari popup looks like:
+For the record, here's what the dreaded Safari popup looks like:
 
 {% include img.html src="safari_popup.png" alt="annoying Safari popup" %}
 
