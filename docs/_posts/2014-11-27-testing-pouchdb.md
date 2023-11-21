@@ -45,7 +45,7 @@ We use [Selenium](http://www.seleniumhq.org/) to drive tests in the browser, and
 
 We are also finding some platforms (particularly iPhone and Internet Explorer) will become unstable on Saucelabs. The errors almost always come from our code, but it is hard to maintain a reliable test suite when the underlying platform changes and you have little control over it.
 
-Before settling on Selenium, I had previously tried out [Testling](https://ci.testling.com/), and similiarly to Tape it was very easy to get started but opinionated. It was also broken on OSX with pull requests containing fixes that hadn't been touched for months. Selenium had the advantage that it was very widely used, and new frameworks or platforms are likely to have WebDriver support early on.
+Before settling on Selenium, I had previously tried out [Testling](https://ci.testling.com/), and similarly to Tape it was very easy to get started but opinionated. It was also broken on OSX with pull requests containing fixes that hadn't been touched for months. Selenium had the advantage that it was very widely used, and new frameworks or platforms are likely to have WebDriver support early on.
 
 I have however found Selenium as a project frustrating to use, from the first time visiting [http://www.seleniumhq.org/](http://www.seleniumhq.org/) to understanding what I needed to download and write a first test that started a browser, it was an unclear and confusing process. Even today getting ChromeDriver started correctly gets me confused, also the download cost of 30MB for what is mostly a proxy server is an annoyance.
 

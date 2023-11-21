@@ -141,7 +141,7 @@ function deleteButtonPressed(todo) {
 }
 {% endhighlight %}
 
-Similiar to editing a document, both the `_id` and `_rev` properties are required. You may notice that we are passing around the full object that we previously read from the database. You can of course manually construct the object, like: `{_id: todo._id, _rev: todo._rev}`, but passing around the existing object is usually more convenient and less error prone.
+Similar to editing a document, both the `_id` and `_rev` properties are required. You may notice that we are passing around the full object that we previously read from the database. You can of course manually construct the object, like: `{_id: todo._id, _rev: todo._rev}`, but passing around the existing object is usually more convenient and less error prone.
 
 {% include anchor.html class="h3" title="Complete rest of the Todo UI" hash="complete_todo_ui" %}
 
