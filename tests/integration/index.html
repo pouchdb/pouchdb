@@ -7,71 +7,17 @@
   </head>
   <body>
     <div id="mocha"></div>
+    <script src="../../node_modules/whatwg-fetch/fetch.js"></script>
     <script src="../../node_modules/mocha/mocha.js"></script>
     <script src="../../node_modules/chai/chai.js"></script>
     <script src="../../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
     <script>
-      // Track fetch() calls to ensure that none are left running from a
-      // previous test before the subsequent test begins.  This makes the suite
-      // more reliable on Webkit, where tests were otherwise failing due to
-      // hanging requests caused by too many simultaneous requests to the same
-      // domain (the couchdb/pouchdb-server).
-
-      // TODO consider moving this code to testUtils or similar to:
-      // * allow re-use in other integration tests
-      // * make sure it's linted
-
-      let fetches = [];
-
-      const originalFetch = fetch;
-      fetch = async (...args) => {
-        const log = { stack:new Error().stack, args, done:false };
-        fetches.push(log);
-        try {
-          return await originalFetch(...args);
-        } finally {
-          log.done = true;
-        }
-      };
-
       mocha.setup({
         timeout: 20_000,
-        ui: 'bdd',
+        ui: 'bdd'
       });
       var should = chai.should();
       var assert = chai.assert;
-
-      let testTimeout;
-
-      function showOpenConnections() {
-        console.log('showOpenConnections()', 'Test has nearly timed out; perhaps there is a pending fetch:');
-        console.log('showOpenConnections()', JSON.stringify(fetches, null, 2));
-      }
-
-      beforeEach(() => {
-        fetches = [];
-        testTimeout = setTimeout(showOpenConnections, 15_000);
-      });
-
-      afterEach(function (done) {
-        clearTimeout(testTimeout);
-        if (fetches.every(f => f.done)) {
-          return done();
-        }
-        setTimeout(() => {
-          const unfinished = fetches.filter(f => !f.done);
-          if(unfinished.length) {
-            console.log('afterEach()', this.test.title, 'unfinished:', unfinished.length);
-            console.log('afterEach()', this.test.title, JSON.stringify(fetches, null, 2));
-            //done(new Error(`Pending fetches after test complete: ${this.test.title} ${JSON.stringify(unfinished)}`));
-            done(); // For now, just warn when there are open connections
-          } else {
-            done();
-          }
-        }, 1000); // TODO consider trying smaller timeouts
-      });
-
-      after(() => console.log('after() called!'));
     </script>
     <script src='utils-bundle.js'></script>
     <script src='test.setup_global_hooks.js'></script>
