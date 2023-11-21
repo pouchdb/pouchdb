@@ -37,7 +37,7 @@ Calvin did the base work for this a long time ago, however we now officially sup
 
 ### Docs property in change events - [#3358](https://github.com/pouchdb/pouchdb/pull/3358)
 
-A lot of developers wanted to know what documents were being referred to when they recieved a change event. Gregor from hood.ie implemented a new `docs` property in the change event, so you know exactly what documents have changed.
+A lot of developers wanted to know what documents were being referred to when they received a change event. Gregor from hood.ie implemented a new `docs` property in the change event, so you know exactly what documents have changed.
 
 ### local_seq now deprecated - [#3367](https://github.com/pouchdb/pouchdb/issues/3367)
 
