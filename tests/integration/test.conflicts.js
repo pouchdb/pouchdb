@@ -492,7 +492,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2543 excessive recursion with merging', function () {
-      var chain = testUtils.Promise.resolve();
+      var chain = Promise.resolve();
 
       var db = new PouchDB(dbs.name);
 
