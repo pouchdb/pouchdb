@@ -127,7 +127,7 @@ function checkboxChanged(todo, event) {
 }
 {% endhighlight %}
 
-This is similar to creating a document, however the document must also contain a `_rev` field (in addition to `_id`), otherwise the write will be rejected. This ensures that you don't accidently overwrite changes to a document.
+This is similar to creating a document, however the document must also contain a `_rev` field (in addition to `_id`), otherwise the write will be rejected. This ensures that you don't accidentally overwrite changes to a document.
 
 You can test that this works by checking a todo item and refreshing the page. It should stay checked.
 
@@ -141,7 +141,7 @@ function deleteButtonPressed(todo) {
 }
 {% endhighlight %}
 
-Similiar to editing a document, both the `_id` and `_rev` properties are required. You may notice that we are passing around the full object that we previously read from the database. You can of course manually construct the object, like: `{_id: todo._id, _rev: todo._rev}`, but passing around the existing object is usually more convenient and less error prone.
+Similar to editing a document, both the `_id` and `_rev` properties are required. You may notice that we are passing around the full object that we previously read from the database. You can of course manually construct the object, like: `{_id: todo._id, _rev: todo._rev}`, but passing around the existing object is usually more convenient and less error prone.
 
 {% include anchor.html class="h3" title="Complete rest of the Todo UI" hash="complete_todo_ui" %}
 
