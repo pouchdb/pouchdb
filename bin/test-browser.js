@@ -110,9 +110,7 @@ class RemoteRunner {
 
         this.handleEnd(true);
       } catch (e) {
-        // Temporary debugging of bailing failure
-        console.log('An error occurred while bailing:');
-        console.log(e);
+        console.log('An error occurred while bailing:', e);
       }
     }
   }
