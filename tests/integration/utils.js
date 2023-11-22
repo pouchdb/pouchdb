@@ -81,7 +81,7 @@ testUtils.base64Blob = function (blob, callback) {
 testUtils.adapterUrl = function (adapter, name) {
 
   // CouchDB master has problems with cycling databases rapidly
-  // so give tests seperate names
+  // so give tests separate names
   name += '_' + Date.now();
 
   if (adapter === 'http') {
