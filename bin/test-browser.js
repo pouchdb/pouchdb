@@ -107,10 +107,10 @@ class RemoteRunner {
         this.handlers['end'].forEach(function (handler) {
           handler();
         });
-
-        this.handleEnd(true);
       } catch (e) {
         console.log('An error occurred while bailing:', e);
+      } finally {
+        this.handleEnd(true);
       }
     }
   }
