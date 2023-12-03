@@ -95,7 +95,7 @@ changes.on('change', function(change) {
 db.put({_id: 'doc', foo: 'bar'});
 ```
 
-This test looks fine however inside `changes.cancel()` we may be doing some processing that happens asynchronously, specifically we may be aborting a HTTP request that we haven't processed the reply of yet and as we process the reply the next test may have started. This type of issue is extremely problematic as it can lead to unexpected behavour in tests that are not the cause of the problem.
+This test looks fine however inside `changes.cancel()` we may be doing some processing that happens asynchronously, specifically we may be aborting a HTTP request that we haven't processed the reply of yet and as we process the reply the next test may have started. This type of issue is extremely problematic as it can lead to unexpected behaviour in tests that are not the cause of the problem.
 
 In PouchDB we fix this with:
 
