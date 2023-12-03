@@ -17,6 +17,7 @@ env:
   BROWSER_CONSOLE: 1
   NODE_VERSION: 14
   TEST_HOST: localhost
+  DEBUG: pw:browser
 
 jobs:
 
