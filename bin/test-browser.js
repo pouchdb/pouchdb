@@ -147,7 +147,6 @@ async function startTest() {
     headless: true,
   };
   const browser = await playwright[browserName].launch(options);
-  const page = await browser.newPage();
 
   const runner = new RemoteRunner(browser);
   new MochaSpecReporter(runner);
@@ -161,8 +160,12 @@ async function startTest() {
     new BenchmarkJsonReporter(runner);
   }
 
-  page.exposeFunction('handleMochaEvent', runner.handleEvent);
-  page.addInitScript(() => {
+  // Workaround: create a BrowserContext to handle init scripts.  In Chromium in
+  // Playwright v1.39.0 and v1.40.1, page.addInitScript() did not appear to work.
+  const ctx = await browser.newContext();
+
+  ctx.exposeFunction('handleMochaEvent', runner.handleEvent);
+  ctx.addInitScript(() => {
     window.addEventListener('message', (e) => {
       if (e.data.type === 'mocha') {
         window.handleMochaEvent(e.data.details);
@@ -170,7 +173,7 @@ async function startTest() {
     });
   });
 
-  page.on('pageerror', err => {
+  ctx.on('pageerror', err => {
     if (browserName === 'webkit' && err.toString()
         .match(/^Fetch API cannot load http.* due to access control checks.$/)) {
       // This is an _uncatchable_, error seen in playwright v1.36.1 webkit. If
@@ -184,10 +187,11 @@ async function startTest() {
     process.exit(1);
   });
 
-  page.on('console', message => {
-    console.log(message.text());
+  ctx.on('console', message => {
+    console.log('BROWSER', message.text());
   });
 
+  const page = await ctx.newPage();
   await page.goto(testUrl);
 
   const userAgent = await page.evaluate('navigator.userAgent');
