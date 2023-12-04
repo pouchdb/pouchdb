@@ -159,7 +159,7 @@ async function startTest() {
   // choice here, but it does not seem to be triggered if the browser is closed
   // by an external event (e.g. process is killed, user closes non-headless
   // browser window).
-  page.on('close', data => {
+  page.on('close', () => {
     if (!closeRequested) {
       console.log('!!! Browser closed by external event.');
       process.exit(1);
