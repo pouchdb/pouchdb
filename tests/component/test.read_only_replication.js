@@ -39,7 +39,7 @@ describe('test.read_only_replication.js', function () {
   });
 
   after(function (done) {
-    return server.close(done);
+    server.close(done);
   });
 
   it('Test checkpointer handles error codes', function () {

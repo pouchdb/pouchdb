@@ -30,7 +30,7 @@ describe('test.deletion_error.js', function () {
   });
 
   after(function (done) {
-    return server.close(done);
+    server.close(done);
   });
 
   it('Test error during deletion', function () {
