@@ -34,8 +34,8 @@ describe('test.replication_perf_regression.js', function () {
     };
   });
 
-  after(function () {
-    return server.close();
+  after(function (done) {
+    return server.close(done);
   });
 
   it('#5199 fix excessively long replication loop', function () {
