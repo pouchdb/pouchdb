@@ -57,7 +57,7 @@ const qs = {
 testUrl += '?';
 testUrl += new URLSearchParams(pickBy(qs, identity));
 
-class EventHandlerMap extends Map {
+class ArrayMap extends Map {
   get(key) {
     if (!this.has(key)) {
       this.set(key, []);
@@ -69,8 +69,8 @@ class EventHandlerMap extends Map {
 class RemoteRunner {
   constructor(browser) {
     this.browser = browser;
-    this.handlers = new EventHandlerMap();
-    this.onceHandlers = new EventHandlerMap();
+    this.handlers = new ArrayMap();
+    this.onceHandlers = new ArrayMap();
     this.handleEvent = this.handleEvent.bind(this);
     createMochaStatsCollector(this);
   }
