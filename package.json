@@ -90,7 +90,7 @@
     "marky": "1.2.0",
     "median": "0.0.2",
     "mkdirp": "0.5.1",
-    "mocha": "3.5.0",
+    "mocha": "10.2.0",
     "mockery": "2.1.0",
     "ncp": "2.0.0",
     "playwright": "1.36.1",

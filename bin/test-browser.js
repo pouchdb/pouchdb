@@ -6,6 +6,7 @@ const playwright = require('playwright');
 const { identity, pickBy } = require('lodash');
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
+const createMochaStatsCollector = require('mocha/lib/stats-collector');
 
 var devserver = require('./dev-server.js');
 
@@ -60,7 +61,18 @@ class RemoteRunner {
   constructor(browser) {
     this.browser = browser;
     this.handlers = {};
+    this.onceHandlers = {};
     this.handleEvent = this.handleEvent.bind(this);
+    createMochaStatsCollector(this);
+  }
+
+  once(name, handler) {
+    const handlers = this.onceHandlers;
+
+    if (!handlers[name]) {
+      handlers[name] = [];
+    }
+    handlers[name].push(handler);
   }
 
   on(name, handler) {
@@ -80,9 +92,19 @@ class RemoteRunner {
       };
       var obj = Object.assign({}, event.obj, additionalProps);
 
-      this.handlers[event.name].forEach(function (handler) {
+      const triggerHandler = handler => {
+        console.log('triggerHandler()', event.name, event.error, obj);
         handler(obj, event.err);
-      });
+      };
+
+      if (this.onceHandlers[event.name]) {
+        this.onceHandlers[event.name].forEach(triggerHandler);
+        delete this.onceHandlers[event.name];
+      }
+
+      if (this.handlers[event.name]) {
+        this.handlers[event.name].forEach(triggerHandler);
+      }
 
       switch (event.name) {
         case 'fail': this.handleFailed(); break;
