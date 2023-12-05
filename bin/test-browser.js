@@ -92,10 +92,7 @@ class RemoteRunner {
       };
       var obj = Object.assign({}, event.obj, additionalProps);
 
-      const triggerHandler = handler => {
-        console.log('triggerHandler()', event.name, event.error, obj);
-        handler(obj, event.err);
-      };
+      const triggerHandler = handler => handler(obj, event.err);
 
       if (this.onceHandlers[event.name]) {
         this.onceHandlers[event.name].forEach(triggerHandler);
