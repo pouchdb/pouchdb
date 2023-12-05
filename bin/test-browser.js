@@ -57,31 +57,30 @@ const qs = {
 testUrl += '?';
 testUrl += new URLSearchParams(pickBy(qs, identity));
 
+class EventHandlerMap extends Map {
+  get(key) {
+    if (!this.has(key)) {
+      this.set(key, []);
+    }
+    return super.get(key);
+  }
+}
+
 class RemoteRunner {
   constructor(browser) {
     this.browser = browser;
-    this.handlers = {};
-    this.onceHandlers = {};
+    this.handlers = new EventHandlerMap();
+    this.onceHandlers = new EventHandlerMap();
     this.handleEvent = this.handleEvent.bind(this);
     createMochaStatsCollector(this);
   }
 
   once(name, handler) {
-    const handlers = this.onceHandlers;
-
-    if (!handlers[name]) {
-      handlers[name] = [];
-    }
-    handlers[name].push(handler);
+    this.onceHandlers.get(name).push(handler);
   }
 
   on(name, handler) {
-    var handlers = this.handlers;
-
-    if (!handlers[name]) {
-      handlers[name] = [];
-    }
-    handlers[name].push(handler);
+    this.handlers.get(name).push(handler);
   }
 
   async handleEvent(event) {
@@ -94,14 +93,10 @@ class RemoteRunner {
 
       const triggerHandler = handler => handler(obj, event.err);
 
-      if (this.onceHandlers[event.name]) {
-        this.onceHandlers[event.name].forEach(triggerHandler);
-        delete this.onceHandlers[event.name];
-      }
+      this.onceHandlers.get(event.name).forEach(triggerHandler);
+      this.onceHandlers.delete(event.name);
 
-      if (this.handlers[event.name]) {
-        this.handlers[event.name].forEach(triggerHandler);
-      }
+      this.handlers.get(event.name).forEach(triggerHandler);
 
       switch (event.name) {
         case 'fail': this.handleFailed(); break;
