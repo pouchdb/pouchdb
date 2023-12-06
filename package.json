@@ -103,6 +103,8 @@
     "rollup-plugin-node-resolve": "4.2.4",
     "rollup-plugin-replace": "1.2.1",
     "seedrandom": "3.0.5",
+    "source-map": "0.7.4",
+    "stacktrace-parser": "0.1.10",
     "stream-to-promise": "1.1.1",
     "tape": "4.13.0",
     "terser": "4.8.0",

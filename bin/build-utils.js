@@ -29,8 +29,11 @@ function writeFile(filename, contents) {
 }
 
 function doUglify(pkgName, code, prepend, fileOut) {
-  var miniCode = prepend + terser.minify(code, { output: { ascii_only: true }}).code;
-  return writeFile(addPath(pkgName, fileOut), miniCode);
+  const filename = fileOut.replace(/.*\//, '');
+  const sourceMap = { filename, url: filename + '.map' };
+  const minified = terser.minify(code, { output: { ascii_only: true }, sourceMap });
+  return writeFile(addPath(pkgName, fileOut), prepend + minified.code)
+      .then(() => writeFile(addPath(pkgName, fileOut) + '.map', minified.map));
 }
 
 var browserifyCache = {};
