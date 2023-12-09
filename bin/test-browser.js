@@ -110,7 +110,7 @@ class RemoteRunner {
               return v;
             })
             .map(v => `${v.methodName}@${v.file}:${v.lineNumber}:${v.column}`)
-            .join('          \n');
+            .join('\n          ');
           if (stackMapped) {
             console.log(`     [${obj.title}] Minified error stacktrace re-mapped to:
         ${event.err.name||'Error'}: ${event.err.message}
