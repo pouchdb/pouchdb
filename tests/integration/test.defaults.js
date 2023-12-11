@@ -31,7 +31,7 @@ if (!process.env.LEVEL_ADAPTER &&
       mkdirp.sync(dir2);
       mkdirp.sync(dir3);
 
-      var db = new PouchDB('mydb', {prefix: prefix});
+      var db = new PouchDB('mydb', {prefix});
       return db.info().then(function (info1) {
         info1.db_name.should.equal('mydb');
         return db.destroy();
@@ -55,7 +55,7 @@ if (!process.env.LEVEL_ADAPTER &&
       mkdirp.sync(dir3);
 
       var CustomPouch = PouchDB.defaults({
-        prefix: prefix
+        prefix
       });
       var db = CustomPouch({name: 'mydb'});
       return db.info().then(function (info1) {
@@ -129,7 +129,7 @@ if (!process.env.LEVEL_ADAPTER &&
       var CustomPouch = PouchDB.defaults({db: require('memdown')});
 
       var db = new CustomPouch('mydb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         CustomPouch.once('destroyed', function (name) {
           name.should.equal('mydb');
           resolve();
@@ -142,7 +142,7 @@ if (!process.env.LEVEL_ADAPTER &&
       var CustomPouch = PouchDB.defaults({db: require('memdown')});
 
       var db = new CustomPouch('mydb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         db.once('destroyed', resolve);
         db.destroy();
       });
@@ -164,7 +164,7 @@ if (!process.env.LEVEL_ADAPTER &&
       var CustomPouch = PouchDB.defaults({db: require('memdown')});
 
       var db = new CustomPouch('mydb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         PouchDB.once('destroyed', function (name) {
           name.should.equal('mydb');
           resolve();

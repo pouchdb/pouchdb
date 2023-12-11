@@ -74,15 +74,15 @@ function doRollup(input, browser, formatsToFiles) {
   var start = process.hrtime();
   return rollup.rollup({
     input: addPath('pouchdb', input),
-    external: external,
+    external,
     plugins: rollupPlugins({
       mainFields: ["module"],
-      browser: browser
+      browser
     })
   }).then(function (bundle) {
     return Promise.all(Object.keys(formatsToFiles).map(function (format) {
       var fileOut = formatsToFiles[format];
-      return bundle.generate({format: format}).then(function (bundle) {
+      return bundle.generate({format}).then(function (bundle) {
         if (DEV_MODE) {
           var ms = Math.round(process.hrtime(start)[1] / 1000000);
           console.log('    took ' + ms + ' ms to rollup ' +
