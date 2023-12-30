@@ -37,7 +37,9 @@ fi
 if [ $PERF ]; then
     node tests/performance/index.js
 elif [ ! $COVERAGE ]; then
+    # --exit required to workaround #8839
     ./node_modules/.bin/mocha \
+        --exit \
         $BAIL_OPT \
         --timeout "$TIMEOUT" \
         --require=./tests/integration/node.setup.js \
@@ -45,9 +47,11 @@ elif [ ! $COVERAGE ]; then
         --grep="$GREP" \
         $TESTS_PATH
 else
+    # --exit required to workaround #8839
     ./node_modules/.bin/istanbul cover \
        --no-default-excludes -x 'tests/**' -x 'node_modules/**' \
        ./node_modules/mocha/bin/_mocha -- \
+        --exit \
         $BAIL_OPT \
         --timeout "$TIMEOUT" \
         --require=./tests/integration/node.setup.js \
