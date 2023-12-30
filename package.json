@@ -10,7 +10,7 @@
     "build-modules": "node bin/build-modules.js",
     "test-unit": "mocha tests/unit",
     "test-node": "./bin/test-node.sh",
-    "test-component": "mocha --exit tests/component # --exit for #8838",
+    "test-component": "mocha --exit tests/component # --exit for #8839",
     "test-fuzzy": "TYPE=fuzzy npm run test",
     "test-browser": "npm run build-test && node ./bin/test-browser.js",
     "test-memleak": "mocha -gc tests/memleak",
