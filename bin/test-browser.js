@@ -12,6 +12,9 @@ var devserver = require('./dev-server.js');
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
+// Track if the browser has closed at the request of this script, or due to an external event.
+let closeRequested;
+
 // Playwright BrowserType whitelist.
 // See: https://playwright.dev/docs/api/class-playwright
 const SUPPORTED_BROWSERS = [ 'chromium', 'firefox', 'webkit' ];
@@ -91,12 +94,14 @@ class RemoteRunner {
     } catch (e) {
       console.error('Tests failed:', e);
 
+      closeRequested = true;
       await this.browser.close();
       process.exit(3);
     }
   }
 
   async handleEnd(failed) {
+    closeRequested = true;
     await this.browser.close();
     process.exit(!process.env.PERF && failed ? 1 : 0);
   }
@@ -147,7 +152,19 @@ async function startTest() {
     headless: true,
   };
   const browser = await playwright[browserName].launch(options);
+
   const page = await browser.newPage();
+
+  // Playwright's Browser.on('close') event handler would be the more obvious
+  // choice here, but it does not seem to be triggered if the browser is closed
+  // by an external event (e.g. process is killed, user closes non-headless
+  // browser window).
+  page.on('close', () => {
+    if (!closeRequested) {
+      console.log('!!! Browser closed by external event.');
+      process.exit(1);
+    }
+  });
 
   const runner = new RemoteRunner(browser);
   new MochaSpecReporter(runner);
