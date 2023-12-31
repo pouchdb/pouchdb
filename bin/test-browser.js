@@ -86,6 +86,15 @@ class RemoteRunner {
     this.handlers.get(name).push(handler);
   }
 
+  triggerHandlers(eventName, handlerArgs) {
+    const triggerHandler = handler => handler.apply(null, handlerArgs);
+
+    this.onceHandlers.get(eventName).forEach(triggerHandler);
+    this.onceHandlers.delete(eventName);
+
+    this.handlers.get(eventName).forEach(triggerHandler);
+  }
+
   async handleEvent(event) {
     try {
       var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
@@ -95,12 +104,7 @@ class RemoteRunner {
       };
       var obj = Object.assign({}, event.obj, additionalProps);
 
-      const triggerHandler = handler => handler(obj, event.err);
-
-      this.onceHandlers.get(event.name).forEach(triggerHandler);
-      this.onceHandlers.delete(event.name);
-
-      this.handlers.get(event.name).forEach(triggerHandler);
+      this.triggerHandlers(event.name, [ obj, event.err ]);
 
       switch (event.name) {
         case 'fail': this.handleFailed(); break;
@@ -124,10 +128,7 @@ class RemoteRunner {
   handleFailed() {
     if (bail) {
       try {
-        const triggerHandler = handler => handler();
-        this.onceHandlers.get('end').forEach(triggerHandler);
-        this.onceHandlers.delete('end');
-        this.handlers.get('end').forEach(triggerHandler);
+        this.triggerHandlers('end');
       } catch (e) {
         console.log('An error occurred while bailing:', e);
       } finally {
