@@ -90,7 +90,8 @@ class RemoteRunner {
     try {
       var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
         slow: event.obj.slow ? function () { return event.obj.slow; } : function () { return 60; },
-        fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
+        fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined,
+        titlePath: event.obj.titlePath ? function () { return event.obj.titlePath; } : undefined,
       };
       var obj = Object.assign({}, event.obj, additionalProps);
 
@@ -123,9 +124,10 @@ class RemoteRunner {
   handleFailed() {
     if (bail) {
       try {
-        this.handlers['end'].forEach(function (handler) {
-          handler();
-        });
+        const triggerHandler = handler => handler();
+        this.onceHandlers.get('end').forEach(triggerHandler);
+        this.onceHandlers.delete('end');
+        this.handlers.get('end').forEach(triggerHandler);
       } catch (e) {
         console.log('An error occurred while bailing:', e);
       } finally {
