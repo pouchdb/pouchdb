@@ -109,7 +109,8 @@ class RemoteRunner {
               }
               return v;
             })
-            .map(v => `${v.methodName}@${v.file}:${v.lineNumber}:${v.column}`)
+            // NodeJS stack frame format: https://nodejs.org/docs/latest/api/errors.html#errorstack
+            .map(v => `at ${v.methodName} (${v.file}:${v.lineNumber}:${v.column})`)
             .join('\n          ');
           if (stackMapped) {
             console.log(`     [${obj.title}] Minified error stacktrace mapped to:
