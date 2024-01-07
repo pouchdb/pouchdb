@@ -95,35 +95,6 @@ class RemoteRunner {
     this.onceHandlers.delete(eventName);
 
     this.handlers.get(eventName).forEach(triggerHandler);
-
-    if (event.err && stackConsumer) {
-      let stackMapped;
-      const mappedStack = require('stacktrace-parser')
-        .parse(event.err.stack)
-        .map(v => {
-          if (v.file === 'http://127.0.0.1:8000/packages/node_modules/pouchdb/dist/pouchdb.min.js') {
-            const NON_UGLIFIED_HEADER_LENGTH = 6; // number of lines of header added in build-pouchdb.js
-            const target = { line:v.lineNumber-NON_UGLIFIED_HEADER_LENGTH, column:v.column-1 };
-            const mapped = stackConsumer.originalPositionFor(target);
-            v.file = 'pouchdb.js';
-            v.lineNumber = mapped.line;
-            v.column = mapped.column+1;
-            if (mapped.name !== null) {
-              v.methodName = mapped.name;
-            }
-            stackMapped = true;
-          }
-          return v;
-        })
-        // NodeJS stack frame format: https://nodejs.org/docs/latest/api/errors.html#errorstack
-        .map(v => `at ${v.methodName} (${v.file}:${v.lineNumber}:${v.column})`)
-        .join('\n          ');
-      if (stackMapped) {
-        console.log(`     [${obj.title}] Minified error stacktrace mapped to:
-    ${event.err.name||'Error'}: ${event.err.message}
-      ${mappedStack}`);
-      }
-    }
   }
 
   async handleEvent(event) {
@@ -136,6 +107,35 @@ class RemoteRunner {
       var obj = Object.assign({}, event.obj, additionalProps);
 
       this.triggerHandlers(event.name, [ obj, event.err ]);
+
+      if (event.err && stackConsumer) {
+        let stackMapped;
+        const mappedStack = require('stacktrace-parser')
+          .parse(event.err.stack)
+          .map(v => {
+            if (v.file === 'http://127.0.0.1:8000/packages/node_modules/pouchdb/dist/pouchdb.min.js') {
+              const NON_UGLIFIED_HEADER_LENGTH = 6; // number of lines of header added in build-pouchdb.js
+              const target = { line:v.lineNumber-NON_UGLIFIED_HEADER_LENGTH, column:v.column-1 };
+              const mapped = stackConsumer.originalPositionFor(target);
+              v.file = 'pouchdb.js';
+              v.lineNumber = mapped.line;
+              v.column = mapped.column+1;
+              if (mapped.name !== null) {
+                v.methodName = mapped.name;
+              }
+              stackMapped = true;
+            }
+            return v;
+          })
+          // NodeJS stack frame format: https://nodejs.org/docs/latest/api/errors.html#errorstack
+          .map(v => `at ${v.methodName} (${v.file}:${v.lineNumber}:${v.column})`)
+          .join('\n          ');
+        if (stackMapped) {
+          console.log(`     [${obj.title}] Minified error stacktrace mapped to:`);
+          console.log(`       ${event.err.name||'Error'}: ${event.err.message}`);
+          console.log(`         ${mappedStack}`);
+        }
+      }
 
       switch (event.name) {
         case 'fail': this.handleFailed(); break;
