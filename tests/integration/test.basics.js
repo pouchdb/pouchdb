@@ -16,8 +16,8 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    it.only('Create a pouch without new keyword', function () {
-      var db = PouchDB(); // fail test deliberately to demonstrate feature
+    it('Create a pouch without new keyword', function () {
+      var db = PouchDB(dbs.name);
       db.should.be.an.instanceof(PouchDB);
     });
 
