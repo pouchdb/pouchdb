@@ -51,7 +51,7 @@ describe('migration', function () {
     return Promise.all(scenarios.map(function ({ scenario }) {
       var match = scenario.match(/PouchDB v([.\d]+)/);
       if (!match) {
-        return testUtils.Promise.resolve();
+        return Promise.resolve();
       }
 
       const loader = testUtils.asyncLoadScript('deps/pouchdb-' + match[1] + '-postfixed.js');
@@ -79,6 +79,12 @@ describe('migration', function () {
     describe('migrate from ' + scenario, function () {
 
       var dbs = {};
+
+      before(function () {
+        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
+          return this.skip();
+        }
+      });
 
       beforeEach(function (done) {
         if (skip) {
@@ -120,12 +126,6 @@ describe('migration', function () {
 
       afterEach(function (done) {
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
-      });
-
-      before(function () {
-        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
-          return this.skip();
-        }
       });
 
       var origDocs = [
@@ -923,7 +923,7 @@ describe('migration', function () {
 
           var oldPouch = new dbs.first.pouch(
             dbs.first.local, dbs.first.localOpts);
-          var chain = testUtils.Promise.resolve();
+          var chain = Promise.resolve();
           tree.forEach(function (docs) {
             chain = chain.then(function () {
               return oldPouch.bulkDocs(docs, {new_edits: false});
