@@ -117,7 +117,7 @@ class RemoteRunner {
               const NON_UGLIFIED_HEADER_LENGTH = 6; // number of lines of header added in build-pouchdb.js
               const target = { line:v.lineNumber-NON_UGLIFIED_HEADER_LENGTH, column:v.column-1 };
               const mapped = stackConsumer.originalPositionFor(target);
-              v.file = 'pouchdb.js';
+              v.file = 'packages/node_modules/pouchdb/dist/pouchdb.js';
               v.lineNumber = mapped.line;
               v.column = mapped.column+1;
               if (mapped.name !== null) {
