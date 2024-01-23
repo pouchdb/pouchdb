@@ -29,8 +29,8 @@ describe('test.deletion_error.js', function () {
     server = app.listen(0);
   });
 
-  after(function () {
-    return server.close();
+  after(function (done) {
+    server.close(done);
   });
 
   it('Test error during deletion', function () {

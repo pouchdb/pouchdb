@@ -169,7 +169,7 @@ The above query will return
 
 ## Functions
 
-GQL contains a number of operators and functions that can operate on retrived documents.
+GQL contains a number of operators and functions that can operate on retrieved documents.
 
 ### Aggregation Functions
 
@@ -203,7 +203,7 @@ identifier as their input.  Scalar functions may only appear in the select and l
 
 With these documents in the database
 
-    {name!: "pencil", price: 2, discount: 0.7, vender: "store1"},
+    {name!: "pencil", price: 2, discount: 0.7, vendor: "store1"},
     {name!: "pen", price:3, discount: 2, vendor: "store2"}
 
 The above query will return
