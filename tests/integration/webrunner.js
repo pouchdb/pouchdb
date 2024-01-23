@@ -21,7 +21,8 @@
                   title: obj.title,
                   duration: obj.duration,
                   slow: typeof obj.slow === 'function' ? obj.slow() : undefined,
-                  fullTitle: typeof obj.fullTitle === 'function' ? obj.fullTitle() : undefined
+                  fullTitle: typeof obj.fullTitle === 'function' ? obj.fullTitle() : undefined,
+                  titlePath: typeof obj.titlePath === 'function' ? obj.titlePath() : undefined,
                 },
                 err: err && {
                   actual: err.actual,
