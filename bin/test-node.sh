@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
-: ${TIMEOUT:=5000}
-: ${REPORTER:="spec"}
-: ${BAIL:=1}
-: ${TYPE:="integration"}
+: "${TIMEOUT:=5000}"
+: "${REPORTER:="spec"}"
+: "${BAIL:=1}"
+: "${TYPE:="integration"}"
 
 if [ $BAIL -eq 1 ]; then
     BAIL_OPT="--bail"
@@ -29,41 +29,41 @@ fi
 if [ $TYPE = "find" ]; then
     TESTS_PATH="tests/find/*/test.*.js"
 fi
-if [ $COVERAGE ]; then
+if [ "$COVERAGE" ]; then
     # run all tests when testing for coverage
     TESTS_PATH="tests/{unit,integration,mapreduce,component}/test*.js tests/find/*/test.*.js"
 fi
 
-if [ $PERF ]; then
+if [ "$PERF" ]; then
     node tests/performance/index.js
-elif [ ! $COVERAGE ]; then
+elif [ ! "$COVERAGE" ]; then
     # --exit required to workaround #8839
     ./node_modules/.bin/mocha \
         --exit \
-        $BAIL_OPT \
+        "$BAIL_OPT" \
         --timeout "$TIMEOUT" \
         --require=./tests/integration/node.setup.js \
         --reporter="$REPORTER" \
         --grep="$GREP" \
-        $TESTS_PATH
+        "$TESTS_PATH"
 else
     # --exit required to workaround #8839
     ./node_modules/.bin/istanbul cover \
        --no-default-excludes -x 'tests/**' -x 'node_modules/**' \
        ./node_modules/mocha/bin/_mocha -- \
         --exit \
-        $BAIL_OPT \
+        "$BAIL_OPT" \
         --timeout "$TIMEOUT" \
         --require=./tests/integration/node.setup.js \
         --reporter="$REPORTER" \
         --grep="$GREP" \
-        $TESTS_PATH
+        "$TESTS_PATH"
 
     ./node_modules/.bin/istanbul check-coverage --line 100
 fi
 
 EXIT_STATUS=$?
-if [[ ! -z $DOWN_SERVER_PID ]]; then
+if [[ -n $DOWN_SERVER_PID ]]; then
   kill $DOWN_SERVER_PID
 fi
 exit $EXIT_STATUS
