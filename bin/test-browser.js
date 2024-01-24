@@ -6,11 +6,15 @@ const playwright = require('playwright');
 const { identity, pickBy } = require('lodash');
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
+const createMochaStatsCollector = require('mocha/lib/stats-collector');
 
 var devserver = require('./dev-server.js');
 
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
+
+// Track if the browser has closed at the request of this script, or due to an external event.
+let closeRequested;
 
 // Playwright BrowserType whitelist.
 // See: https://playwright.dev/docs/api/class-playwright
@@ -56,62 +60,81 @@ const qs = {
 testUrl += '?';
 testUrl += new URLSearchParams(pickBy(qs, identity));
 
+class ArrayMap extends Map {
+  get(key) {
+    if (!this.has(key)) {
+      this.set(key, []);
+    }
+    return super.get(key);
+  }
+}
+
 class RemoteRunner {
-  constructor() {
-    this.handlers = {};
-    this.completed = false;
-    this.failed = false;
+  constructor(browser) {
+    this.browser = browser;
+    this.handlers = new ArrayMap();
+    this.onceHandlers = new ArrayMap();
+    this.handleEvent = this.handleEvent.bind(this);
+    createMochaStatsCollector(this);
+  }
+
+  once(name, handler) {
+    this.onceHandlers.get(name).push(handler);
   }
 
   on(name, handler) {
-    var handlers = this.handlers;
-
-    if (!handlers[name]) {
-      handlers[name] = [];
-    }
-    handlers[name].push(handler);
+    this.handlers.get(name).push(handler);
   }
 
-  handleEvents(events) {
-    var handlers = this.handlers;
+  triggerHandlers(eventName, handlerArgs) {
+    const triggerHandler = handler => handler.apply(null, handlerArgs);
 
-    events.forEach((event) => {
-      this.completed = this.completed || event.name === 'end';
-      this.failed = this.failed || event.name === 'fail';
+    this.onceHandlers.get(eventName).forEach(triggerHandler);
+    this.onceHandlers.delete(eventName);
 
+    this.handlers.get(eventName).forEach(triggerHandler);
+  }
+
+  async handleEvent(event) {
+    try {
       var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
         slow: event.obj.slow ? function () { return event.obj.slow; } : function () { return 60; },
-        fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
+        fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined,
+        titlePath: event.obj.titlePath ? function () { return event.obj.titlePath; } : undefined,
       };
       var obj = Object.assign({}, event.obj, additionalProps);
 
-      handlers[event.name].forEach(function (handler) {
-        handler(obj, event.err);
-      });
+      this.triggerHandlers(event.name, [ obj, event.err ]);
 
-      if (event.logs && event.logs.length > 0) {
-        event.logs.forEach(function (line) {
-          if (line.type === 'log') {
-            console.log(line.content);
-          } else if (line.type === 'error') {
-            console.error(line.content);
-          } else {
-            console.error('Invalid log line', line);
-          }
-        });
-        console.log();
+      switch (event.name) {
+        case 'fail': this.handleFailed(); break;
+        case 'end': this.handleEnd(); break;
       }
-    });
+    } catch (e) {
+      console.error('Tests failed:', e);
+
+      closeRequested = true;
+      await this.browser.close();
+      process.exit(3);
+    }
   }
 
-  bail() {
-    var handlers = this.handlers;
+  async handleEnd(failed) {
+    closeRequested = true;
+    await this.browser.close();
+    process.exit(!process.env.PERF && failed ? 1 : 0);
+  }
 
-    handlers['end'].forEach(function (handler) {
-      handler();
-    });
-
-    this.completed = true;
+  handleFailed() {
+    if (bail) {
+      try {
+        this.triggerHandlers('end');
+      } catch (e) {
+        console.log('An error occurred while bailing:', e);
+      } finally {
+        this.handleEnd(true);
+      }
+    }
   }
 }
 
@@ -142,7 +165,25 @@ async function startTest() {
   try {
     console.log('Starting', browserName, 'on', testUrl);
 
-    const runner = new RemoteRunner();
+    const options = {
+      headless: true,
+    };
+    const browser = await playwright[browserName].launch(options);
+
+    const page = await browser.newPage();
+
+    // Playwright's Browser.on('close') event handler would be the more obvious
+    // choice here, but it does not seem to be triggered if the browser is closed
+    // by an external event (e.g. process is killed, user closes non-headless
+    // browser window).
+    page.on('close', () => {
+      if (!closeRequested) {
+        console.log('!!! Browser closed by external event.');
+        process.exit(1);
+      }
+    });
+
+    const runner = new RemoteRunner(browser);
     new MochaSpecReporter(runner);
     new BenchmarkConsoleReporter(runner);
 
@@ -154,11 +195,14 @@ async function startTest() {
       new BenchmarkJsonReporter(runner);
     }
 
-    const options = {
-      headless: true,
-    };
-    const browser = await playwright[browserName].launch(options);
-    const page = await browser.newPage();
+    page.exposeFunction('handleMochaEvent', runner.handleEvent);
+    page.addInitScript(() => {
+      window.addEventListener('message', (e) => {
+        if (e.data.type === 'mocha') {
+          window.handleMochaEvent(e.data.details);
+        }
+      });
+    });
 
     page.on('pageerror', err => {
       if (browserName === 'webkit' && err.toString()
@@ -168,52 +212,20 @@ async function startTest() {
         // `TypeError: Load failed`
         console.log('Ignoring error:', err);
         return;
-      }
+    }
 
       console.log('Unhandled error in test page:', err);
       process.exit(1);
     });
 
-    if (process.env.BROWSER_CONSOLE) {
-      page.on('console', message => {
-        const { url, lineNumber } = message.location();
-        console.log('BROWSER', message.type().toUpperCase(), `${url}:${lineNumber}`, message.text());
-      });
-    }
+    page.on('console', message => {
+      console.log(message.text());
+    });
 
     await page.goto(testUrl);
 
     const userAgent = await page.evaluate('navigator.userAgent');
     console.log('Testing on:', userAgent);
-
-    const interval = setInterval(async () => {
-      try {
-        const events = await page.evaluate('window.testEvents()');
-        runner.handleEvents(events);
-
-        if (runner.completed || (runner.failed && bail)) {
-          if (!runner.completed && runner.failed) {
-            try {
-              runner.bail();
-            } catch (e) {
-              // Temporary debugging of bailing failure
-              console.log('An error occurred while bailing:');
-              console.log(e);
-            }
-          }
-
-          clearInterval(interval);
-          await browser.close();
-          process.exit(!process.env.PERF && runner.failed ? 1 : 0);
-        }
-      } catch (e) {
-        console.error('Tests failed:', e);
-
-        clearInterval(interval);
-        await browser.close();
-        process.exit(3);
-      }
-    }, 1000);
   } catch (err) {
     console.log('Error starting tests:', err);
     process.exit(1);
