@@ -53,7 +53,7 @@ PouchDB is now installed in your app and ready to use! (In production, you shoul
 The rest of the work will be done inside `app.js`. We will start by creating a database to enter your todos. To create a database simply instantiate a new PouchDB object with the name of the database:
 
 {% highlight js %}
-// EDITING STARTS HERE (you dont need to edit anything above this line)
+// EDITING STARTS HERE (you don't need to edit anything above this line)
 
 var db = new PouchDB('todos');
 var remoteCouch = false;
@@ -100,7 +100,7 @@ Once you have included this code, you should be able to refresh the page to see 
 
 {% include anchor.html class="h3" title="Update the UI" hash="update_the_ui" %}
 
-We dont want to refresh the page to see new items. More typically you would update the UI manually when you write data to it, however, in PouchDB you may be syncing data remotely, so you want to make sure you update whenever the remote data changes. To do this we will call `db.changes` which subscribes to updates to the database, wherever they come from. You can enter this code between the `remoteCouch` and `addTodo` declaration:
+We don't want to refresh the page to see new items. More typically you would update the UI manually when you write data to it, however, in PouchDB you may be syncing data remotely, so you want to make sure you update whenever the remote data changes. To do this we will call `db.changes` which subscribes to updates to the database, wherever they come from. You can enter this code between the `remoteCouch` and `addTodo` declaration:
 
 {% highlight js %}
 var remoteCouch = false;
@@ -127,7 +127,7 @@ function checkboxChanged(todo, event) {
 }
 {% endhighlight %}
 
-This is similar to creating a document, however the document must also contain a `_rev` field (in addition to `_id`), otherwise the write will be rejected. This ensures that you dont accidently overwrite changes to a document.
+This is similar to creating a document, however the document must also contain a `_rev` field (in addition to `_id`), otherwise the write will be rejected. This ensures that you don't accidentally overwrite changes to a document.
 
 You can test that this works by checking a todo item and refreshing the page. It should stay checked.
 
@@ -141,7 +141,7 @@ function deleteButtonPressed(todo) {
 }
 {% endhighlight %}
 
-Similiar to editing a document, both the `_id` and `_rev` properties are required. You may notice that we are passing around the full object that we previously read from the database. You can of course manually construct the object, like: `{_id: todo._id, _rev: todo._rev}`, but passing around the existing object is usually more convenient and less error prone.
+Similar to editing a document, both the `_id` and `_rev` properties are required. You may notice that we are passing around the full object that we previously read from the database. You can of course manually construct the object, like: `{_id: todo._id, _rev: todo._rev}`, but passing around the existing object is usually more convenient and less error prone.
 
 {% include anchor.html class="h3" title="Complete rest of the Todo UI" hash="complete_todo_ui" %}
 
@@ -189,7 +189,7 @@ You can check that CORS is now enabled by visiting [http://localhost:5984/_utils
 Now we will have the todo list sync. Back in `app.js` we need to specify the address of the remote database. Remember to replace `user`, `pass` and `myname.example.com` with the credentials of your own CouchDB instance:
 
 {% highlight js %}
-// EDITING STARTS HERE (you dont need to edit anything above this line)
+// EDITING STARTS HERE (you don't need to edit anything above this line)
 
 var db = new PouchDB('todos');
 var remoteCouch = 'http://user:pass@myname.example.com/todos';

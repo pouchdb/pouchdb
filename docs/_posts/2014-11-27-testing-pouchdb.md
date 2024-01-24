@@ -35,7 +35,7 @@ If I had one complaint about Mocha, it would be I often find myself seeing `does
 
 Our tests run on every check-in and PR on [Travis CI](travis-ci.org). Travis an amazing platform; it was easy to get up and running and has been incredibly stable. PouchDB would be nowhere near the state it is today without it.
 
-However, we are beginning to outgrow Travis's free open-source capacity, and the paid options are prohibitively expensive. So we are beginning to look around for self-hosted alternatives, albiet without a lot of options.
+However, we are beginning to outgrow Travis's free open-source capacity, and the paid options are prohibitively expensive. So we are beginning to look around for self-hosted alternatives, albeit without a lot of options.
 
 [Travis is open-source](https://github.com/travis-ci/travis-ci), however it is not a well-setup project for self-hosting &ndash; there isn't so much as a README to get started with. We previously used [Jenkins](http://jenkins-ci.org/), however I found it a huge maintenance burden. It's very possible someone with more experience in Jenkins could do a better job, though, and I am also keeping an eye on [Strider](http://stridercd.com/) as a possible alternative.
 
@@ -45,9 +45,9 @@ We use [Selenium](http://www.seleniumhq.org/) to drive tests in the browser, and
 
 We are also finding some platforms (particularly iPhone and Internet Explorer) will become unstable on Saucelabs. The errors almost always come from our code, but it is hard to maintain a reliable test suite when the underlying platform changes and you have little control over it.
 
-Before settling on Selenium, I had previously tried out [Testling](https://ci.testling.com/), and similiarly to Tape it was very easy to get started but opinionated. It was also broken on OSX with pull requests containing fixes that hadn't been touched for months. Selenium had the advantage that it was very widely used, and new frameworks or platforms are likely to have WebDriver support early on.
+Before settling on Selenium, I had previously tried out [Testling](https://ci.testling.com/), and similarly to Tape it was very easy to get started but opinionated. It was also broken on OSX with pull requests containing fixes that hadn't been touched for months. Selenium had the advantage that it was very widely used, and new frameworks or platforms are likely to have WebDriver support early on.
 
-I have however found Selenium as a project fustrating to use, from the first time visiting [http://www.seleniumhq.org/](http://www.seleniumhq.org/) to understanding what I needed to download and write a first test that started a browser, it was an unclear and confusing process. Even today getting ChromeDriver started correctly gets me confused, also the download cost of 30MB for what is mostly a proxy server is an annoyance.
+I have however found Selenium as a project frustrating to use, from the first time visiting [http://www.seleniumhq.org/](http://www.seleniumhq.org/) to understanding what I needed to download and write a first test that started a browser, it was an unclear and confusing process. Even today getting ChromeDriver started correctly gets me confused, also the download cost of 30MB for what is mostly a proxy server is an annoyance.
 
 I would love to see a project wrap up Selenium / ChromeDriver and possibly Cordova / Appium into a nice, well-documented module that installs and boots your browser(ish) platform of choice, ready to be driven by Selenium tests.
 

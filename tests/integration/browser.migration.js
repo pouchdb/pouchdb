@@ -80,6 +80,12 @@ describe('migration', function () {
 
       var dbs = {};
 
+      before(function () {
+        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
+          return this.skip();
+        }
+      });
+
       beforeEach(function (done) {
         if (skip) {
           return this.skip();
@@ -120,12 +126,6 @@ describe('migration', function () {
 
       afterEach(function (done) {
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
-      });
-
-      before(function () {
-        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
-          return this.skip();
-        }
       });
 
       var origDocs = [
