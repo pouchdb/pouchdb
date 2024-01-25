@@ -162,70 +162,74 @@ function BenchmarkJsonReporter(runner) {
 }
 
 async function startTest() {
+  try {
+    console.log('Starting', browserName, 'on', testUrl);
 
-  console.log('Starting', browserName, 'on', testUrl);
+    const options = {
+      headless: true,
+    };
+    const browser = await playwright[browserName].launch(options);
 
-  const options = {
-    headless: true,
-  };
-  const browser = await playwright[browserName].launch(options);
+    const page = await browser.newPage();
 
-  const page = await browser.newPage();
-
-  // Playwright's Browser.on('close') event handler would be the more obvious
-  // choice here, but it does not seem to be triggered if the browser is closed
-  // by an external event (e.g. process is killed, user closes non-headless
-  // browser window).
-  page.on('close', () => {
-    if (!closeRequested) {
-      console.log('!!! Browser closed by external event.');
-      process.exit(1);
-    }
-  });
-
-  const runner = new RemoteRunner(browser);
-  new MochaSpecReporter(runner);
-  new BenchmarkConsoleReporter(runner);
-
-  if (process.env.JSON_REPORTER) {
-    if (!process.env.PERF) {
-      console.log('!!! JSON_REPORTER should only be set if PERF is also set.');
-      process.exit(1);
-    }
-    new BenchmarkJsonReporter(runner);
-  }
-
-  page.exposeFunction('handleMochaEvent', runner.handleEvent);
-  page.addInitScript(() => {
-    window.addEventListener('message', (e) => {
-      if (e.data.type === 'mocha') {
-        window.handleMochaEvent(e.data.details);
+    // Playwright's Browser.on('close') event handler would be the more obvious
+    // choice here, but it does not seem to be triggered if the browser is closed
+    // by an external event (e.g. process is killed, user closes non-headless
+    // browser window).
+    page.on('close', () => {
+      if (!closeRequested) {
+        console.log('!!! Browser closed by external event.');
+        process.exit(1);
       }
     });
-  });
 
-  page.on('pageerror', err => {
-    if (browserName === 'webkit' && err.toString()
-        .match(/^Fetch API cannot load http.* due to access control checks.$/)) {
-      // This is an _uncatchable_, error seen in playwright v1.36.1 webkit. If
-      // it is ignored, fetch() will also throw a _catchable_:
-      // `TypeError: Load failed`
-      console.log('Ignoring error:', err);
-      return;
+    const runner = new RemoteRunner(browser);
+    new MochaSpecReporter(runner);
+    new BenchmarkConsoleReporter(runner);
+
+    if (process.env.JSON_REPORTER) {
+      if (!process.env.PERF) {
+        console.log('!!! JSON_REPORTER should only be set if PERF is also set.');
+        process.exit(1);
+      }
+      new BenchmarkJsonReporter(runner);
     }
 
-    console.log('Unhandled error in test page:', err);
+    page.exposeFunction('handleMochaEvent', runner.handleEvent);
+    page.addInitScript(() => {
+      window.addEventListener('message', (e) => {
+        if (e.data.type === 'mocha') {
+          window.handleMochaEvent(e.data.details);
+        }
+      });
+    });
+
+    page.on('pageerror', err => {
+      if (browserName === 'webkit' && err.toString()
+          .match(/^Fetch API cannot load http.* due to access control checks.$/)) {
+        // This is an _uncatchable_, error seen in playwright v1.36.1 webkit. If
+        // it is ignored, fetch() will also throw a _catchable_:
+        // `TypeError: Load failed`
+        console.log('Ignoring error:', err);
+        return;
+    }
+
+      console.log('Unhandled error in test page:', err);
+      process.exit(1);
+    });
+
+    page.on('console', message => {
+      console.log(message.text());
+    });
+
+    await page.goto(testUrl);
+
+    const userAgent = await page.evaluate('navigator.userAgent');
+    console.log('Testing on:', userAgent);
+  } catch (err) {
+    console.log('Error starting tests:', err);
     process.exit(1);
-  });
-
-  page.on('console', message => {
-    console.log(message.text());
-  });
-
-  await page.goto(testUrl);
-
-  const userAgent = await page.evaluate('navigator.userAgent');
-  console.log('Testing on:', userAgent);
+  }
 }
 
 devserver.start(function () {

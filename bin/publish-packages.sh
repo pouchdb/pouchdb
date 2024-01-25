@@ -9,6 +9,7 @@ publish_packages () {
     return 0
   fi
 
+  # shellcheck disable=SC2207
   local pkgs=($(cat "$todo"))
   local failed='n'
 
@@ -43,7 +44,7 @@ should_publish () {
 
   if [ ! -d "packages/node_modules/$pkg" ]; then
     return 1
-  elif [ "true" = $(node --eval "console.log(require('./packages/node_modules/$pkg/package.json').private);") ]; then
+  elif [ "true" = "$(node --eval "console.log(require('./packages/node_modules/$pkg/package.json').private);")" ]; then
     return 1
   else
     return 0
