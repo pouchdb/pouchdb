@@ -4,7 +4,10 @@ scriptName="$(basename "$0")"
 log() { echo "[$scriptName] $*"; }
 
 npm_install() {
-  npm ci --no-fund --ignore-scripts --no-audit --prefer-offline --progress=false
+  # Don't use npm ci, as it requires package-lock.json to be in sync.  This is
+  # probably not the case when switching branches, especially as it's ignored by
+  # git.
+  npm install --no-fund --ignore-scripts --no-audit --prefer-offline --progress=false
 }
 
 mkdir -p ./perf-test-results
