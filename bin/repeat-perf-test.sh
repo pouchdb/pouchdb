@@ -51,7 +51,8 @@ declare -a commits
 i=0
 for treeish in "$@"; do
   commits[i]="$(git rev-parse "$treeish")"
-  log "  $((i=i+1)). $(git show --oneline --no-patch "$treeish") ($treeish)"
+  description="$(git show --oneline --no-patch "$treeish")"
+  log "  $((i=i+1)). $description ($treeish)"
 done
 log
 log "!!! This may cause strange issues if you have uncomitted changes. !!!"
