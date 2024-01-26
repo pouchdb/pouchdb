@@ -110,8 +110,6 @@ commonUtils.loadPouchDBForBrowser = function (plugins) {
   const scriptPath = params.srcRoot || '../../packages/node_modules/pouchdb/dist';
   const ext = params.useMinified ? 'min.js' : 'js';
 
-  const pouchdbSrc = params.src || `${scriptPath}/pouchdb.${ext}`;
-
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
     return `${scriptPath}/pouchdb.${plugin}.${ext}`;
