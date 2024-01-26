@@ -146,7 +146,8 @@ function BenchmarkConsoleReporter(runner) {
 
 function BenchmarkJsonReporter(runner) {
   runner.on('end', results => {
-    if (runner.completed) {
+    console.log('runner:', runner);
+    if (runner.completed) { // FIXME runner.completed was removed in dc97aedf449a94b87f074f3aa975b5412415706a
       const { mkdirSync, writeFileSync } = require('fs');
 
       results.srcRoot = process.env.SRC_ROOT;
