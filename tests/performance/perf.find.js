@@ -22,7 +22,7 @@ module.exports = function (PouchDB, callback) {
       name: 'create-index',
       assertions: 1,
       iterations: 1,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             callback();
@@ -42,7 +42,7 @@ module.exports = function (PouchDB, callback) {
       name: 'simple-find-query',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             return db.createIndex({
@@ -66,7 +66,7 @@ module.exports = function (PouchDB, callback) {
       name: 'simple-find-query-no-index',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             callback();
@@ -84,7 +84,7 @@ module.exports = function (PouchDB, callback) {
       name: 'complex-find-query',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             return db.createIndex({
@@ -113,7 +113,7 @@ module.exports = function (PouchDB, callback) {
       name: 'complex-find-query-no-index',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             callback();
@@ -136,7 +136,7 @@ module.exports = function (PouchDB, callback) {
       name: 'multi-field-query',
       assertions: 1,
       iterations: 5,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         db.bulkDocs(makeTestDocs())
           .then(function () {
             return db.createIndex({

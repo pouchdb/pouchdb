@@ -99,7 +99,7 @@ adapterPairs.forEach(function (adapters) {
 
       // sync() with remote CouchDB
       function syncWithRemote(source) {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           source.sync(remoteDb).on('complete', function () {
             resolve();
           }).on('error', function (error) {

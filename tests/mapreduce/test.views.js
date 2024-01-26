@@ -234,7 +234,7 @@ describe('test.views.js', function () {
         foo: x
       };
     });
-    db.bulkDocs({ docs: docs }, {}, function (err) {
+    db.bulkDocs({ docs }, {}, function (err) {
       var queryFun = {
         map: function (doc) {
           emit(doc.foo, null);
@@ -628,7 +628,7 @@ describe('test.views.js', function () {
         num: ''
       }
     ];
-    db.bulkDocs({ docs: docs }, function () {
+    db.bulkDocs({ docs }, function () {
       var mapFunction = function (doc) {
         emit(doc.num, null);
       };

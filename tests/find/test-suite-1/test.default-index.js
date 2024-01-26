@@ -126,7 +126,7 @@ describe('test.default-index.js', function () {
     ]).then(function () {
       return db.find({
         selector: {foo: {$ne: "eba"}},
-        fields: ["_id",],
+        fields: ["_id"],
         sort: ["_id"]
       });
     }).then(function (resp) {
