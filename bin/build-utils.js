@@ -48,9 +48,7 @@ function doBrowserify(pkgName, filepath, opts, exclude) {
             path.dirname(filepath) + '/' + path.basename(filepath));
         });
     } else {
-      bundler = browserify(addPath(pkgName, filepath), opts)
-        .transform('es3ify')
-        .plugin('bundle-collapser/plugin');
+      bundler = browserify(addPath(pkgName, filepath), opts);
     }
 
     if (exclude) {
