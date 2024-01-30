@@ -27,6 +27,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - run: npm run eslint
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo apt-get install shellcheck
+      - run: git ls-files '*.sh' | xargs shellcheck
+
   # Run the integration, find and mapreduce tests against CouchDB on Node.js.
   # This should be run against every version of CouchDB and every version of
   # Node.js we support.
@@ -75,8 +82,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        couchdb: ['2.3', '3.1']
-        client: ['firefox', 'chromium']
+        couchdb: ['2.3','3.1']
+        client: ['firefox', 'chromium', 'webkit']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -151,7 +158,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        client: ['firefox', 'chromium']
+        client: ['firefox', 'chromium', 'webkit']
         adapter: ['idb', 'indexeddb', 'memory']
         cmd:
           - npm test
@@ -190,7 +197,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        client: ['node', 'firefox', 'chromium']
+        client: ['node', 'firefox', 'chromium', 'webkit']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test

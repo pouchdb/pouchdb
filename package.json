@@ -47,7 +47,7 @@
     "level": "6.0.1",
     "level-codec": "9.0.2",
     "level-write-stream": "1.0.0",
-    "leveldown": "5.6.0",
+    "leveldown": "6.1.1",
     "levelup": "4.4.0",
     "localstorage-down": "0.6.7",
     "ltgt": "2.2.1",
@@ -57,8 +57,7 @@
     "spark-md5": "3.0.2",
     "through2": "3.0.2",
     "uuid": "8.3.2",
-    "vuvuzela": "1.0.3",
-    "whatwg-fetch": "2.0.4"
+    "vuvuzela": "1.0.3"
   },
   "devDependencies": {
     "add-cors-to-couchdb": "0.0.6",
