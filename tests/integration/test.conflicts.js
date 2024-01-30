@@ -164,7 +164,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b', 'Correct revision wins');
@@ -205,7 +205,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-a', 'Correct revision wins');
@@ -234,7 +234,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('10-a', 'Correct revision wins');
@@ -266,7 +266,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b1', 'Correct revision wins');
@@ -298,7 +298,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b1', 'Correct revision wins');
@@ -330,7 +330,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
           doc._rev.should.equal('1-b1', 'Correct revision wins');
@@ -362,7 +362,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b1', 'Correct revision wins');
@@ -394,7 +394,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('1-b1', 'Correct revision wins');
@@ -423,7 +423,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-a2', 'Correct revision wins');
@@ -452,7 +452,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-a2', 'Correct revision wins');
@@ -481,7 +481,7 @@ adapters.forEach(function (adapter) {
         }
       ];
       var db = new PouchDB(dbs.name);
-      return db.bulkDocs({ docs: docs, new_edits: false }).then(function () {
+      return db.bulkDocs({ docs, new_edits: false }).then(function () {
         return db.get('fubar');
       }).then(function (doc) {
         doc._rev.should.equal('2-a2', 'Correct revision wins');
@@ -492,7 +492,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('#2543 excessive recursion with merging', function () {
-      var chain = testUtils.Promise.resolve();
+      var chain = Promise.resolve();
 
       var db = new PouchDB(dbs.name);
 
@@ -546,7 +546,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       return db.bulkDocs({
-        docs: docs, new_edits: false
+        docs, new_edits: false
       }).then(function () {
         return db.get('fubar', { conflicts: true });
       })

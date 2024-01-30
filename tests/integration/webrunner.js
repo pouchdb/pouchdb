@@ -8,72 +8,32 @@
     window.removeEventListener("load", startTests);
 
     if (remote) {
-      // Capture logs for test runner output
-      var logs = [];
-
-      (function () {
-
-        function serializeLogItem(obj, filter, space) {
-          if (typeof obj === 'string') {
-            return obj;
-          } else if (obj instanceof Error) {
-            return obj.stack;
-          } else {
-            return JSON.stringify(obj, filter, space);
-          }
-        }
-
-        function wrappedLog(oldLog, type) {
-          return function () {
-            var args = Array.prototype.slice.call(arguments);
-            logs.push({
-              type: type,
-              content: args.map(function (arg) {
-                return serializeLogItem(arg);
-              }).join(' ')
-            });
-            oldLog.apply(console, arguments);
-          };
-        }
-
-        console.log = wrappedLog(console.log, 'log');
-        console.error = wrappedLog(console.error, 'error');
-
-      })();
-
-      // Capture test events for test runner output
-      var testEventsBuffer = [];
-
-      window.testEvents = function () {
-        var events = testEventsBuffer;
-        testEventsBuffer = [];
-        return events;
-      };
-
       mocha.reporter(function (runner) {
         var eventNames = ['start', 'end', 'suite', 'suite end', 'pass', 'pending', 'fail'];
         eventNames.forEach(function (name) {
           runner.on(name, function (obj, err) {
-            testEventsBuffer.push({
-              name: name,
-              obj: obj && {
-                root: obj.root,
-                title: obj.title,
-                duration: obj.duration,
-                slow: typeof obj.slow === 'function' ? obj.slow() : undefined,
-                fullTitle: typeof obj.fullTitle === 'function' ? obj.fullTitle() : undefined
+            window.postMessage({
+              type: 'mocha',
+              details: {
+                name,
+                obj: obj && {
+                  root: obj.root,
+                  title: obj.title,
+                  duration: obj.duration,
+                  slow: typeof obj.slow === 'function' ? obj.slow() : undefined,
+                  fullTitle: typeof obj.fullTitle === 'function' ? obj.fullTitle() : undefined,
+                  titlePath: typeof obj.titlePath === 'function' ? obj.titlePath() : undefined,
+                },
+                err: err && {
+                  actual: err.actual,
+                  expected: err.expected,
+                  showDiff: err.showDiff,
+                  message: err.message,
+                  stack: err.stack,
+                  uncaught: err.uncaught
+                },
               },
-              err: err && {
-                actual: err.actual,
-                expected: err.expected,
-                showDiff: err.showDiff,
-                message: err.message,
-                stack: err.stack,
-                uncaught: err.uncaught
-              },
-              logs: logs
             });
-            logs = [];
           });
         });
       });

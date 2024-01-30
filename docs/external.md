@@ -215,7 +215,7 @@ AngularJS binding for PouchDB.
 
 #### [ampersand-collection-pouchdb-mixin](https://github.com/svnlto/ampersand-collection-pouchdb-mixin)
 
-A mixin for extending ampersand-collection with pouchdb persistance.
+A mixin for extending ampersand-collection with pouchdb persistence.
 
 ### Backbone
 

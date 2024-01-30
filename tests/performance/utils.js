@@ -6,16 +6,16 @@ var commonUtils = require('../common-utils.js');
 var nextTick = (typeof process === 'undefined' || process.browser) ?
   setTimeout : process.nextTick;
 
-var grep;
-var iterations;
-if (global.window && global.window.location && global.window.location.search) {
-  grep = global.window.location.search.match(/[&?]grep=([^&]+)/);
-  grep = grep && decodeURIComponent(grep[1]);
-  iterations = global.window.location.search.match(/[&?]iterations=([^&]+)/);
-  iterations = iterations && parseInt(iterations[1], 10);
-} else if (process && process.env) {
-  grep = process.env.GREP;
-  iterations = process.env.ITERATIONS && parseInt(process.env.ITERATIONS, 10);
+const params = commonUtils.params();
+const grep = commonUtils.isNode() ? params.GREP : params.grep;
+
+function iterationsFor(testCase) {
+  const override = commonUtils.isNode() ? params.ITERATIONS : params.iterations;
+  if (override) {
+    return parseInt(override, 10);
+  } else {
+    return testCase.iterations;
+  }
 }
 
 var adapterUsed;
@@ -29,9 +29,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
         return false;
       }
     }
-    var iter = typeof iterations === 'number' ? iterations :
-      testCase.iterations;
-    return iter !== 0;
+    return iterationsFor(testCase) > 0;
   });
 
   if (!testCases.length) {
@@ -40,18 +38,18 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
 
   testCases.forEach(function (testCase, i) {
     var testName = testCase.name;
-    var iter = typeof iterations === 'number' ? iterations :
-      testCase.iterations;
     test('benchmarking', function (t) {
       var db;
       var setupObj;
 
       var localDbName = commonUtils.safeRandomDBName();
 
+      const iterations = iterationsFor(testCase);
+
       t.test('setup', function (t) {
         db = new PouchDB(localDbName, { size: 3000 });
         adapterUsed = db.adapter;
-        testCase.setup(db, function (err, res) {
+        testCase.setup(db, { iterations }, function (err, res) {
           if (err) {
             t.error(err);
             reporter.log(testName + ' errored: ' + err.message + '\n');
@@ -60,7 +58,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
           if (i === 0) {
             reporter.startSuite(suiteName);
           }
-          reporter.start(testCase, iter);
+          reporter.start(testCase, iterations);
           t.end();
         });
       });
@@ -84,7 +82,7 @@ exports.runTests = function (PouchDB, suiteName, testCases, callback) {
           } else {
             reporter.endIteration(testCase);
           }
-          if (++num < iter) {
+          if (++num < iterations) {
             next();
           } else {
             t.ok(testName + ' completed');
