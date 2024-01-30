@@ -1,20 +1,29 @@
 #!/bin/bash -e
+shopt -s nullglob
+
+cleanup() {
+  if [[ -n $SERVER_PID ]]; then
+    kill "$SERVER_PID"
+  fi
+}
+trap cleanup EXIT
 
 # Run tests against a local setup of pouchdb-express-router
 # by default unless COUCH_HOST is specified.
-[ -z "$COUCH_HOST" -a -z "$SERVER"  ] && SERVER="pouchdb-express-router"
+if [ -z "$COUCH_HOST" ] && [ -z "$SERVER"  ]; then
+  SERVER="pouchdb-express-router"
+fi
 
-: ${CLIENT:="node"}
-: ${COUCH_HOST:="http://127.0.0.1:5984"}
-: ${VIEW_ADAPTERS:="memory"}
+: "${CLIENT:=node}"
+: "${COUCH_HOST:=http://127.0.0.1:5984}"
+: "${VIEW_ADAPTERS:=memory}"
 export VIEW_ADAPTERS
 
 pouchdb-setup-server() {
   # in CI, link pouchdb-servers dependencies on pouchdb
   # modules to the current implementations
   if [ -d "pouchdb-server-install" ]; then
-    # pouchdb server already running
-    exit 0
+    rm -rf pouchdb-server-install
   fi
   mkdir pouchdb-server-install
   cd pouchdb-server-install
@@ -28,9 +37,9 @@ pouchdb-setup-server() {
 
   TESTDIR=./tests/pouchdb_server
   rm -rf $TESTDIR && mkdir -p $TESTDIR
-  FLAGS="$POUCHDB_SERVER_FLAGS --dir $TESTDIR"
-  echo -e "Starting up pouchdb-server with flags: $FLAGS \n"
-  ./pouchdb-server-install/node_modules/.bin/pouchdb-server -n -p 6984 $FLAGS &
+  FLAGS=("$POUCHDB_SERVER_FLAGS" --dir "$TESTDIR")
+  echo -e "Starting up pouchdb-server with flags: ${FLAGS[*]} \n"
+  ./pouchdb-server-install/node_modules/.bin/pouchdb-server -n -p 6984 "${FLAGS[@]}" &
   export SERVER_PID=$!
 }
 
@@ -48,8 +57,8 @@ pouchdb-link-server-modules() {
   fi
 
   # internal node_modules of other packages
-  for subPkg in $(ls -d node_modules/**/node_modules/${pkg}/ 2>/dev/null); do
-    cd ${subPkg}../..
+  for subPkg in node_modules/**/node_modules/"$pkg"; do
+    cd "$subPkg/../.."
     echo -e "\nnpm link ${pkg} for ${subPkg}"
     npm link "${pkg}"
     cd ../..
@@ -73,7 +82,7 @@ pouchdb-build-node() {
   fi
 }
 
-if [[ ! -z $SERVER ]]; then
+if [[ -n $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     export COUCH_HOST='http://127.0.0.1:6984'
     if [[ -n "$GITHUB_REPOSITORY" || "$COVERAGE" == 1 ]]; then
@@ -104,7 +113,7 @@ if [[ ! -z $SERVER ]]; then
 fi
 
 if [ "$SERVER" == "couchdb-master" ]; then
-  while [ '200' != $(curl -s -o /dev/null -w %{http_code} ${COUCH_HOST}) ]; do
+  while [ '200' != "$(curl -s -o /dev/null -w '%{http_code}' ${COUCH_HOST})" ]; do
     echo waiting for couch to load... ;
     sleep 1;
   done
@@ -112,14 +121,14 @@ if [ "$SERVER" == "couchdb-master" ]; then
   ./node_modules/.bin/add-cors-to-couchdb $COUCH_HOST
 fi
 
-printf 'Waiting for host to start .'
+printf "Waiting for host to start on %s..." "$COUCH_HOST"
 WAITING=0
-until $(curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST); do
+until curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST; do
     if [ $WAITING -eq 4 ]; then
         printf '\nHost failed to start\n'
         exit 1
     fi
-    let WAITING=WAITING+1
+    ((WAITING=WAITING+1))
     printf '.'
     sleep 5
 done
@@ -135,9 +144,3 @@ elif [ "$CLIENT" == "dev" ]; then
 else
     npm run test-browser
 fi
-
-EXIT_STATUS=$?
-if [[ ! -z $SERVER_PID ]]; then
-  kill $SERVER_PID
-fi
-exit $EXIT_STATUS

@@ -14,7 +14,7 @@ module.exports = function (PouchDB, callback) {
       name: 'basic-inserts',
       assertions: 1,
       iterations: 1000,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         callback(null, {'yo': 'dawg'});
       },
       test: function (db, itr, doc, done) {
@@ -25,12 +25,12 @@ module.exports = function (PouchDB, callback) {
       name: 'bulk-inserts',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 100; i++) {
           docs.push({much : 'docs', very : 'bulk'});
         }
-        callback(null, {docs : docs});
+        callback(null, {docs});
       },
       test: function (db, itr, docs, done) {
         db.bulkDocs(docs, done);
@@ -40,7 +40,7 @@ module.exports = function (PouchDB, callback) {
       name: 'bulk-inserts-large-docs',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
 
         for (var d = 0; d < 100; d++) {
@@ -51,7 +51,7 @@ module.exports = function (PouchDB, callback) {
           docs.push(doc);
         }
 
-        callback(null, {docs : docs});
+        callback(null, {docs});
       },
       test: function (db, itr, docs, done) {
         db.bulkDocs(docs, done);
@@ -61,7 +61,7 @@ module.exports = function (PouchDB, callback) {
       name: 'bulk-inserts-massive-docs',
       assertions: 1,
       iterations: 10,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
 
         // Depth is an important factor here. Depth makes any kind of recursive
@@ -92,7 +92,7 @@ module.exports = function (PouchDB, callback) {
           docs.push(innerDoc(1));
         }
 
-        callback(null, {docs : docs});
+        callback(null, {docs});
       },
       test: function (db, itr, docs, done) {
         db.bulkDocs(docs, done);
@@ -102,7 +102,7 @@ module.exports = function (PouchDB, callback) {
       name: 'basic-updates',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 100; i++) {
           docs.push({});
@@ -123,13 +123,13 @@ module.exports = function (PouchDB, callback) {
       name: 'basic-gets',
       assertions: 1,
       iterations: 1000,
-      setup: function (db, callback) {
+      setup: function (db, { iterations }, callback) {
         var docs = [];
-        for (var i = 0; i < 1000; i++) {
+        for (var i = 0; i < iterations; i++) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
-        db.bulkDocs({docs : docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         db.get(commonUtils.createDocId(itr), done);
@@ -139,13 +139,13 @@ module.exports = function (PouchDB, callback) {
       name: 'all-docs-skip-limit',
       assertions: 1,
       iterations: 10,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
-        db.bulkDocs({docs : docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         function taskFactory(i) {
@@ -166,7 +166,7 @@ module.exports = function (PouchDB, callback) {
       name: 'all-docs-startkey-endkey',
       assertions: 1,
       iterations: 10,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({
@@ -175,7 +175,7 @@ module.exports = function (PouchDB, callback) {
             baz: 'quux'
           });
         }
-        db.bulkDocs({docs: docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         function taskFactory(i) {
@@ -199,13 +199,13 @@ module.exports = function (PouchDB, callback) {
       name: 'all-docs-keys',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({_id : commonUtils.createDocId(i),
             foo : 'bar', baz : 'quux'});
         }
-        db.bulkDocs({docs : docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         function randomDocId() {
@@ -217,7 +217,7 @@ module.exports = function (PouchDB, callback) {
           keys.push(randomDocId());
         }
         db.allDocs({
-          keys: keys,
+          keys,
           include_docs: true
         }, done);
       }
@@ -226,7 +226,7 @@ module.exports = function (PouchDB, callback) {
       name: 'all-docs-include-docs',
       assertions: 1,
       iterations: 100,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({
@@ -236,7 +236,7 @@ module.exports = function (PouchDB, callback) {
             _deleted: i % 2 === 1
           });
         }
-        db.bulkDocs({docs: docs}, callback);
+        db.bulkDocs({docs}, callback);
       },
       test: function (db, itr, docs, done) {
         return db.allDocs({
@@ -253,20 +253,26 @@ module.exports = function (PouchDB, callback) {
       name: 'pull-replication-perf-skimdb',
       assertions: 1,
       iterations: 0,
-      setup: function (localDB, callback) {
+      setup: function (localDB, { iterations }, callback) {
+        // The NPM registry is a couchdb database.  "skimdb" is the NPM
+        // registry, minus the actual packages, found at
+        // https://skimdb.npmjs.com/registry, and an example of a real, public
+        // db with a lot of docs.
+        // FIXME this mirror is currently down, as is iriscouch.com; find an
+        // alternative mirror.
         var remoteCouchUrl = "http://skimdb.iriscouch.com/registry";
         var remoteDB = new PouchDB(remoteCouchUrl, {
           ajax: {pool: {maxSockets: 15}}
         });
         var localPouches = [];
 
-        for (var i = 0; i < this.iterations; ++i) {
+        for (var i = 0; i < iterations; ++i) {
           localPouches[i] = new PouchDB(commonUtils.safeRandomDBName());
         }
 
         return callback(null, {
-          localPouches: localPouches,
-          remoteDB: remoteDB
+          localPouches,
+          remoteDB
         });
       },
       test: function (ignoreDB, itr, testContext, done) {

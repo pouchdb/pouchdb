@@ -100,7 +100,7 @@ var PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-http'));
 ```
 
-This applies to all of the plugins we previously shipped in the ["extras" API](http://pouchdb.com/api.html#extras). Any of these can now be mixed and matched as desired:
+This applies to all of the plugins we previously shipped in the ["extras" API]({{ site.baseurl }}/api.html#extras). Any of these can now be mixed and matched as desired:
 
 * `pouchdb-adapter-fruitdown`
 * `pouchdb-adapter-localstorage`

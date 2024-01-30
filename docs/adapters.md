@@ -149,7 +149,7 @@ var db = new PouchDB('mydatabase.db', {adapter: 'websql'});
 
 In this case, PouchDB is directly using SQLite queries to build the database, exactly as the WebSQL adapter would.
 
-See ["Prebuilt databases with PouchDB"](https://pouchdb.com/2016/04/28/prebuilt-databases-with-pouchdb.html)
+See ["Prebuilt databases with PouchDB"]({{ site.baseurl }}/2016/04/28/prebuilt-databases-with-pouchdb.html)
 for a guide to how you might use this adapter to create prebuilt SQLite database files for adapters such as Cordova or Electron.
 
 #### Other LevelDOWN adapters
@@ -173,12 +173,13 @@ You can also sync to and from these databases to your local PouchDB.
 
 Currently PouchDB has full support for:
 
-* CouchDB 1.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* CouchDB 1.x
 * [Smileupps](https://www.smileupps.com/) (same as 1.x)
-* CouchDB 2.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* CouchDB 2.x ([tested in CI](https://github.com/pouchdb/pouchdb/actions))
+* CouchDB 3.x ([tested in CI](https://github.com/pouchdb/pouchdb/actions))
 * [Cloudant](https://cloudant.com/) (roughly the same as 2.x)
-* [PouchDB Server](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
-* [PouchDB Server --in-memory mode](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* [PouchDB Server](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://github.com/pouchdb/pouchdb/actions))
+* [PouchDB Server --in-memory mode](https://github.com/pouchdb/pouchdb-server)
 
 [Drupal 8](http://wearepropeople.com/blog/a-content-staging-solution-for-drupal-8-and-more) has also announced support for PouchDB, and there is [rcouch](https://github.com/rcouch/rcouch) as well, but these are both untested by PouchDB.
 

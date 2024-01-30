@@ -324,7 +324,7 @@ So if you want to play with it yourself, I've put together a [small demo library
 
 ### Conclusion
 
-Async functions are an empowering new concept in ES7. They give us back our lost `return`s and `try`/`catch`es, and they reward the knowledge we've already gained from writing synchronous code with new idiioms that look a lot like the old ones, but are much more performant.
+Async functions are an empowering new concept in ES7. They give us back our lost `return`s and `try`/`catch`es, and they reward the knowledge we've already gained from writing synchronous code with new idioms that look a lot like the old ones, but are much more performant.
 
 Most importantly, async functions make APIs like PouchDB's a lot easier to work with. So hopefully this will lead to fewer user errors and confusion, as well as more elegant and readable code.
 

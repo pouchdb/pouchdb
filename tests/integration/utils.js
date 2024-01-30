@@ -15,6 +15,11 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
+testUtils.isChrome = function () {
+  return (typeof window !== 'undefined') && window.navigator &&
+      /Google Inc/.test(window.navigator.vendor);
+};
+
 testUtils.isIE = function () {
   var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
       navigator.userAgent.toLowerCase() : '';
@@ -22,6 +27,12 @@ testUtils.isIE = function () {
   var isTrident = ua.indexOf('trident') !== -1;
   var isEdge = ua.indexOf('edge') !== -1;
   return (isIE || isTrident || isEdge);
+};
+
+testUtils.isSafari = function () {
+  return (typeof process === 'undefined' || process.browser) &&
+      /Safari/.test(window.navigator.userAgent) &&
+      !/Chrome/.test(window.navigator.userAgent);
 };
 
 testUtils.adapterType = function () {
@@ -50,7 +61,7 @@ testUtils.readBlob = function (blob, callback) {
 };
 
 testUtils.readBlobPromise = function (blob) {
-  return new testUtils.Promise(function (resolve) {
+  return new Promise(function (resolve) {
     testUtils.readBlob(blob, resolve);
   });
 };
@@ -70,7 +81,7 @@ testUtils.base64Blob = function (blob, callback) {
 testUtils.adapterUrl = function (adapter, name) {
 
   // CouchDB master has problems with cycling databases rapidly
-  // so give tests seperate names
+  // so give tests separate names
   name += '_' + Date.now();
 
   if (adapter === 'http') {
@@ -228,7 +239,7 @@ testUtils.promisify = function (fun, context) {
     for (var i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];
     }
-    return new testUtils.Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       args.push(function (err, res) {
         if (err) {
           return reject(err);

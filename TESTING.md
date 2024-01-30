@@ -12,7 +12,7 @@ The PouchDB test suite expects an instance of CouchDB (version 1.6.1 and above)
 running in [Admin Party](http://guide.couchdb.org/draft/security.html#party) on
 `http://127.0.0.1:5984` with [CORS
 enabled](https://github.com/pouchdb/add-cors-to-couchdb). See the [official
-CouchDB documentation](http://docs.couchdb.org/en/1.6.1/install/index.html) for
+CouchDB documentation](https://docs.couchdb.org/en/stable/install/index.html) for
 a guide on how to install CouchDB.
 
 If you have CouchDB available at a different URL, you can assign this URL to the
@@ -107,7 +107,7 @@ not available.
 
 Use this to request that a specific test is run; if you set `GREP='name of
 test'` then only those tests whose names include the string `name of test` will
-run.
+run.  Regular expressions are also supported.
 
 #### `PLUGINS` (default: empty)
 

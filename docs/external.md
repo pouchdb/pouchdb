@@ -58,7 +58,7 @@ Fully replicate two PouchDB/CouchDB databases, preserving absolutely all revisio
 
 #### [PouchDB GQL](https://github.com/pouchdb/GQL)
 
-Google Query Language (GQL) queries with PouchDB. ([Documentation](http://pouchdb.com/gql.html))
+Google Query Language (GQL) queries with PouchDB. ([Documentation]({{ site.baseurl }}/gql.html))
 
 #### [PouchDB Hoodie API](https://github.com/hoodiehq/pouchdb-hoodie-api)
 
@@ -215,7 +215,7 @@ AngularJS binding for PouchDB.
 
 #### [ampersand-collection-pouchdb-mixin](https://github.com/svnlto/ampersand-collection-pouchdb-mixin)
 
-A mixin for extending ampersand-collection with pouchdb persistance.
+A mixin for extending ampersand-collection with pouchdb persistence.
 
 ### Backbone
 

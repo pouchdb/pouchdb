@@ -21,7 +21,7 @@
       })();
     </script>
     <link href='//fonts.googleapis.com/css?family=Lato:400,700|Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
+    <link rel="icon" href="{{ site.baseurl }}/static/favicon.ico" type="image/x-icon"/>
   </head>
 
   <body data-spy="scroll" data-target="#sidebar">
@@ -136,20 +136,6 @@
             </a>
           </div>
 
-          <div class="col-xs-4 col-md-offset-0 col-md-2">
-            <a
-              href="https://travis-ci.org/pouchdb/pouchdb"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                class="icon"
-                src="{{ site.baseurl}}/static/img/friends/travis.svg"
-                alt="PouchDB's Travis CI"
-              />
-            </a>
-          </div>
-
           <div class="col-xs-4 col-md-2">
             <a
               href="http://couchdb.apache.org/"
@@ -161,19 +147,6 @@
                 src="{{ site.baseurl }}/static/img/friends/couchdb.svg"
                 alt="CouchDB"
               >
-            </a>
-          </div>
-          <div class="col-xs-4 col-md-2">
-            <a
-              href="https://saucelabs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                class="icon"
-                src="{{ site.baseurl}}/static/img/friends/saucelabs.svg"
-                alt="Saucelabs"
-              />
             </a>
           </div>
 
@@ -223,11 +196,11 @@
       </div>
 
     </footer>
-    <script type="text/javascript" src="//code.jquery.com/jquery.min.js"></script>
-    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="{{ site.baseurl }}/static/js/code.min.js"></script>
     <script type="text/javascript" src="{{ site.baseurl }}/static/js/stickyfill.min.js"></script>
-    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/pouchdb/dist/pouchdb.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pouchdb/dist/pouchdb.min.js"></script>
     <script type="text/javascript">
       var $navSidebarWrapper = $('.nav-sidebar-wrapper');
       if ($navSidebarWrapper.length) {

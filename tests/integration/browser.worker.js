@@ -17,15 +17,7 @@ describe.skip('browser.worker.js', function () {
   before(function () {
     worker = new Worker('worker.js');
 
-    var sourceFile = window && window.location.search.match(/[?&]sourceFile=([^&]+)/);
-
-    if (!sourceFile) {
-      sourceFile = '../../packages/node_modules/pouchdb/dist/pouchdb.js';
-    } else {
-      sourceFile = '../../packages/node_modules/pouchdb/dist/' + sourceFile[1];
-    }
-
-    worker.postMessage(['source', sourceFile]);
+    worker.postMessage(['source', testUtils.pouchdbSrc()]);
   });
 
   function workerPromise(message) {
@@ -100,7 +92,7 @@ describe.skip('browser.worker.js', function () {
     }
 
     // both threads agree the count is 0
-    return testUtils.Promise.all([
+    return Promise.all([
       db.allDocs().then(function (res) {
         res.total_rows.should.equal(0);
       }),
@@ -112,7 +104,7 @@ describe.skip('browser.worker.js', function () {
       return db.post({});
     }).then(function () {
       // both threads agree the count is 1
-      return testUtils.Promise.all([
+      return Promise.all([
         db.allDocs().then(function (res) {
           res.total_rows.should.equal(1);
         }),
