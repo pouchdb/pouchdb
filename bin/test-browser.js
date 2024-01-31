@@ -214,7 +214,7 @@ async function startTest() {
         // `TypeError: Load failed`
         console.log('Ignoring error:', err);
         return;
-    }
+      }
 
       console.log('Unhandled error in test page:', err);
       process.exit(1);
