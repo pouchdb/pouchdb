@@ -25,6 +25,7 @@
   },
 
   "rules": {
+    "comma-dangle": ["error", "only-multiline"],
     "eol-last": "error",
     "no-empty": "off",
     "no-console": "off",
