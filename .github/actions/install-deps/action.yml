@@ -2,10 +2,7 @@ name: Install dependencies
 
 inputs:
   node-version: { required: true }
-  couchdb-version:
-    description: CouchDB version to install
-    required: false
-    default: '3.1'
+  couchdb-version: { required: false, default: '3.3' }
 
 runs:
   using: composite
