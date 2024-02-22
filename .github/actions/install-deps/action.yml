@@ -1,10 +1,7 @@
 name: Install dependencies
-description: Intall dependencies to build and run PouchDB
 
 inputs:
-  node-version:
-    required: true
-    description: Node.js version to install
+  node-version: { required: true }
   couchdb-version: { required: false, default: '3.1' }
 
 runs:

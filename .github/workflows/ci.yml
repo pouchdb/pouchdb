@@ -19,8 +19,6 @@ env:
 
 jobs:
 
-  # Ensures code style compliance in JavaScript.
-
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -29,8 +27,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - run: npm run eslint
-
-  # Check shell scripts.
 
   shellcheck:
     runs-on: ubuntu-latest
