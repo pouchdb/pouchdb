@@ -368,7 +368,7 @@ adapters.forEach(function (adapter) {
       });
 
       const errorPromise = new Promise(function (resolve) {
-        const listener = (err) => {
+        const listener = function (err) {
           changes.off('error', listener);
           resolve(err);
         };
