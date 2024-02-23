@@ -367,14 +367,14 @@ adapters.forEach(function (adapter) {
         include_docs: true
       });
 
-      const errorPromise = new Promise(function (resolve) {
-        changes.once('error', function (err) {
-          resolve(err);
-        });
+      const caughtErrors = [];
+      changes.on('error', function (err) {
+        caughtErrors.push(err);
       });
 
       await assert.isRejected(changes, 'completes with an exception');
-      const caughtError = await errorPromise;
+      assert.equal(caughtErrors.length, 1);
+      const caughtError = caughtErrors[0];
       assert.equal(
         caughtError.status,
         testUtils.errors.MISSING_DOC.status,
