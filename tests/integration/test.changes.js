@@ -361,25 +361,28 @@ adapters.forEach(function (adapter) {
 
       await testUtils.promisify(testUtils.writeDocs)(db, docs);
 
-      const caughtErrors = [];
       const changes = db.changes({
         filter: 'foo/even',
         limit: 2,
         include_docs: true
       });
 
-      changes.on('error', (err) => {
-        assert.equal(
-          err.status,
-          testUtils.errors.MISSING_DOC.status,
-          'correct error status returned'
-        );
-        assert.equal(err.name, 'not_found');
-        caughtErrors.push(err);
+      const errorPromise = new Promise(function (resolve) {
+        const listener = (err) => {
+          changes.off('error', listener);
+          resolve(err);
+        };
+        changes.on('error', listener);
       });
 
       await assert.isRejected(changes, 'completes with an exception');
-      assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
+      const caughtError = await errorPromise;
+      assert.equal(
+        caughtError.status,
+        testUtils.errors.MISSING_DOC.status,
+        'correct error status returned'
+      );
+      assert.equal(caughtError.name, 'not_found');
     });
 
     it('Changes limit and filter', function (done) {
