@@ -368,11 +368,9 @@ adapters.forEach(function (adapter) {
       });
 
       const errorPromise = new Promise(function (resolve) {
-        const listener = function (err) {
-          changes.off('error', listener);
+        changes.once('error', function (err) {
           resolve(err);
-        };
-        changes.on('error', listener);
+        });
       });
 
       await assert.isRejected(changes, 'completes with an exception');
