@@ -815,7 +815,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('5007 sync 2 databases', function () {
+    it('5007 sync 2 databases', async function () {
       if (testUtils.isSafari()) {
         // FIXME this test fails consistently on webkit.  It needs to be
         // investigated, but for now it would be better to have the rest of the
@@ -826,7 +826,13 @@ adapters.forEach(function (adapters) {
       const db = new PouchDB(dbs.name);
 
       const remote1 = new PouchDB(dbs.remote);
-      const remote2 = new PouchDB(dbs.remote + '_2');
+      let remote2 = new PouchDB(dbs.remote + '_2');
+
+      const remote2docs = await remote2.allDocs();
+      if (remote2docs.total_rows > 0) {
+        await remote2.destroy();
+        remote2 = new PouchDB(dbs.remote + '_2');
+      }
 
       const sync1 = db.sync(remote1, { live: true });
       const sync2 = db.sync(remote2, { live: true });
