@@ -143,7 +143,7 @@ adapters.forEach(function (adapters) {
           }
         }
 
-        // Tried 10 times, throw to let the test fail.
+        // Tried 10 times, throw an error to cancel the test.
         throw new Error("retry limit reached");
       }
 
@@ -163,14 +163,17 @@ adapters.forEach(function (adapters) {
         return await changes;
       }
 
+      function cleanup(sync) {
+        return new Promise(function (resolve, reject) {
+          sync.on('complete', resolve);
+          sync.on('error', reject);
+          sync.cancel();
+        });
+      }
+
       await local.put({ _id: '1' });
       await waitForUptodate();
-      // cleanup sync1
-      await new Promise(function (resolve, reject) {
-        sync1.on('complete', resolve);
-        sync1.on('error', reject);
-        sync1.cancel();
-      });
+      await cleanup(sync1);
 
       await waitForUptodate();
       const doc1 = await local.get('1');
@@ -179,6 +182,7 @@ adapters.forEach(function (adapters) {
       await local.put(doc1);
 
       const doc2 = await remote.get('1');
+      // set conflicting property `foo`
       doc2.foo = randomNumber + 1;
       await remote.put(doc2);
 
@@ -197,13 +201,7 @@ adapters.forEach(function (adapters) {
       });
 
       remoteDoc.should.deep.equal(localDoc);
-
-      // cleanup sync2
-      await new Promise(function (resolve, reject) {
-        sync2.on('complete', resolve);
-        sync2.on('error', reject);
-        sync2.cancel();
-      });
+      await cleanup(sync2);
     });
 
     it('#3179 conflicts synced, live repl', function () {
