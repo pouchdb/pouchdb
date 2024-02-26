@@ -329,17 +329,18 @@ adapters.forEach(function (adapter) {
       });
 
       changes.on('error', (err) => {
-        assert.equal(
-          err.status,
-          testUtils.errors.MISSING_DOC.status,
-          'correct error status returned'
-        );
-        assert.equal(err.name, 'not_found');
         caughtErrors.push(err);
       });
 
       await assert.isRejected(changes, 'completes with an exception');
       assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
+      const caughtError = caughtErrors[0];
+      assert.equal(
+        caughtError.status,
+        testUtils.errors.MISSING_DOC.status,
+        'correct error status returned'
+      );
+      assert.equal(caughtError.name, 'not_found');
     });
 
     it('Changes with `filters` key not present in ddoc', async function () {
