@@ -815,7 +815,7 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('5007 sync 2 databases', function (done) {
+    it('5007 sync 2 databases', function () {
       if (testUtils.isSafari()) {
         // FIXME this test fails consistently on webkit.  It needs to be
         // investigated, but for now it would be better to have the rest of the
@@ -823,36 +823,39 @@ adapters.forEach(function (adapters) {
         return this.skip();
       }
 
-      var db = new PouchDB(dbs.name);
+      const db = new PouchDB(dbs.name);
 
-      var remote1 = new PouchDB(dbs.remote);
-      var remote2 = new PouchDB(dbs.remote + '_2');
+      const remote1 = new PouchDB(dbs.remote);
+      const remote2 = new PouchDB(dbs.remote + '_2');
 
-      var sync1 = db.sync(remote1, {live: true});
-      var sync2 = db.sync(remote2, {live: true});
+      const sync1 = db.sync(remote1, { live: true });
+      const sync2 = db.sync(remote2, { live: true });
 
-      var numChanges = 0;
-      function onChange() {
-        if (++numChanges === 2) {
-          complete();
+      const changes1 = remote1.changes({ live: true });
+      const changes2 = remote2.changes({ live: true });
+
+      return new Promise(function (resolve, reject) {
+        let numChanges = 0;
+        function onChange() {
+          if (++numChanges === 2) {
+            resolve();
+          }
         }
-      }
+        sync1.on('error', reject);
+        sync2.on('error', reject);
+        changes1.on('change', onChange);
+        changes2.on('change', onChange);
 
-      var changes1 = remote1.changes({live: true}).on('change', onChange);
-      var changes2 = remote2.changes({live: true}).on('change', onChange);
-
-      db.post({foo: 'bar'});
-      var toCancel = [changes1, changes2, sync1, sync2];
-      function complete() {
-        if (!toCancel.length) {
-          return remote2.destroy().then(function () {
-            done();
-          });
-        }
-        var cancelling = toCancel.shift();
-        cancelling.on('complete', complete);
-        cancelling.cancel();
-      }
+        db.post({ foo: 'bar' }).catch(reject);
+      })
+        .then(function () {
+          for (const cancelable of [changes1, changes2, sync1, sync2]) {
+            cancelable.cancel();
+          }
+        })
+        .finally(function () {
+          return remote2.destroy();
+        });
     });
 
     it('5782 sync rev-1 conflicts', function () {
