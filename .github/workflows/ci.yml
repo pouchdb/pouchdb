@@ -218,6 +218,7 @@ jobs:
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - uses: ./.github/actions/install-playwright
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
