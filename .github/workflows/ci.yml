@@ -253,7 +253,7 @@ jobs:
       matrix:
         node: [14, 16]
         cmd:
-          - CLIENT=webpack npm run test-webpack
+          - CLIENT=firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
           - PERF=1 npm test
           - npm run test-unit
