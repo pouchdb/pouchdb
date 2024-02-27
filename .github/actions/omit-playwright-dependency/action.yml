@@ -5,5 +5,5 @@ runs:
   using: composite
 
   steps:
-    - run: npm uninstall playwright
+    - run: "sed -i 's/\"playwright\":.*$,//'"
       shell: bash
