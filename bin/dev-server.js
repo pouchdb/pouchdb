@@ -79,23 +79,6 @@ function watchAll() {
     debounce(rebuildPerf, 700, {leading: true}));
 }
 
-var filesWritten = false;
-
-Promise.resolve().then(function () {
-  if (process.env.TRAVIS) {
-    return; // don't bother rebuilding in Travis; we already built
-  }
-  return Promise.all([
-    rebuildPouch(),
-    rebuildTestUtils(),
-    rebuildPerf()
-  ]);
-}).then(function () {
-  console.log('Rebuilt PouchDB/test/perf JS bundles');
-  filesWritten = true;
-  checkReady();
-});
-
 var HTTP_PORT = 8000;
 
 var serversStarted;
@@ -116,7 +99,7 @@ function startServers(callback) {
 }
 
 function checkReady() {
-  if (filesWritten && serversStarted && readyCallback) {
+  if (serversStarted && readyCallback) {
     readyCallback();
   }
 }
