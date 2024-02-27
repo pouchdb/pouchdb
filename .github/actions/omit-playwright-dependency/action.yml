@@ -1,0 +1,9 @@
+name: Omit Playwright dependency
+description: Remove playwright before `npm install` to reduce bloat
+
+runs:
+  using: composite
+
+  steps:
+    - run: npm uninstall playwright
+      shell: bash

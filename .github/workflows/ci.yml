@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -58,6 +59,7 @@ jobs:
       SKIP_MIGRATION: 1
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
@@ -142,6 +144,7 @@ jobs:
       ADAPTERS: ${{ matrix.adapter }}
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
@@ -220,10 +223,13 @@ jobs:
       SERVER: pouchdb-server
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/omit-playwright-dependency
+        if: ${{ matrix.client == 'node' }}
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
       - uses: ./.github/actions/install-playwright
+        if: ${{ matrix.client != 'node' }}
       - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
@@ -247,7 +253,7 @@ jobs:
       matrix:
         node: [14, 16]
         cmd:
-          - CLIENT=firefox npm run test-webpack
+          - CLIENT=test-browser npm run test-webpack
           - AUTO_COMPACTION=true npm test
           - PERF=1 npm test
           - npm run test-unit
@@ -258,6 +264,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
