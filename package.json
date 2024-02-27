@@ -18,7 +18,7 @@
     "dev": "./bin/run-dev.sh",
     "launch-dev-server": "node ./bin/dev-server.js",
     "test": "./bin/run-test.sh",
-    "prepublish": "npm run build",
+    "pretest": "npm run build",
     "release": "./bin/release.sh",
     "install-jekyll": "./bin/install-jekyll.sh",
     "publish-site": "./bin/publish-site.sh",
