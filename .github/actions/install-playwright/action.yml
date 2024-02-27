@@ -1,0 +1,9 @@
+name: Install Playwright
+description: Installs Playwright with system dependencies
+
+runs:
+  using: composite
+
+  steps:
+    - run: sudo npx playwright install-deps
+      shell: bash
