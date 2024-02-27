@@ -64,6 +64,7 @@ jobs:
       - uses: ./.github/actions/install-couchdb
         with:
           couchdb-version: ${{ matrix.couchdb }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -107,6 +108,7 @@ jobs:
       - uses: ./.github/actions/install-couchdb
         with:
           couchdb-version: ${{ matrix.couchdb }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -143,6 +145,7 @@ jobs:
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -181,6 +184,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - uses: ./.github/actions/install-playwright
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -206,6 +210,7 @@ jobs:
       matrix:
         client: ['node', 'firefox', 'chromium', 'webkit']
         cmd:
+          - npm run build
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
           - TYPE=mapreduce ADAPTERS=http npm test
@@ -219,6 +224,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - uses: ./.github/actions/install-playwright
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -255,6 +261,7 @@ jobs:
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
