@@ -1,7 +1,10 @@
 name: Install dependencies
+description: Install npm dependencies from package.json
 
 inputs:
-  node-version: { required: true }
+  node-version:
+    description: Specify the Node.js version to install
+    required: true
 
 runs:
   using: composite
