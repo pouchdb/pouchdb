@@ -253,7 +253,7 @@ jobs:
       matrix:
         node: [14, 16]
         cmd:
-          - CLIENT=test-browser npm run test-webpack
+          - CLIENT=webpack npm run test-webpack
           - AUTO_COMPACTION=true npm test
           - PERF=1 npm test
           - npm run test-unit
@@ -264,7 +264,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
