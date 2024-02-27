@@ -5,5 +5,5 @@ runs:
   using: composite
 
   steps:
-    - run: "sed -i 's/\"playwright\":.*$,//' package.json"
+    - run: "sed -i 's/\"playwright\":.*$,//' ./package.json"
       shell: bash
