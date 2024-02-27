@@ -213,7 +213,6 @@ jobs:
       matrix:
         client: ['node', 'firefox', 'chromium', 'webkit']
         cmd:
-          - npm run build
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
           - TYPE=mapreduce ADAPTERS=http npm test
