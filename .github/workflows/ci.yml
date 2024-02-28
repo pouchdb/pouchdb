@@ -19,15 +19,18 @@ env:
 
 jobs:
 
+  # Check style compliance of JavaScript code.
+
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
       - run: npm run eslint
+
+  # Check shell scripts.
 
   shellcheck:
     runs-on: ubuntu-latest
