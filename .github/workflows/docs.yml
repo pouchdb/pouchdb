@@ -1,5 +1,8 @@
 name: PouchDB Docs
 
+env:
+  NODE_VERSION: 14
+
 on:
   push:
     paths:
@@ -20,8 +23,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-node-package
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7
