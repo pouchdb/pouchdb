@@ -800,9 +800,6 @@ adapters.forEach(function (adapter) {
     // Note for the following test that CouchDB's implementation of /_changes
     // with `descending=true` ignores any `since` parameter.
     it.skip('Descending many changes', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var docs = [];
       var num = 100;
@@ -1568,9 +1565,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('supports return_docs=false', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var docs = [];
       var num = 10;
@@ -1632,9 +1626,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('handle individual changes in live replication', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var len = 80;
       var called = 0;
