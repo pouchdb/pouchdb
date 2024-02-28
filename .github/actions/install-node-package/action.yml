@@ -8,7 +8,7 @@ inputs:
 
   skip-playwright-installation:
     description: Save some time by excluding the installation of playwright
-    default: 'yes'
+    default: ${{ true }}
 
 runs:
   using: composite
@@ -25,7 +25,7 @@ runs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    - if: ${{ inputs.skip-playwright-installation == 'yes' }}
+    - if: ${{ inputs.skip-playwright-installation == true }}
       run: "sed -i 's/\"playwright\":.*//' $GITHUB_WORKSPACE/package.json"
       shell: bash
 

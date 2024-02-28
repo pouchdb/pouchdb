@@ -225,10 +225,10 @@ jobs:
       SERVER: pouchdb-server
     steps:
       - uses: actions/checkout@v3
-        if: ${{ matrix.client == 'node' }}
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
+          skip-playwright-installation: ${{ matrix.client == 'node' }}
       - uses: ./.github/actions/install-playwright
         if: ${{ matrix.client != 'node' }}
       - uses: ./.github/actions/build-pouchdb
