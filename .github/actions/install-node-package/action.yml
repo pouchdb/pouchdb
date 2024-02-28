@@ -6,6 +6,10 @@ inputs:
     description: Specify the Node.js version to install
     required: true
 
+  skip-playwright-installation:
+    description: Save some time by excluding the installation of playwright
+    default: 'yes'
+
 runs:
   using: composite
 
@@ -20,6 +24,10 @@ runs:
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
+
+    - if: ${{ inputs.skip-playwright-installation == 'yes' }}
+      run: "sed -i 's/\"playwright\":.*//' $GITHUB_WORKSPACE/package.json"
+      shell: bash
 
     - run: npm install
       shell: bash

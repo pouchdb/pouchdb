@@ -62,7 +62,6 @@ jobs:
       SKIP_MIGRATION: 1
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
@@ -109,6 +108,7 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
+          skip-playwright-installation: no
       - uses: ./.github/actions/install-playwright
       - uses: ./.github/actions/install-couchdb
         with:
@@ -147,7 +147,6 @@ jobs:
       ADAPTERS: ${{ matrix.adapter }}
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/omit-playwright-dependency
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
@@ -189,6 +188,7 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
+          skip-playwright-installation: no
       - uses: ./.github/actions/install-playwright
       - uses: ./.github/actions/build-pouchdb
       - id: test
@@ -225,7 +225,6 @@ jobs:
       SERVER: pouchdb-server
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/omit-playwright-dependency
         if: ${{ matrix.client == 'node' }}
       - uses: ./.github/actions/install-node-package
         with:
@@ -269,6 +268,7 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
+          skip-playwright-installation: no
       - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}

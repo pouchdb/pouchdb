@@ -1,9 +1,0 @@
-name: Omit Playwright dependency
-description: Remove playwright before `npm install` to reduce bloat
-
-runs:
-  using: composite
-
-  steps:
-    - run: "sed -i 's/\"playwright\":.*//' $GITHUB_WORKSPACE/package.json"
-      shell: bash
