@@ -108,7 +108,7 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
-          skip-playwright-installation: no
+          prepare-playwright: yes
       - uses: ./.github/actions/install-playwright
       - uses: ./.github/actions/install-couchdb
         with:
@@ -188,7 +188,7 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
-          skip-playwright-installation: no
+          prepare-playwright: yes
       - uses: ./.github/actions/install-playwright
       - uses: ./.github/actions/build-pouchdb
       - id: test
@@ -228,9 +228,9 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
-          skip-playwright-installation: ${{ matrix.client == 'node' }}
-      - uses: ./.github/actions/install-playwright
-        if: ${{ matrix.client != 'node' }}
+          prepare-playwright: ${{ matrix.client != 'node' }}
+      - if: ${{ matrix.client != 'node' }}
+        uses: ./.github/actions/install-playwright
       - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
@@ -268,7 +268,8 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
-          skip-playwright-installation: no
+          # keep package.json unchanged (bin/test-webpack.sh requires `git diff` to be empty)
+          prepare-playwright: yes
       - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
