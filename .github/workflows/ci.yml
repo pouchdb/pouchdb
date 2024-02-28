@@ -108,7 +108,6 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
-          prepare-playwright: yes
       - uses: ./.github/actions/install-playwright
       - uses: ./.github/actions/install-couchdb
         with:
@@ -188,7 +187,6 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
-          prepare-playwright: yes
       - uses: ./.github/actions/install-playwright
       - uses: ./.github/actions/build-pouchdb
       - id: test
@@ -228,7 +226,6 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
-          prepare-playwright: ${{ matrix.client != 'node' }}
       - if: ${{ matrix.client != 'node' }}
         uses: ./.github/actions/install-playwright
       - uses: ./.github/actions/build-pouchdb
@@ -268,8 +265,6 @@ jobs:
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
-          # keep package.json unchanged (bin/test-webpack.sh requires `git diff` to be empty)
-          prepare-playwright: yes
       - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
