@@ -507,6 +507,23 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('#8525 - Only compact document with seq > last_seq', async function () {
+      if (dbs.name.slice(0,4) === 'http') {  // Check for remote target
+        // Remote compaction cannot be avoided, skip the test:
+        return this.skip();
+      }
+
+      const db = new PouchDB(dbs.name, {auto_compaction: false});
+      const rev = (await db.put({_id: 'foo'})).rev;
+      await db.put({_id: 'foo', _rev: rev});
+      // Hack compaction last_seq to make like a previous compaction already
+      // happened.
+      await db.put({_id: '_local/compaction', last_seq: 2});
+      await db.compact();
+      // If the document is compacted the following crashes:
+      await db.get('foo', {rev});
+    });
+
     //
     // NO MORE HTTP TESTS AFTER THIS POINT!
     //
