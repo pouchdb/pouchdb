@@ -170,6 +170,19 @@ async function startTest() {
     };
     const browser = await playwright[browserName].launch(options);
 
+    const page = await browser.newPage();
+
+    // Playwright's Browser.on('close') event handler would be the more obvious
+    // choice here, but it does not seem to be triggered if the browser is closed
+    // by an external event (e.g. process is killed, user closes non-headless
+    // browser window).
+    page.on('close', () => {
+      if (!closeRequested) {
+        console.log('!!! Browser closed by external event.');
+        process.exit(1);
+      }
+    });
+
     const runner = new RemoteRunner(browser);
     new MochaSpecReporter(runner);
     new BenchmarkConsoleReporter(runner);
@@ -182,23 +195,8 @@ async function startTest() {
       new BenchmarkJsonReporter(runner);
     }
 
-    // Workaround: create a BrowserContext to handle init scripts.  In Chromium in
-    // Playwright v1.39.0, v1.40.1 and v1.41.1, page.addInitScript() did not appear to work.
-    const ctx = await browser.newContext();
-
-    // Playwright's Browser.on('close') event handler would be the more obvious
-    // choice here, but it does not seem to be triggered if the browser is closed
-    // by an external event (e.g. process is killed, user closes non-headless
-    // browser window).
-    ctx.on('close', () => {
-      if (!closeRequested) {
-        console.log('!!! Browser closed by external event.');
-        process.exit(1);
-      }
-    });
-
-    ctx.exposeFunction('handleMochaEvent', runner.handleEvent);
-    ctx.addInitScript(() => {
+    page.exposeFunction('handleMochaEvent', runner.handleEvent);
+    page.addInitScript(() => {
       window.addEventListener('message', (e) => {
         if (e.data.type === 'mocha') {
           window.handleMochaEvent(e.data.details);
@@ -206,7 +204,7 @@ async function startTest() {
       });
     });
 
-    ctx.on('pageerror', err => {
+    page.on('pageerror', err => {
       if (browserName === 'webkit' && err.toString()
           .match(/^Fetch API cannot load http.* due to access control checks.$/)) {
         // This is an _uncatchable_, error seen in playwright v1.36.1 webkit. If
@@ -220,11 +218,10 @@ async function startTest() {
       process.exit(1);
     });
 
-    ctx.on('console', message => {
+    page.on('console', message => {
       console.log(message.text());
     });
 
-    const page = await ctx.newPage();
     await page.goto(testUrl);
 
     const userAgent = await page.evaluate('navigator.userAgent');
