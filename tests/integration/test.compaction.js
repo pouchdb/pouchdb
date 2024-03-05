@@ -173,9 +173,6 @@ adapters.forEach(function (adapter) {
     ];
 
     it('Compact more complicated tree', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, exampleTree, function () {
         db.compact(function () {
@@ -187,9 +184,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Compact two times more complicated tree', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, exampleTree, function () {
         db.compact(function () {
@@ -203,9 +197,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Compact database with at least two documents', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, exampleTree, function () {
         testUtils.putTree(db, exampleTree2, function () {

@@ -91,7 +91,7 @@ jobs:
           - TYPE=mapreduce ADAPTERS=http npm test
     runs-on: ubuntu-latest
     env:
-      POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
+      USE_MINIFIED: 1
       CLIENT: ${{ matrix.client }}
       SERVER: couchdb-master
       COUCH_HOST: http://admin:password@127.0.0.1:5984
@@ -167,7 +167,7 @@ jobs:
           - TYPE=mapreduce npm test
     runs-on: ubuntu-latest
     env:
-      POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
+      USE_MINIFIED: 1
       CLIENT: ${{ matrix.client }}
       ADAPTERS: ${{ matrix.adapter }}
     steps:

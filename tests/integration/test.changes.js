@@ -329,17 +329,18 @@ adapters.forEach(function (adapter) {
       });
 
       changes.on('error', (err) => {
-        assert.equal(
-          err.status,
-          testUtils.errors.MISSING_DOC.status,
-          'correct error status returned'
-        );
-        assert.equal(err.name, 'not_found');
         caughtErrors.push(err);
       });
 
       await assert.isRejected(changes, 'completes with an exception');
       assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
+      const caughtError = caughtErrors[0];
+      assert.equal(
+        caughtError.status,
+        testUtils.errors.MISSING_DOC.status,
+        'correct error status returned'
+      );
+      assert.equal(caughtError.name, 'not_found');
     });
 
     it('Changes with `filters` key not present in ddoc', async function () {
@@ -361,25 +362,26 @@ adapters.forEach(function (adapter) {
 
       await testUtils.promisify(testUtils.writeDocs)(db, docs);
 
-      const caughtErrors = [];
       const changes = db.changes({
         filter: 'foo/even',
         limit: 2,
         include_docs: true
       });
 
-      changes.on('error', (err) => {
-        assert.equal(
-          err.status,
-          testUtils.errors.MISSING_DOC.status,
-          'correct error status returned'
-        );
-        assert.equal(err.name, 'not_found');
+      const caughtErrors = [];
+      changes.on('error', function (err) {
         caughtErrors.push(err);
       });
 
       await assert.isRejected(changes, 'completes with an exception');
-      assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
+      assert.equal(caughtErrors.length, 1);
+      const caughtError = caughtErrors[0];
+      assert.equal(
+        caughtError.status,
+        testUtils.errors.MISSING_DOC.status,
+        'correct error status returned'
+      );
+      assert.equal(caughtError.name, 'not_found');
     });
 
     it('Changes limit and filter', function (done) {
@@ -800,9 +802,6 @@ adapters.forEach(function (adapter) {
     // Note for the following test that CouchDB's implementation of /_changes
     // with `descending=true` ignores any `since` parameter.
     it.skip('Descending many changes', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var docs = [];
       var num = 100;
@@ -1568,9 +1567,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('supports return_docs=false', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var docs = [];
       var num = 10;
@@ -1632,9 +1628,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('handle individual changes in live replication', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var len = 80;
       var called = 0;
