@@ -52,6 +52,7 @@ const qs = {
   SERVER: process.env.SERVER,
   SKIP_MIGRATION: process.env.SKIP_MIGRATION,
   src: process.env.POUCHDB_SRC,
+  useMinified: process.env.USE_MINIFIED,
   plugins: process.env.PLUGINS,
   couchHost: process.env.COUCH_HOST,
   iterations: process.env.ITERATIONS,
