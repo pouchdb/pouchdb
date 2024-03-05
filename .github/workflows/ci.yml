@@ -22,7 +22,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -31,7 +31,7 @@ jobs:
   shellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: sudo apt-get install shellcheck
       - run: git ls-files '*.sh' | xargs shellcheck
 
@@ -57,7 +57,7 @@ jobs:
       COUCH_HOST: http://admin:password@127.0.0.1:5984
       SKIP_MIGRATION: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
@@ -91,13 +91,13 @@ jobs:
           - TYPE=mapreduce ADAPTERS=http npm test
     runs-on: ubuntu-latest
     env:
-      POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
+      USE_MINIFIED: 1
       CLIENT: ${{ matrix.client }}
       SERVER: couchdb-master
       COUCH_HOST: http://admin:password@127.0.0.1:5984
       SKIP_MIGRATION: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -134,7 +134,7 @@ jobs:
       CLIENT: node
       ADAPTERS: ${{ matrix.adapter }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
@@ -167,11 +167,11 @@ jobs:
           - TYPE=mapreduce npm test
     runs-on: ubuntu-latest
     env:
-      POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
+      USE_MINIFIED: 1
       CLIENT: ${{ matrix.client }}
       ADAPTERS: ${{ matrix.adapter }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -208,7 +208,7 @@ jobs:
       CLIENT: ${{ matrix.client }}
       SERVER: pouchdb-server
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -244,7 +244,7 @@ jobs:
           - npm run verify-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/install-deps
         with:
           node-version: ${{ matrix.node }}
