@@ -82,6 +82,10 @@ pouchdb-build-node() {
   fi
 }
 
+if [[ $CI = true ]] && [[ $CLIENT != node ]]; then
+  npx playwright install --with-deps "$CLIENT"
+fi
+
 if [[ -n $SERVER ]]; then
   if [ "$SERVER" == "pouchdb-server" ]; then
     export COUCH_HOST='http://127.0.0.1:6984'
