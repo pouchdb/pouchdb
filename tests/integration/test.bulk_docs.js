@@ -1005,9 +1005,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('4204 respect revs_limit', function () {
-      if (testUtils.isIE()) {
-        return Promise.resolve();
-      }
       var db = new PouchDB(dbs.name);
 
       // simulate 5000 normal commits with two conflicts at the very end
