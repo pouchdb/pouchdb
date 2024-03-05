@@ -32,6 +32,9 @@ if (process.env.COUCH_HOST) {
 if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }
+if (process.env.USE_MINIFIED) {
+  queryParams.useMinified = process.env.USE_MINIFIED;
+}
 
 var rebuildPromise = Promise.resolve();
 

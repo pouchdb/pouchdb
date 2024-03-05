@@ -122,6 +122,12 @@ This overrides the path used to load PouchDB in the browser. We use this in CI
 to select different builds of the PouchDB library, for example to test the
 minified version, the Webpack version, etc.
 
+#### `USE_MINIFIED`
+
+This changes the file extension used for loading PouchDB files in the browser.
+This can be used in CI and performance testing to select the minified version of
+PouchDB and its adapters, plugins, etc.
+
 #### `SERVER` (default: `pouchdb-express-router`)
 
 To support remote replication tests, we start a server in the background that
@@ -246,6 +252,7 @@ command-line options and their query string equivalents are:
 | `ITERATIONS`         | `iterations`       |
 | `PLUGINS`            | `plugins`          |
 | `POUCHDB_SRC`        | `src`              |
+| `USE_MINIFIED`       | `useMinified`      |
 | `VIEW_ADAPTERS`      | `viewAdapters`     |
 
 
