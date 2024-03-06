@@ -116,27 +116,12 @@ if [[ -n $SERVER ]]; then
   fi
 fi
 
-if [ "$SERVER" == "couchdb-master" ]; then
-  while [ '200' != "$(curl -s -o /dev/null -w '%{http_code}' ${COUCH_HOST})" ]; do
-    echo waiting for couch to load... ;
-    sleep 1;
-  done
+./bin/wait-for-couch.sh 20
 
+if [ "$SERVER" == "couchdb-master" ]; then
+  printf '\nEnabling CORS...'
   ./node_modules/.bin/add-cors-to-couchdb $COUCH_HOST
 fi
-
-printf "Waiting for host to start on %s..." "$COUCH_HOST"
-WAITING=0
-until curl --output /dev/null --silent --head --fail --max-time 2 $COUCH_HOST; do
-    if [ $WAITING -eq 4 ]; then
-        printf '\nHost failed to start\n'
-        exit 1
-    fi
-    ((WAITING=WAITING+1))
-    printf '.'
-    sleep 5
-done
-printf '\nHost started :)'
 
 if [ "$CLIENT" == "unit" ]; then
     npm run test-unit

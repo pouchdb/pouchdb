@@ -122,7 +122,8 @@ class RemoteRunner {
   async handleEnd(failed) {
     closeRequested = true;
     await this.browser.close();
-    process.exit(!process.env.PERF && failed ? 1 : 0);
+    this.completedOk = !failed;
+    process.exit(failed ? 1 : 0);
   }
 
   handleFailed() {
@@ -146,8 +147,7 @@ function BenchmarkConsoleReporter(runner) {
 
 function BenchmarkJsonReporter(runner) {
   runner.on('end', results => {
-    console.log('runner:', runner);
-    if (runner.completed) { // FIXME runner.completed was removed in dc97aedf449a94b87f074f3aa975b5412415706a
+    if (runner.completedOk) {
       const { mkdirSync, writeFileSync } = require('fs');
 
       results.srcRoot = process.env.SRC_ROOT;

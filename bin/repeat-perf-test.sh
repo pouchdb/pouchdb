@@ -64,6 +64,8 @@ log "Press <enter> to continue."
 echo
 read -r
 
+./bin/wait-for-couch.sh 20
+
 mkdir -p dist-bundles
 
 log "Building bundles..."
@@ -105,7 +107,7 @@ iterate_tests() {
 }
 
 log "Installing playwright brower..."
-npx playwright install "${CLIENT-firefox}"
+npx playwright install "${CLIENT:-firefox}"
 
 log "Starting dev server..."
 NO_REBUILD=1 node -e "
