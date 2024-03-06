@@ -89,7 +89,7 @@ function watchAll() {
 var filesWritten = false;
 
 Promise.resolve().then(function () {
-  if (process.env.NO_REBUILD) {
+  if (process.env.CI || process.env.NO_REBUILD) {
     return;
   }
   return Promise.all([
