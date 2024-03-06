@@ -104,8 +104,8 @@ iterate_tests() {
   done
 }
 
-log "Installing playwright..."
-npx playwright install --with-deps "${CLIENT-firefox}"
+log "Installing playwright brower..."
+npx playwright install "${CLIENT-firefox}"
 
 log "Starting dev server..."
 NO_REBUILD=1 node -e "
