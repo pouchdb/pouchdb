@@ -85,6 +85,7 @@ function watchAll() {
 var filesWritten = false;
 
 Promise.resolve().then(function () {
+  process.exit(66);
   if (process.env.CI) {
     return; // don't bother rebuilding in CI; we already built
   }
