@@ -37,7 +37,7 @@ if [[ "$#" -lt 1 ]]; then
       Repeatedly run the performance test suite against one or more versions of the codebase.
 
     USAGE
-      $scriptName ...tree-ish
+      [PERF_REPEATS=<N>] $0 ...tree-ish
 
 EOF
   exit 1
