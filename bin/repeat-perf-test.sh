@@ -93,14 +93,12 @@ npm run build-test
 iterate_tests() {
   for commit in "${commits[@]}"; do
     log "Running perf tests on $commit..."
-    set -x
     SRC_ROOT="../../dist-bundles/$commit" \
     JSON_REPORTER=1 \
     PERF=1 \
     USE_MINIFIED=1 \
     MANUAL_DEV_SERVER=1 \
     node ./bin/test-browser.js
-    set +x
 
     sleep 1
   done
