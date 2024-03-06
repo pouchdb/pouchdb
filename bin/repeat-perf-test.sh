@@ -97,7 +97,6 @@ iterate_tests() {
     PERF=1 \
     USE_MINIFIED=1 \
     MANUAL_DEV_SERVER=1 \
-    NO_REBUILD_POUCHDB=1 \
     node ./bin/test-browser.js
     set +x
 
@@ -106,7 +105,7 @@ iterate_tests() {
 }
 
 log "Starting dev server..."
-NO_REBUILD_POUCHDB=1 node -e "
+NO_REBUILD=1 node -e "
 const { start } = require('./bin/dev-server.js');
 start(() => {
   console.log('[$scriptName] Dev server ready.');

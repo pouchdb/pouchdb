@@ -39,12 +39,10 @@ if (process.env.USE_MINIFIED) {
 var rebuildPromise = Promise.resolve();
 
 function rebuildPouch() {
-  if (!process.env.NO_REBUILD_POUCHDB) {
-    const buildPouchDB = require('./build-pouchdb');
-    rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
-      console.log('Rebuilt packages/node_modules/pouchdb');
-    }).catch(console.error);
-  }
+  const buildPouchDB = require('./build-pouchdb');
+  rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
+    console.log('Rebuilt packages/node_modules/pouchdb');
+  }).catch(console.error);
   return rebuildPromise;
 }
 
@@ -91,8 +89,8 @@ function watchAll() {
 var filesWritten = false;
 
 Promise.resolve().then(function () {
-  if (process.env.TRAVIS) {
-    return; // don't bother rebuilding in Travis; we already built
+  if (process.env.NO_REBUILD) {
+    return;
   }
   return Promise.all([
     rebuildPouch(),
