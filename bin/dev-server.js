@@ -85,9 +85,7 @@ function watchAll() {
 var filesWritten = false;
 
 Promise.resolve().then(function () {
-  if (process.env.CI) {
-    return; // don't bother rebuilding in CI; we already built
-  }
+  process.exit(69);
   return Promise.all([
     rebuildPouch(),
     rebuildTestUtils(),
