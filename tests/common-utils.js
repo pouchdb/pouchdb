@@ -83,6 +83,10 @@ commonUtils.loadPouchDB = function (opts) {
 
 commonUtils.loadPouchDBForNode = function (plugins) {
   var params = commonUtils.params();
+  if (params.src || params.useMinified) {
+    throw new Error('POUCHDB_SRC & USE_MINIFIED options cannot be used for node tests.');
+  }
+
   var scriptPath = '../packages/node_modules';
 
   var pouchdbSrc = params.COVERAGE
@@ -99,20 +103,31 @@ commonUtils.loadPouchDBForNode = function (plugins) {
   return PouchDB;
 };
 
-commonUtils.pouchdbSrc = function () {
-  const scriptPath = '../../packages/node_modules/pouchdb/dist';
+const srcExtension = () => {
   const params = commonUtils.params();
-  return params.src || `${scriptPath}/pouchdb.js`;
+  return params.useMinified ? 'min.js' : 'js';
+};
+
+const srcRoot = () => {
+  const params = commonUtils.params();
+  return params.srcRoot || '../../packages/node_modules/pouchdb/dist';
+};
+
+commonUtils.pouchdbSrc = function () {
+  const params = commonUtils.params();
+  if (params.src && params.srcRoot) {
+    throw new Error('Cannot use POUCHDB_SRC and SRC_ROOT options together.');
+  }
+  if (params.src && params.useMinified) {
+    throw new Error('Cannot use POUCHDB_SRC and USE_MINIFIED options together.');
+  }
+  return params.src || `${srcRoot()}/pouchdb.${srcExtension()}`;
 };
 
 commonUtils.loadPouchDBForBrowser = function (plugins) {
-  var params = commonUtils.params();
-  const scriptPath = params.srcRoot || '../../packages/node_modules/pouchdb/dist';
-  const ext = params.useMinified ? 'min.js' : 'js';
-
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
-    return `${scriptPath}/pouchdb.${plugin}.${ext}`;
+    return `${srcRoot()}/pouchdb.${plugin}.${srcExtension()}`;
   });
 
   var scripts = [commonUtils.pouchdbSrc()].concat(plugins);

@@ -116,22 +116,24 @@ environment. For example:
 
     $ PLUGINS=pouchdb-find npm test
 
+#### `POUCHDB_SRC`
+
+This overrides the path used to load PouchDB in the browser. We use this in CI
+to select different builds of the PouchDB library, for example to test the
+Webpack version, etc.
+
+This is an alternative to `SRC_ROOT` and `USE_MINIFIED`.
+
 #### `SRC_ROOT`
 
 This overrides the path used to load all PouchDB files in the browser. We use
 this in performance tests to allow easily comparing two different versions of
 PouchDB, including plugin and adapter implementations.
 
-#### `POUCHDB_SRC`
-
-This overrides the path used to load PouchDB in the browser. We use this in CI
-to select different builds of the PouchDB library, for example to test the
-minified version, the Webpack version, etc.
-
 #### `USE_MINIFIED`
 
 This changes the file extension used for loading PouchDB files in the browser.
-We use this in CI and performance testing to select the minified version of
+This can be used in CI and performance testing to select the minified version of
 PouchDB and its adapters, plugins, etc.
 
 #### `SERVER` (default: `pouchdb-express-router`)
