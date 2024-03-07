@@ -72,6 +72,7 @@ class ArrayMap extends Map {
 
 class RemoteRunner {
   constructor(browser) {
+    this.failed = false;
     this.browser = browser;
     this.handlers = new ArrayMap();
     this.onceHandlers = new ArrayMap();
@@ -120,20 +121,21 @@ class RemoteRunner {
     }
   }
 
-  async handleEnd(failed) {
+  async handleEnd() {
     closeRequested = true;
     await this.browser.close();
-    process.exit(!process.env.PERF && failed ? 1 : 0);
+    process.exit(this.failed ? 1 : 0);
   }
 
   handleFailed() {
+    this.failed = true;
     if (bail) {
       try {
         this.triggerHandlers('end');
       } catch (e) {
         console.log('An error occurred while bailing:', e);
       } finally {
-        this.handleEnd(true);
+        this.handleEnd();
       }
     }
   }
@@ -147,7 +149,9 @@ function BenchmarkConsoleReporter(runner) {
 
 function BenchmarkJsonReporter(runner) {
   runner.on('end', results => {
-    if (runner.completed) {
+    if (runner.failed) {
+      console.log('Runner failed; JSON will not be writted.');
+    } else {
       const { mkdirSync, writeFileSync } = require('fs');
 
       const resultsDir = 'perf-test-results';
@@ -156,8 +160,6 @@ function BenchmarkJsonReporter(runner) {
       const jsonPath = `${resultsDir}/${new Date().toISOString()}.json`;
       writeFileSync(jsonPath, JSON.stringify(results, null, 2));
       console.log('Wrote JSON results to:', jsonPath);
-    } else {
-      console.log('Runner failed; JSON will not be writted.');
     }
   });
 }
