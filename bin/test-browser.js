@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
+const fs = require('node:fs');
 const playwright = require('playwright');
-
 const { identity, pickBy } = require('lodash');
+const { SourceMapConsumer } = require('source-map');
+const stacktraceParser = require('stacktrace-parser');
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
 const createMochaStatsCollector = require('mocha/lib/stats-collector');
@@ -112,7 +114,7 @@ class RemoteRunner {
 
       if (event.err && stackConsumer) {
         let stackMapped;
-        const mappedStack = require('stacktrace-parser')
+        const mappedStack = stacktraceParser
           .parse(event.err.stack)
           .map(v => {
             if (v.file === 'http://127.0.0.1:8000/packages/node_modules/pouchdb/dist/pouchdb.min.js') {
@@ -183,13 +185,11 @@ function BenchmarkJsonReporter(runner) {
     if (runner.failed) {
       console.log('Runner failed; JSON will not be writted.');
     } else {
-      const { mkdirSync, writeFileSync } = require('fs');
-
       const resultsDir = 'perf-test-results';
-      mkdirSync(resultsDir, { recursive: true });
+      fs.mkdirSync(resultsDir, { recursive: true });
 
       const jsonPath = `${resultsDir}/${new Date().toISOString()}.json`;
-      writeFileSync(jsonPath, JSON.stringify(results, null, 2));
+      fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2));
       console.log('Wrote JSON results to:', jsonPath);
     }
   });
@@ -198,10 +198,8 @@ function BenchmarkJsonReporter(runner) {
 async function startTest() {
   if (qs.src === '../../packages/node_modules/pouchdb/dist/pouchdb.min.js') {
     const mapPath = './packages/node_modules/pouchdb/dist/pouchdb.min.js.map';
-    const { readFileSync } = require('fs');
-    const rawMap = readFileSync(mapPath, { encoding:'utf8' });
+    const rawMap = fs.readFileSync(mapPath, { encoding:'utf8' });
     const jsonMap = JSON.parse(rawMap);
-    const { SourceMapConsumer } = require('source-map');
     stackConsumer = await new SourceMapConsumer(jsonMap);
   }
 
