@@ -83,6 +83,10 @@ commonUtils.loadPouchDB = function (opts) {
 
 commonUtils.loadPouchDBForNode = function (plugins) {
   var params = commonUtils.params();
+  if (params.src || params.useMinified) {
+    throw new Error('POUCHDB_SRC & USE_MINIFIED options cannot be used for node tests.');
+  }
+
   var scriptPath = '../packages/node_modules';
 
   var pouchdbSrc = params.COVERAGE
@@ -99,10 +103,18 @@ commonUtils.loadPouchDBForNode = function (plugins) {
   return PouchDB;
 };
 
+const srcExtension = () => {
+  const params = commonUtils.params();
+  return params.useMinified ? 'min.js' : 'js';
+};
+
 commonUtils.pouchdbSrc = function () {
   const scriptPath = '../../packages/node_modules/pouchdb/dist';
   const params = commonUtils.params();
-  return params.src || `${scriptPath}/pouchdb.js`;
+  if (params.src && params.useMinified) {
+    throw new Error('Cannot use POUCHDB_SRC and USE_MINIFIED options together.');
+  }
+  return params.src || `${scriptPath}/pouchdb.${srcExtension()}`;
 };
 
 commonUtils.loadPouchDBForBrowser = function (plugins) {
@@ -110,7 +122,7 @@ commonUtils.loadPouchDBForBrowser = function (plugins) {
 
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
-    return `${scriptPath}/pouchdb.${plugin}.js`;
+    return `${scriptPath}/pouchdb.${plugin}.${srcExtension()}`;
   });
 
   var scripts = [commonUtils.pouchdbSrc()].concat(plugins);

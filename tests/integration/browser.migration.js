@@ -80,6 +80,19 @@ describe('migration', function () {
 
       var dbs = {};
 
+      before(function () {
+        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
+          return this.skip();
+        }
+
+        // TODO Currently, previous versions of indexeddb adapter do not work on
+        // webkit. They should be supported soon, so a different !versionGte()
+        // call can be added here when appropriate.
+        if (testUtils.isSafari() && usingIndexeddb()) {
+          return this.skip();
+        }
+      });
+
       beforeEach(function (done) {
         if (skip) {
           return this.skip();
@@ -120,12 +133,6 @@ describe('migration', function () {
 
       afterEach(function (done) {
         testUtils.cleanup([dbs.first.local, dbs.second.local], done);
-      });
-
-      before(function () {
-        if (usingIndexeddb() && !versionGte(scenario, '7.2.1')) {
-          return this.skip();
-        }
       });
 
       var origDocs = [

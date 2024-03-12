@@ -350,9 +350,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Remove doc twice with specified id', function () {
-      if (testUtils.isIE()) {
-        return Promise.resolve();
-      }
       var db = new PouchDB(dbs.name);
       return db.put({_id: 'specifiedId', test: 'somestuff'}).then(function () {
         return db.get('specifiedId');

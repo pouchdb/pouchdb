@@ -20,15 +20,6 @@ testUtils.isChrome = function () {
       /Google Inc/.test(window.navigator.vendor);
 };
 
-testUtils.isIE = function () {
-  var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
-      navigator.userAgent.toLowerCase() : '';
-  var isIE = ua.indexOf('msie') !== -1;
-  var isTrident = ua.indexOf('trident') !== -1;
-  var isEdge = ua.indexOf('edge') !== -1;
-  return (isIE || isTrident || isEdge);
-};
-
 testUtils.isSafari = function () {
   return (typeof process === 'undefined' || process.browser) &&
       /Safari/.test(window.navigator.userAgent) &&
@@ -81,7 +72,7 @@ testUtils.base64Blob = function (blob, callback) {
 testUtils.adapterUrl = function (adapter, name) {
 
   // CouchDB master has problems with cycling databases rapidly
-  // so give tests seperate names
+  // so give tests separate names
   name += '_' + Date.now();
 
   if (adapter === 'http') {

@@ -3101,7 +3101,7 @@ adapters.forEach(function (adapter) {
     });
 
 
-    if (!testUtils.isSafari() && !testUtils.isIE()) {
+    if (!testUtils.isSafari()) {
       // skip in safari/ios because of size limit popup
       it('putAttachment and getAttachment with big png data', function (done) {
 
