@@ -86,8 +86,7 @@ var filesWritten = false;
 
 Promise.resolve().then(function () {
   if (process.env.CI) {
-    process.exit(66);
-//    return; // don't bother rebuilding in CI; we already built
+    return; // don't bother rebuilding in CI; we already built
   }
   return Promise.all([
     rebuildPouch(),
