@@ -1,8 +1,5 @@
 name: PouchDB Docs
 
-env:
-  NODE_VERSION: 14
-
 on:
   push:
     paths:
@@ -25,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
       - uses: ./.github/actions/install-node-package
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: 14
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7
