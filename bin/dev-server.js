@@ -2,7 +2,9 @@
 
 'use strict';
 
+var watch = require('watch-glob');
 var http_server = require('http-server');
+var debounce = require('lodash.debounce');
 var browserify = require('browserify');
 var fs = require('fs');
 
@@ -75,9 +77,6 @@ function rebuildPerf() {
 }
 
 function watchAll() {
-  const watch = require('watch-glob');
-  const debounce = require('lodash.debounce');
-
   watch(['packages/node_modules/*/src/**/*.js'],
     debounce(rebuildPouch, 700, {leading: true}));
   watch(['tests/integration/utils.js'],
