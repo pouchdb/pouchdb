@@ -90,7 +90,7 @@ var filesWritten = false;
 
 Promise.resolve().then(function () {
   if (process.env.CI || process.env.NO_REBUILD) {
-    return;
+    return; // don't bother rebuilding in CI; we already built
   }
   return Promise.all([
     rebuildPouch(),
