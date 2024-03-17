@@ -85,8 +85,8 @@ function watchAll() {
 var filesWritten = false;
 
 Promise.resolve().then(function () {
-  if (process.env.TRAVIS) {
-    return; // don't bother rebuilding in Travis; we already built
+  if (process.env.CI) {
+    return; // don't bother rebuilding in CI; we already built
   }
   return Promise.all([
     rebuildPouch(),
