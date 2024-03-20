@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
+const fs = require('node:fs');
 const playwright = require('playwright');
-
 const { identity, pickBy } = require('lodash');
+const { SourceMapConsumer } = require('source-map');
+const stacktraceParser = require('stacktrace-parser');
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
 const createMochaStatsCollector = require('mocha/lib/stats-collector');
@@ -61,6 +63,8 @@ const qs = {
 testUrl += '?';
 testUrl += new URLSearchParams(pickBy(qs, identity));
 
+let stackConsumer;
+
 class ArrayMap extends Map {
   get(key) {
     if (!this.has(key)) {
@@ -72,6 +76,7 @@ class ArrayMap extends Map {
 
 class RemoteRunner {
   constructor(browser) {
+    this.failed = false;
     this.browser = browser;
     this.handlers = new ArrayMap();
     this.onceHandlers = new ArrayMap();
@@ -107,6 +112,35 @@ class RemoteRunner {
 
       this.triggerHandlers(event.name, [ obj, event.err ]);
 
+      if (event.err && stackConsumer) {
+        let stackMapped;
+        const mappedStack = stacktraceParser
+          .parse(event.err.stack)
+          .map(v => {
+            if (v.file === 'http://127.0.0.1:8000/packages/node_modules/pouchdb/dist/pouchdb.min.js') {
+              const NON_UGLIFIED_HEADER_LENGTH = 6; // number of lines of header added in build-pouchdb.js
+              const target = { line:v.lineNumber-NON_UGLIFIED_HEADER_LENGTH, column:v.column-1 };
+              const mapped = stackConsumer.originalPositionFor(target);
+              v.file = 'packages/node_modules/pouchdb/dist/pouchdb.js';
+              v.lineNumber = mapped.line;
+              v.column = mapped.column+1;
+              if (mapped.name !== null) {
+                v.methodName = mapped.name;
+              }
+              stackMapped = true;
+            }
+            return v;
+          })
+          // NodeJS stack frame format: https://nodejs.org/docs/latest/api/errors.html#errorstack
+          .map(v => `at ${v.methodName} (${v.file}:${v.lineNumber}:${v.column})`)
+          .join('\n          ');
+        if (stackMapped) {
+          console.log(`      [${obj.title}] Minified error stacktrace mapped to:`);
+          console.log(`        ${event.err.name||'Error'}: ${event.err.message}`);
+          console.log(`          ${mappedStack}`);
+        }
+      }
+
       switch (event.name) {
         case 'fail': this.handleFailed(); break;
         case 'end': this.handleEnd(); break;
@@ -120,20 +154,21 @@ class RemoteRunner {
     }
   }
 
-  async handleEnd(failed) {
+  async handleEnd() {
     closeRequested = true;
     await this.browser.close();
-    process.exit(!process.env.PERF && failed ? 1 : 0);
+    process.exit(this.failed ? 1 : 0);
   }
 
   handleFailed() {
+    this.failed = true;
     if (bail) {
       try {
         this.triggerHandlers('end');
       } catch (e) {
         console.log('An error occurred while bailing:', e);
       } finally {
-        this.handleEnd(true);
+        this.handleEnd();
       }
     }
   }
@@ -147,22 +182,27 @@ function BenchmarkConsoleReporter(runner) {
 
 function BenchmarkJsonReporter(runner) {
   runner.on('end', results => {
-    if (runner.completed) {
-      const { mkdirSync, writeFileSync } = require('fs');
-
+    if (runner.failed) {
+      console.log('Runner failed; JSON will not be writted.');
+    } else {
       const resultsDir = 'perf-test-results';
-      mkdirSync(resultsDir, { recursive: true });
+      fs.mkdirSync(resultsDir, { recursive: true });
 
       const jsonPath = `${resultsDir}/${new Date().toISOString()}.json`;
-      writeFileSync(jsonPath, JSON.stringify(results, null, 2));
+      fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2));
       console.log('Wrote JSON results to:', jsonPath);
-    } else {
-      console.log('Runner failed; JSON will not be writted.');
     }
   });
 }
 
 async function startTest() {
+  if (qs.src === '../../packages/node_modules/pouchdb/dist/pouchdb.min.js') {
+    const mapPath = './packages/node_modules/pouchdb/dist/pouchdb.min.js.map';
+    const rawMap = fs.readFileSync(mapPath, { encoding:'utf8' });
+    const jsonMap = JSON.parse(rawMap);
+    stackConsumer = await new SourceMapConsumer(jsonMap);
+  }
+
   try {
     console.log('Starting', browserName, 'on', testUrl);
 
