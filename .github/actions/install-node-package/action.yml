@@ -1,8 +1,10 @@
 name: Install dependencies
+description: Install npm dependencies from package.json
 
 inputs:
-  node-version: { required: true }
-  couchdb-version: { required: false, default: '3.1' }
+  node-version:
+    description: Specify the Node.js version to install
+    required: true
 
 runs:
   using: composite
@@ -20,11 +22,4 @@ runs:
           ${{ runner.os }}-node-
 
     - run: npm install
-      shell: bash
-
-    - uses: iamssen/couchdb-github-action@master
-      with:
-        couchdb-version: ${{ inputs.couchdb-version }}
-
-    - run: sudo npx playwright install-deps
       shell: bash

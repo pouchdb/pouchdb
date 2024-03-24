@@ -1,0 +1,8 @@
+name: Build PouchDB
+description: Runs `npm run build`
+
+runs:
+  using: composite
+  steps:
+    - run: npm run build
+      shell: bash

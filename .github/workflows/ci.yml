@@ -19,14 +19,18 @@ env:
 
 jobs:
 
+  # Check style compliance of JavaScript code.
+
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
       - run: npm run eslint
+
+  # Check shell scripts.
 
   shellcheck:
     runs-on: ubuntu-latest
@@ -58,10 +62,13 @@ jobs:
       SKIP_MIGRATION: 1
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
+      - uses: ./.github/actions/install-couchdb
+        with:
           couchdb-version: ${{ matrix.couchdb }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -98,10 +105,14 @@ jobs:
       SKIP_MIGRATION: 1
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - uses: ./.github/actions/install-playwright
+      - uses: ./.github/actions/install-couchdb
+        with:
           couchdb-version: ${{ matrix.couchdb }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -135,9 +146,10 @@ jobs:
       ADAPTERS: ${{ matrix.adapter }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -172,9 +184,11 @@ jobs:
       ADAPTERS: ${{ matrix.adapter }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - uses: ./.github/actions/install-playwright
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -209,9 +223,12 @@ jobs:
       SERVER: pouchdb-server
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - if: ${{ matrix.client != 'node' }}
+        uses: ./.github/actions/install-playwright
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -245,9 +262,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/install-deps
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
