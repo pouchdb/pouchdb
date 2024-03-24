@@ -5,7 +5,6 @@
 var watch = require('watch-glob');
 var http_server = require('http-server');
 var debounce = require('lodash.debounce');
-var buildPouchDB = require('./build-pouchdb');
 var browserify = require('browserify');
 var fs = require('fs');
 
@@ -32,6 +31,9 @@ if (process.env.COUCH_HOST) {
 if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }
+if (process.env.SRC_ROOT) {
+  queryParams.srcRoot = process.env.SRC_ROOT;
+}
 if (process.env.USE_MINIFIED) {
   queryParams.useMinified = process.env.USE_MINIFIED;
 }
@@ -39,6 +41,7 @@ if (process.env.USE_MINIFIED) {
 var rebuildPromise = Promise.resolve();
 
 function rebuildPouch() {
+  const buildPouchDB = require('./build-pouchdb');
   rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
     console.log('Rebuilt packages/node_modules/pouchdb');
   }).catch(console.error);
