@@ -10,8 +10,6 @@ const stacktraceParser = require('stacktrace-parser');
 var MochaSpecReporter = require('mocha').reporters.Spec;
 const createMochaStatsCollector = require('mocha/lib/stats-collector');
 
-var devserver = require('./dev-server.js');
-
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
 
@@ -53,6 +51,7 @@ const qs = {
   autoCompaction: process.AUTO_COMPACTION,
   SERVER: process.env.SERVER,
   SKIP_MIGRATION: process.env.SKIP_MIGRATION,
+  srcRoot: process.env.SRC_ROOT,
   src: process.env.POUCHDB_SRC,
   useMinified: process.env.USE_MINIFIED,
   plugins: process.env.PLUGINS,
@@ -185,6 +184,8 @@ function BenchmarkJsonReporter(runner) {
     if (runner.failed) {
       console.log('Runner failed; JSON will not be writted.');
     } else {
+      results.srcRoot = process.env.SRC_ROOT;
+
       const resultsDir = 'perf-test-results';
       fs.mkdirSync(resultsDir, { recursive: true });
 
@@ -276,6 +277,10 @@ async function startTest() {
   }
 }
 
-devserver.start(function () {
+if (process.env.MANUAL_DEV_SERVER) {
   startTest();
-});
+} else {
+  // dev-server.js rebuilds bundles when required
+  const devserver = require('./dev-server.js');
+  devserver.start(startTest);
+}
