@@ -120,7 +120,15 @@ environment. For example:
 
 This overrides the path used to load PouchDB in the browser. We use this in CI
 to select different builds of the PouchDB library, for example to test the
-minified version, the Webpack version, etc.
+Webpack version, etc.
+
+This is an alternative to `SRC_ROOT` and `USE_MINIFIED`.
+
+#### `SRC_ROOT`
+
+This overrides the path used to load all PouchDB files in the browser. We use
+this in performance tests to allow easily comparing two different versions of
+PouchDB, including plugin and adapter implementations.
 
 #### `USE_MINIFIED`
 
@@ -251,6 +259,7 @@ command-line options and their query string equivalents are:
 | `GREP`               | `grep`             |
 | `ITERATIONS`         | `iterations`       |
 | `PLUGINS`            | `plugins`          |
+| `SRC_ROOT`           | `srcRoot`          |
 | `POUCHDB_SRC`        | `src`              |
 | `USE_MINIFIED`       | `useMinified`      |
 | `VIEW_ADAPTERS`      | `viewAdapters`     |

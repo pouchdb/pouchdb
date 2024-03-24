@@ -108,21 +108,26 @@ const srcExtension = () => {
   return params.useMinified ? 'min.js' : 'js';
 };
 
-commonUtils.pouchdbSrc = function () {
-  const scriptPath = '../../packages/node_modules/pouchdb/dist';
+const srcRoot = () => {
   const params = commonUtils.params();
+  return params.srcRoot || '../../packages/node_modules/pouchdb/dist';
+};
+
+commonUtils.pouchdbSrc = function () {
+  const params = commonUtils.params();
+  if (params.src && params.srcRoot) {
+    throw new Error('Cannot use POUCHDB_SRC and SRC_ROOT options together.');
+  }
   if (params.src && params.useMinified) {
     throw new Error('Cannot use POUCHDB_SRC and USE_MINIFIED options together.');
   }
-  return params.src || `${scriptPath}/pouchdb.${srcExtension()}`;
+  return params.src || `${srcRoot()}/pouchdb.${srcExtension()}`;
 };
 
 commonUtils.loadPouchDBForBrowser = function (plugins) {
-  var scriptPath = '../../packages/node_modules/pouchdb/dist';
-
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
-    return `${scriptPath}/pouchdb.${plugin}.${srcExtension()}`;
+    return `${srcRoot()}/pouchdb.${plugin}.${srcExtension()}`;
   });
 
   var scripts = [commonUtils.pouchdbSrc()].concat(plugins);
