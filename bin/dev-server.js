@@ -32,6 +32,9 @@ if (process.env.COUCH_HOST) {
 if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }
+if (process.env.USE_MINIFIED) {
+  queryParams.useMinified = process.env.USE_MINIFIED;
+}
 
 var rebuildPromise = Promise.resolve();
 
@@ -82,8 +85,8 @@ function watchAll() {
 var filesWritten = false;
 
 Promise.resolve().then(function () {
-  if (process.env.TRAVIS) {
-    return; // don't bother rebuilding in Travis; we already built
+  if (process.env.CI) {
+    return; // don't bother rebuilding in CI; we already built
   }
   return Promise.all([
     rebuildPouch(),

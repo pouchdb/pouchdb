@@ -173,9 +173,6 @@ adapters.forEach(function (adapter) {
     ];
 
     it('Compact more complicated tree', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, exampleTree, function () {
         db.compact(function () {
@@ -187,9 +184,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Compact two times more complicated tree', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, exampleTree, function () {
         db.compact(function () {
@@ -203,9 +197,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Compact database with at least two documents', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       testUtils.putTree(db, exampleTree, function () {
         testUtils.putTree(db, exampleTree2, function () {
@@ -505,6 +496,23 @@ adapters.forEach(function (adapter) {
       return queue.then(function () {
         return compactQueue;
       });
+    });
+
+    it('#8525 - Only compact document with seq > last_seq', async function () {
+      if (dbs.name.slice(0,4) === 'http') {  // Check for remote target
+        // Remote compaction cannot be avoided, skip the test:
+        return this.skip();
+      }
+
+      const db = new PouchDB(dbs.name, {auto_compaction: false});
+      const rev = (await db.put({_id: 'foo'})).rev;
+      await db.put({_id: 'foo', _rev: rev});
+      // Hack compaction last_seq to make like a previous compaction already
+      // happened.
+      await db.put({_id: '_local/compaction', last_seq: 2});
+      await db.compact();
+      // If the document is compacted the following crashes:
+      await db.get('foo', {rev});
     });
 
     //
