@@ -20,7 +20,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: ./.github/actions/install-deps
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
+        with:
+          node-version: 14
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7
