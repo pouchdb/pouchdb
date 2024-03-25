@@ -15,7 +15,7 @@ To get started using PouchDB, check out the [web site](https://pouchdb.com) and 
 Getting Help
 ------------
 
-The PouchDB community is active [on Libera IRC](ircs://irc.libera.chat:6697) [(web)](https://web.libera.chat/#pouchdb), in [the Google Groups mailing list](https://groups.google.com/forum/#!forum/pouchdb), and [on StackOverflow](http://stackoverflow.com/questions/tagged/pouchdb). Or you can [tweet @pouchdb](http://twitter.com/pouchdb)!
+The PouchDB community is active [in `#pouchdb` on the CouchDB Slack](https://join.slack.com/t/couchdb/shared_invite/zt-fa9zim0j-H04m4o_KcLdWeOxEAcwM8g), in [the Google Groups mailing list](https://groups.google.com/forum/#!forum/pouchdb), and [on StackOverflow](http://stackoverflow.com/questions/tagged/pouchdb). Or you can [mastodon @pouchdb](https://fosstodon.org/@pouchdb)!
 
 If you think you've found a bug in PouchDB, please write a reproducible test case and file [a Github issue](https://github.com/pouchdb/pouchdb/issues). You can start with a [template we have built on glitch](https://glitch.com/~pouchdb-bug-helper).
 
