@@ -527,7 +527,15 @@ adapters.forEach(function (adapter) {
       }).then(function (res) {
         res.rows.should.have.length(200,  'correctly return rows');
         res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey:'00599', endkey:'00400', descending:true, inclusive_end:false });
+      }).then(function (res) {
+        res.rows.should.have.length(199,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
         return db.allDocs({startkey : '00300', endkey : '00799', descending : false});
+      }).then(function (res) {
+        res.rows.should.have.length(300,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey:'00300', endkey:'00799', descending:false, inclusive_end:false });
       }).then(function (res) {
         res.rows.should.have.length(300,  'correctly return rows');
         res.total_rows.should.equal(800,  'correctly return total_rows');
