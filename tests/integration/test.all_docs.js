@@ -464,16 +464,18 @@ adapters.forEach(function (adapter) {
       var db = new PouchDB(dbs.name);
 
       const docs = [];
-      for (let i=0; i<1000; ++i) docs.push({ _id:i.toString().padStart(5, '0') });
+      for (let i=0; i<1000; ++i) {
+        docs.push({ _id:i.toString().padStart(5, '0') });
+      }
 
       db.bulkDocs({docs}).then(function (res) {
         const deletes = [];
-        for(let i=300; i<400; ++i) {
+        for (let i=300; i<400; ++i) {
           docs[i]._deleted = true;
           docs[i]._rev = res[i].rev;
           deletes.push(db.remove(docs[i]));
         }
-        for(let i=700; i<800; ++i) {
+        for (let i=700; i<800; ++i) {
           docs[i]._deleted = true;
           docs[i]._rev = res[i].rev;
           deletes.push(db.remove(docs[i]));
