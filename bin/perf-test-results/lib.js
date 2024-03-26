@@ -31,7 +31,7 @@ const SUITE_FOR = {
 module.exports = {
   loadResultFile,
   printComparisonReport,
-  SUITE_FOR,
+  SUITE_FOR, // TODO instead of exporting here, do remapping inside printComparisonReport()
 };
 
 const fs = require('node:fs');
