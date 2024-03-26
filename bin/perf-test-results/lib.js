@@ -69,7 +69,7 @@ function reportTableDivider(results) {
 }
 
 function forHumans(n) {
-  return n ? n.toFixed(2) : null;
+  return n != null ? n.toFixed(2) : null;
 }
 
 function printComparisonReport({ useStat }, ...results) {
