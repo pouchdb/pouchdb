@@ -23,7 +23,7 @@ rawResults.forEach(({ adapter, client, results }) => {
     if (!gitFilter.includes(adapter.split(':')[1])) return;
   }
   if (clientFilter) {
-    if(client.toLowerCase() !== clientFilter.toLowerCase()) return;
+    if (client.toLowerCase() !== clientFilter.toLowerCase()) return;
   }
 
   if (!adapters.includes(adapter)) {
