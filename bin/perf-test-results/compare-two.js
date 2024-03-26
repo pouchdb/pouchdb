@@ -14,7 +14,6 @@ function remap({ adapter, results }) {
     const suiteName = SUITE_FOR[name];
     if (!suiteResults[suiteName]) suiteResults[suiteName] = {};
     suiteResults[suiteName][name] = { median, numIterations };
-    console.log(suiteName, name, median, numIterations);
   }
   return {
     adapter,
