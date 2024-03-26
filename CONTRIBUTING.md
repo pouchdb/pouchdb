@@ -164,7 +164,7 @@ Release Procedure
  * Copy the `dist/pouchdb*` files from the $VERSION tag on github, paste the release notes and add the distribution files to Github Releases, rename `pouchdb.min.js` to `pouchdb-$VERSION.min.js` (same with `pouchdb.js`) after you upload it.
  * Update docs/_config.yml to the current version
  * Push updated versions to master
- * `npm run publish-site`
+ * in https://github.com/pouchdb/pouchdb/actions, trigger the "Github Pages Deploy" workflow
 
 To do a dry run release, you can run:
 
