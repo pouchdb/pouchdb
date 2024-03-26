@@ -26,6 +26,8 @@ const SUITE_FOR = {
   'complex-find-query-no-index':      'find',
   'multi-field-query':                'find',
   'basic-attachments':                'attachments',
+  'many-attachments-base64':          'attachments',
+  'many-attachments-binary':          'attachments',
 };
 
 module.exports = {
@@ -38,10 +40,14 @@ const fs = require('node:fs');
 
 function loadResultFile(file) {
   console.error(`[compare-perf-results.lib]`, 'Loading file:', file, '...');
-  const { adapter, srcRoot, tests:results } = JSON.parse(fs.readFileSync(file, { encoding:'utf8' }));
+  const { adapter, client, srcRoot, tests:results } = JSON.parse(fs.readFileSync(file, { encoding:'utf8' }));
+
   const gitMatch = srcRoot.match(/^\.\.\/\.\.\/dist-bundles\/([0-9a-f]{40})$/);
   const description = (gitMatch && gitMatch[1].substr(0,7)) || srcRoot;
-  return { adapter:`${adapter}:${description}`, results };
+
+  const browserName = client.browser.name;
+
+  return { adapter:`${adapter}:${description}`, client:browserName, results };
 }
 
 function report(...args) { console.log('   ', ...args); }

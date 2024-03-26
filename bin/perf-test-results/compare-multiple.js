@@ -11,15 +11,19 @@ const adapters = [];
 const testSuites = {};
 const resultsByAdapter = {};
 
+const clientFilter  = process.env.CLIENT;
 const adapterFilter = process.env.ADAPTERS && process.env.ADAPTERS.split(',');
 const gitFilter     = process.env.COMMITS  && process.env.COMMITS.split(',').map(commit => commit.substring(0, 7));
 
-rawResults.forEach(({ adapter, results }) => {
+rawResults.forEach(({ adapter, client, results }) => {
   if (adapterFilter) {
     if (!adapterFilter.includes(adapter.split(':')[0])) return;
   }
   if (gitFilter) {
     if (!gitFilter.includes(adapter.split(':')[1])) return;
+  }
+  if (clientFilter) {
+    if(client.toLowerCase() !== clientFilter.toLowerCase()) return;
   }
 
   if (!adapters.includes(adapter)) {
