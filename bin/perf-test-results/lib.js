@@ -1,3 +1,5 @@
+/* eslint-disable curly */
+
 // Current JSON reporter does not save suite names.  These are hardcoded from
 // the test files.
 const SUITE_FOR = {
@@ -33,42 +35,41 @@ module.exports = {
 };
 
 const fs = require('node:fs');
-const { basename } = require('node:path');
 
 function loadResultFile(file) {
   console.error(`[compare-perf-results.lib]`, 'Loading file:', file, '...');
   const { adapter, srcRoot, tests:results } = JSON.parse(fs.readFileSync(file, { encoding:'utf8' }));
   const gitMatch = srcRoot.match(/^\.\.\/\.\.\/dist-bundles\/([0-9a-f]{40})$/);
-  const description = gitMatch?.[1]?.substr(0,7) || srcRoot;
+  const description = (gitMatch && gitMatch[1].substr(0,7)) || srcRoot;
   return { adapter:`${adapter}:${description}`, results };
 }
 
-function report (...args) { console.log('   ', ...args); }
+function report(...args) { console.log('   ', ...args); }
 
 const colFormat = idx => {
-  switch(idx) {
+  switch (idx) {
     case 0:  return { width:11, pad:'padEnd' };
     case 1:  return { width:31, pad:'padEnd' };
   }
-  if(idx & 1) return { width:17, pad:'padStart' };
+  if (idx & 1) return { width:17, pad:'padStart' };
   else        return { width:17, pad:'padStart' };
 };
 function reportTableRow(...cols) {
   report(cols.map((c, i) => {
     const { width, pad } = colFormat(i);
-    return (c?.toString()??'-')[pad](width, ' ');
+    return ((c && c.toString()) || '-')[pad](width, ' ');
   }).join(' | '));
 }
 function reportTableDivider(results) {
   let totalWidth = -3;
-  for(let i=(results.length*2)+1; i>=0; --i) {
+  for (let i=(results.length*2)+1; i>=0; --i) {
     totalWidth += colFormat(i).width + 3;
   }
   report(''.padStart(totalWidth, '-'));
 }
 
 function forHumans(n) {
-  return n?.toFixed(2);
+  return n ? n.toFixed(2) : null;
 }
 
 function printComparisonReport({ useStat }, ...results) {
@@ -78,21 +79,21 @@ function printComparisonReport({ useStat }, ...results) {
   results.map(({ adapter }) => report('  *', adapter));
   report();
   reportTableRow('', '', ...results.map(r  => [ r.adapter,   r.adapter ]).flat());
-  reportTableRow('', '', ...results.map(() => [ 'iterations', useStat, ]).flat());
+  reportTableRow('', '', ...results.map(() => [ 'iterations', useStat  ]).flat());
 
   const [ a, ...others ] = results;
   Object.entries(a.results)
     .forEach(([ suite, suiteResults ]) => {
       Object.entries(suiteResults)
         .forEach(([ test, testResults ], idx) => {
-          if(!idx) reportTableDivider(results);
-          suiteName = idx ? '' : suite;
+          if (!idx) reportTableDivider(results);
+          const suiteName = idx ? '' : suite;
 
           const resA        = testResults[useStat];
           const iterationsA = testResults.numIterations;
 
-          const resOthers       = others.map(b => b.results[suite]?.[test]?.[useStat]);
-          const iterationsOther = others.map(b => b.results[suite]?.[test]?.numIterations);
+          const resOthers       = others.map(b => b.results[suite][test][useStat]);
+          const iterationsOther = others.map(b => b.results[suite][test].numIterations);
           reportTableRow(suiteName, test,
             iterationsA,
             forHumans(resA) + isBetter(resA, ...resOthers),
@@ -109,9 +110,9 @@ function printComparisonReport({ useStat }, ...results) {
 function isBetter(a, ...others) {
   const minOthers = Math.min(...others);
 
-  if(Math.abs(a - minOthers) / a < 0.05) return ' ~'; // less than 5 percent different - is it significant?  do we care?
-  if(a < minOthers) return ' !';
-  if(a === minOthers) return ' !';
+  if (Math.abs(a - minOthers) / a < 0.05) return ' ~'; // less than 5 percent different - is it significant?  do we care?
+  if (a < minOthers) return ' !';
+  if (a === minOthers) return ' !';
   return '  ';
 }
 
