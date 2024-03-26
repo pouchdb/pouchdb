@@ -81,10 +81,8 @@ function printComparisonReport({ useStat }, ...results) {
   const [ a, ...others ] = results;
   Object.entries(a.results)
     .forEach(([ suite, suiteResults ]) => {
-      //console.log({ suite, suiteResults });
       Object.entries(suiteResults)
         .forEach(([ test, testResults ], idx) => {
-          //console.log({ idx, test, testResults });
           if(!idx) reportTableDivider(results);
           suiteName = idx ? '' : suite;
 
