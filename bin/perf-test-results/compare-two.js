@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const { loadResultFile, printComparisonReport } = require('./lib');
 
 const [ , , ...files ] = process.argv;
