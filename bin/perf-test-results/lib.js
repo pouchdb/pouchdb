@@ -37,8 +37,10 @@ const { basename } = require('node:path');
 
 function loadResultFile(file) {
   console.error(`[compare-perf-results.lib]`, 'Loading file:', file, '...');
-  const { adapter, gitDescription:gitHash, tests:results } = JSON.parse(fs.readFileSync(file, { encoding:'utf8' }));
-  return { adapter:`${adapter}:${gitHash.substring(0, 7)}`, results };
+  const { adapter, srcRoot, tests:results } = JSON.parse(fs.readFileSync(file, { encoding:'utf8' }));
+  const gitMatch = srcRoot.match(/^\.\.\/\.\.\/dist-bundles\/([0-9a-f]{40})$/);
+  const description = gitMatch?.[1]?.substr(0,7) || srcRoot;
+  return { adapter:`${adapter}:${description}`, results };
 }
 
 function report (...args) { console.log('   ', ...args); }
