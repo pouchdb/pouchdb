@@ -2064,17 +2064,17 @@ adapters.forEach(function (adapter) {
                   body.reason.should.equal('_local documents do not accept attachments.');
                   done();
                 }).catch(done);
-              } else if (serverType === 'pouchdb-express') {
-                err.status.should.equal(404);
-                err.json().then(body => {
-                  body.reason.should.equal('missing');
-                  done();
-                }).catch(done);
-              } else if (serverType === 'pouchdb-server') {
-                testUtils.readBlob(res, function (data) {
-                  data.should.equal('This is a base64 encoded text', 'correct data');
-                  done();
-                });
+              //} else if (serverType === 'pouchdb-express') {
+              //  err.status.should.equal(404);
+              //  err.json().then(body => {
+              //    body.reason.should.equal('missing');
+              //    done();
+              //  }).catch(done);
+              //} else if (serverType === 'pouchdb-server') {
+              //  testUtils.readBlob(res, function (data) {
+              //    data.should.equal('This is a base64 encoded text', 'correct data');
+              //    done();
+              //  });
               } else {
                 done(new Error(`No handling for server type: '${serverType}'`));
               }

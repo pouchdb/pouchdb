@@ -176,18 +176,22 @@ testUtils.isCouchDB = function (cb) {
 };
 
 testUtils.getServerType = function (cb) {
+  const knownServers = [
+    'couchdb',
+    'pouchdb-express-router',
+  ];
+
   var {url, options} = parseHostWithCreds(testUtils.couchHost());
   PouchDB.fetch(url, options).then(function (response) {
     return response.json();
   }).then(function (res) {
     console.log('getServerType()', JSON.stringify(res));
-    if ('couchdb' in res) {
-      cb('couchdb');
-    } else if ('express-pouchdb' in res) {
-      cb('express-pouchdb');
-    } else {
-      cb('unknown');
+    for (const known in knownServers) {
+      if (known in res) {
+        return cb(known);
+      }
     }
+    cb('unknown');
   });
 };
 
