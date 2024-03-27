@@ -2116,11 +2116,14 @@ adapters.forEach(function (adapter) {
             console.log('data checked.');
             done();
           } else if (adapter === 'http') {
-            // does not exist on couchdb, but does on pouchdb-server
-            if (doc._attachments) {
-              doc._attachments['foo.txt'].content_type.should.equal('text/plain');
-              doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
-            }
+            testUtils.getServerType(serverType => {
+              if (serverType === 'couchdb') {
+                should.not.exist(doc._attachments);
+              } else {
+                doc._attachments['foo.txt'].content_type.should.equal('text/plain');
+                doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
+              }
+            });
             done();
           } else {
             throw new Error(`No handling for adapter: '${adapter}'`);
