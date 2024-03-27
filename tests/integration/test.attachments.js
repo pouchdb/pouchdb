@@ -4103,7 +4103,7 @@ repl_adapters.forEach(function (adapters) {
 
 function decodeBase64(str) {
   // Polyfill for node14 - currently used in CI :'(
-  if (!global || !global.atob) {
+  if (!globalThis.atob) {
     return Buffer.from(str, 'base64').toString();
   }
   return atob(str);
