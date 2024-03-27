@@ -2057,11 +2057,19 @@ adapters.forEach(function (adapter) {
             err.reason.should.equal('missing');
             done();
           } else if (adapter === 'http') {
-            err.status.should.equal(400);
-            err.json().then(body => {
-              body.reason.should.equal('_local documents do not accept attachments.');
-              done();
-            }).catch(done);
+            if (err.status === 404) {
+              err.json().then(body => {
+                body.reason.should.equal('_local documents do not accept attachments.');
+                done();
+              }).catch(done);
+            } else {
+              // couchdb
+              err.status.should.equal(400);
+              err.json().then(body => {
+                body.reason.should.equal('_local documents do not accept attachments.');
+                done();
+              }).catch(done);
+            }
           } else {
             throw new Error(`No handling for adapter: '${adapter}'`);
           }
