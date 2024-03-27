@@ -2076,13 +2076,13 @@ adapters.forEach(function (adapter) {
               //    done();
               //  });
               } else {
-                // TODO revert to throwing for unknown.  for now, we gotta assume something to get meaningful errors
-                err.status.should.equal(404);
-                err.json().then(body => {
-                  body.reason.should.equal('missing');
-                  done();
-                }).catch(done);
-                //done(new Error(`No handling for server type: '${serverType}'`));
+                //// TODO revert to throwing for unknown.  for now, we gotta assume something to get meaningful errors
+                //err.status.should.equal(404);
+                //err.json().then(body => {
+                //  body.reason.should.equal('missing');
+                //  done();
+                //}).catch(done);
+                done(new Error(`No handling for server type: '${serverType}'`));
               }
             });
           } else {
@@ -2132,10 +2132,10 @@ adapters.forEach(function (adapter) {
                   reason: 'missing',
                 });
               } else {
-                // TODO revert to throwing for unknown serverType
-                doc._attachments['foo.txt'].content_type.should.equal('text/plain');
-                doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
-                //done(new Error(`No handling for server type: '${serverType}'`));
+                //// TODO revert to throwing for unknown serverType
+                //doc._attachments['foo.txt'].content_type.should.equal('text/plain');
+                //doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
+                done(new Error(`No handling for server type: '${serverType}'`));
               }
             });
             done();
