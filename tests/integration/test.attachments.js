@@ -2045,8 +2045,6 @@ adapters.forEach(function (adapter) {
       db.put(binAttDocLocal, function (err) {
         should.not.exist(err);
         db.getAttachment('_local/bin_doc', 'foo.txt', function (err, res) {
-          console.log('db.getAttachment() returned:', JSON.stringify({ err, res }));
-          console.log('err:', JSON.stringify(err), err.message, err.toString(), err.reason, err.status);
           if (adapter === 'local') {
             err.reason.should.equal('missing');
             done();
@@ -2059,16 +2057,6 @@ adapters.forEach(function (adapter) {
           } else {
             throw new Error(`No handling for adapter: '${adapter}'`);
           }
-//          if (err) {
-//            return done(err);
-//          }
-//          should.not.exist(res);
-//          done();
-//          res.type.should.equal('text/plain');
-//          testUtils.readBlob(res, function (data) {
-//            data.should.equal('This is a base64 encoded text', 'correct data');
-//            done();
-//          });
         });
       });
     });
@@ -2078,19 +2066,13 @@ adapters.forEach(function (adapter) {
       db.put(binAttDocLocal, function (err) {
         should.not.exist(err);
         db.get('_local/bin_doc', { attachments: true }, function (err, doc) {
-          console.log('adapter:', adapter);
-          console.log('err:', err);
-          console.log('GOT:', JSON.stringify(doc));
           if (err) {
             return done(err);
           }
 
           if (adapter === 'local') {
-            console.log('checking type...');
             doc._attachments['foo.txt'].content_type.should.equal('text/plain');
-            console.log('checking data...');
             doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
-            console.log('data checked.');
             done();
           } else if (adapter === 'http') {
             should.not.exist(doc._attachments);
