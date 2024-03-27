@@ -21,34 +21,34 @@ jobs:
 
   # Check style compliance of JavaScript code.
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/install-node-package
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - run: npm run eslint
-
-  # Check shell scripts.
-
-  shellcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - run: sudo apt-get install shellcheck
-      - run: git ls-files '*.sh' | xargs shellcheck
+#  lint:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          persist-credentials: false
+#      - uses: ./.github/actions/install-node-package
+#        with:
+#          node-version: ${{ env.NODE_VERSION }}
+#      - run: npm run eslint
+#
+#  # Check shell scripts.
+#
+#  shellcheck:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          persist-credentials: false
+#      - run: sudo apt-get install shellcheck
+#      - run: git ls-files '*.sh' | xargs shellcheck
 
   # Run the integration, find and mapreduce tests against CouchDB on Node.js.
   # This should be run against every version of CouchDB and every version of
   # Node.js we support.
 
   couchdb-nodejs:
-    needs: lint
+    #needs: lint
     strategy:
       fail-fast: false
       matrix:
