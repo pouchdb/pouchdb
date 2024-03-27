@@ -2047,15 +2047,17 @@ adapters.forEach(function (adapter) {
         db.getAttachment('_local/bin_doc', 'foo.txt', function (err, res) {
           console.log('db.adapter:', db.adapter);
           console.log('db.getAttachment() returned:', JSON.stringify({ err, res }));
-          if (db.adapter === 'indexeddb') {
-            console.log('res:', res);
-            testUtils.readBlob(res, function (data) {
-              data.should.equal('This is a base64 encoded text', 'correct data');
+          if (adapter === 'local') {
+            if (db.adapter === 'indexeddb') {
+              console.log('res:', res);
+              testUtils.readBlob(res, function (data) {
+                data.should.equal('This is a base64 encoded text', 'correct data');
+                done();
+              });
+            } else {
+              err.reason.should.equal('missing');
               done();
-            });
-          } else if (adapter === 'local') {
-            err.reason.should.equal('missing');
-            done();
+            }
           } else if (adapter === 'http') {
             testUtils.getServerType(serverType => {
               if (serverType === 'couchdb') {
