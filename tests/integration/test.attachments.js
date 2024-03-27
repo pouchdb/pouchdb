@@ -2127,7 +2127,7 @@ adapters.forEach(function (adapter) {
                 should.not.exist(doc._attachments);
               } else if (serverType === 'pouchdb-express-router') {
                 doc._attachments['foo.txt'].content_type.should.equal('text/plain');
-                JSON.parse(atob(doc._attachments['foo.txt'].data)).should.deep.equal({
+                JSON.parse(decodeBase64(doc._attachments['foo.txt'].data)).should.deep.equal({
                   error: 'not_found',
                   reason: 'missing',
                 });
@@ -4099,3 +4099,11 @@ repl_adapters.forEach(function (adapters) {
     });
   });
 });
+
+function decodeBase64(str) {
+  // Polyfill for node14 - currently used in CI :'(
+  if (!global.atob) {
+    return Buffer.from(str, 'base64').toString();
+  }
+  return atob(str);
+}
