@@ -2040,7 +2040,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.only('xxxonlyxxx Test getAttachment for _local doc - should not return attachment', function (done) {
+    it.only('Test getAttachment for _local doc - should not return attachment', function (done) {
       var db = new PouchDB(dbs.name);
       db.put(binAttDocLocal, function (err) {
         should.not.exist(err);
@@ -2096,7 +2096,7 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.only('xxxonlyxxx Test attachments:true for _local doc', function (done) {
+    it.only('Test attachments:true for _local doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.put(binAttDocLocal, function (err) {
         should.not.exist(err);
