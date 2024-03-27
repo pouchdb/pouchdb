@@ -2125,7 +2125,7 @@ adapters.forEach(function (adapter) {
             testUtils.getServerType(serverType => {
               if (serverType === 'couchdb') {
                 should.not.exist(doc._attachments);
-              } else if (serverType === 'pouchdb-express-router') {
+              } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
                 doc._attachments['foo.txt'].content_type.should.equal('text/plain');
                 JSON.parse(decodeBase64(doc._attachments['foo.txt'].data)).should.deep.equal({
                   error: 'not_found',
