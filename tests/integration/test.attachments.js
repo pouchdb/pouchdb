@@ -2057,7 +2057,13 @@ adapters.forEach(function (adapter) {
             err.reason.should.equal('missing');
             done();
           } else if (adapter === 'http') {
-            if (err.status === 404) {
+            if (res) {
+              // pouchdb-server
+              testUtils.readBlob(res, function (data) {
+                data.should.equal('This is a base64 encoded text', 'correct data');
+                done();
+              });
+            } else if (err.status === 404) {
               err.json().then(body => {
                 body.reason.should.equal('missing');
                 done();
@@ -2107,7 +2113,11 @@ adapters.forEach(function (adapter) {
             console.log('data checked.');
             done();
           } else if (adapter === 'http') {
-            should.not.exist(doc._attachments);
+            // does not exist on couchdb, but does on pouchdb-server
+            if (doc._attachments) {
+              doc._attachments['foo.txt'].content_type.should.equal('text/plain');
+              doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
+            }
             done();
           } else {
             throw new Error(`No handling for adapter: '${adapter}'`);
