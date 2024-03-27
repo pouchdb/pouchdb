@@ -2075,6 +2075,12 @@ adapters.forEach(function (adapter) {
               //    data.should.equal('This is a base64 encoded text', 'correct data');
               //    done();
               //  });
+              } else if (serverType === 'pouchdb-express-router') {
+                err.status.should.equal(404);
+                err.json().then(body => {
+                  body.reason.should.equal('missing');
+                  done();
+                }).catch(done);
               } else {
                 //// TODO revert to throwing for unknown.  for now, we gotta assume something to get meaningful errors
                 //err.status.should.equal(404);
