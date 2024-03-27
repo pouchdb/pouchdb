@@ -175,6 +175,22 @@ testUtils.isCouchDB = function (cb) {
   });
 };
 
+testUtils.getServerType = function (cb) {
+  var {url, options} = parseHostWithCreds(testUtils.couchHost());
+  PouchDB.fetch(url, options).then(function (response) {
+    return response.json();
+  }).then(function (res) {
+    console.log('getServerType()', JSON.stringify(res));
+    if ('couchdb' in res) {
+      cb('couchdb');
+    } else if ('express-pouchdb' in res) {
+      cb('express-pouchdb');
+    } else {
+      cb('unknown');
+    }
+  });
+};
+
 testUtils.writeDocs = function (db, docs, callback, res) {
   if (!res) {
     res = [];
