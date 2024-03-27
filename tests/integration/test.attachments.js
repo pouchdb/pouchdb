@@ -2077,7 +2077,7 @@ adapters.forEach(function (adapter) {
               //    data.should.equal('This is a base64 encoded text', 'correct data');
               //    done();
               //  });
-              } else if (serverType === 'pouchdb-express-router') {
+              } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
                 err.status.should.equal(404);
                 err.json().then(body => {
                   body.reason.should.equal('missing');
