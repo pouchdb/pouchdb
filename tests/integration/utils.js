@@ -178,6 +178,7 @@ testUtils.isCouchDB = function (cb) {
 testUtils.getServerType = function (cb) {
   const knownServers = [
     'couchdb',
+    'express-pouchdb',
     'pouchdb-express-router',
   ];
 

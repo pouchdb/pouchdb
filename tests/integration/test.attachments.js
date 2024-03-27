@@ -2135,6 +2135,7 @@ adapters.forEach(function (adapter) {
                 // TODO revert to throwing for unknown serverType
                 doc._attachments['foo.txt'].content_type.should.equal('text/plain');
                 doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
+                //done(new Error(`No handling for server type: '${serverType}'`));
               }
             });
             done();
