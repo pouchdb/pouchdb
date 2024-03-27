@@ -5,7 +5,7 @@ inputs:
   couchdb-version:
     description: the version of CouchDB to install
     required: false
-    default: '3.1'
+    default: '3.3'
 
 runs:
   using: composite
