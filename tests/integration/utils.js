@@ -186,8 +186,8 @@ testUtils.getServerType = function (cb) {
     return response.json();
   }).then(function (res) {
     console.log('getServerType()', JSON.stringify(res));
-    for (const known in knownServers) {
-      if (known in res) {
+    for (const known of knownServers) {
+      if (res[known]) {
         return cb(known);
       }
     }
