@@ -2066,17 +2066,6 @@ adapters.forEach(function (adapter) {
                   body.reason.should.equal('_local documents do not accept attachments.');
                   done();
                 }).catch(done);
-              //} else if (serverType === 'pouchdb-express') {
-              //  err.status.should.equal(404);
-              //  err.json().then(body => {
-              //    body.reason.should.equal('missing');
-              //    done();
-              //  }).catch(done);
-              //} else if (serverType === 'pouchdb-server') {
-              //  testUtils.readBlob(res, function (data) {
-              //    data.should.equal('This is a base64 encoded text', 'correct data');
-              //    done();
-              //  });
               } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
                 err.status.should.equal(404);
                 err.json().then(body => {
@@ -2084,28 +2073,12 @@ adapters.forEach(function (adapter) {
                   done();
                 }).catch(done);
               } else {
-                //// TODO revert to throwing for unknown.  for now, we gotta assume something to get meaningful errors
-                //err.status.should.equal(404);
-                //err.json().then(body => {
-                //  body.reason.should.equal('missing');
-                //  done();
-                //}).catch(done);
                 done(new Error(`No handling for server type: '${serverType}'`));
               }
             });
           } else {
             throw new Error(`No handling for adapter: '${adapter}'`);
           }
-//          if (err) {
-//            return done(err);
-//          }
-//          should.not.exist(res);
-//          done();
-//          res.type.should.equal('text/plain');
-//          testUtils.readBlob(res, function (data) {
-//            data.should.equal('This is a base64 encoded text', 'correct data');
-//            done();
-//          });
         });
       });
     });
@@ -2140,9 +2113,6 @@ adapters.forEach(function (adapter) {
                   reason: 'missing',
                 });
               } else {
-                //// TODO revert to throwing for unknown serverType
-                //doc._attachments['foo.txt'].content_type.should.equal('text/plain');
-                //doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
                 done(new Error(`No handling for server type: '${serverType}'`));
               }
             });
