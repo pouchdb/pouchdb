@@ -2059,7 +2059,7 @@ adapters.forEach(function (adapter) {
           } else if (adapter === 'http') {
             if (err.status === 404) {
               err.json().then(body => {
-                body.reason.should.equal('_local documents do not accept attachments.');
+                body.reason.should.equal('missing');
                 done();
               }).catch(done);
             } else {
