@@ -58,7 +58,7 @@ adapters.forEach(function (adapter) {
         }
       }
     };
-    var binAttDocLocal = {
+    const binAttDocLocal = {
       _id: '_local/bin_doc',
       _attachments: {
         'foo.txt': {
@@ -2040,16 +2040,13 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.only('Test getAttachment for _local doc - should not return attachment', function (done) {
-      var db = new PouchDB(dbs.name);
+    it('Test getAttachment for _local doc - should not return attachment', function (done) {
+      const db = new PouchDB(dbs.name);
       db.put(binAttDocLocal, function (err) {
         should.not.exist(err);
         db.getAttachment('_local/bin_doc', 'foo.txt', function (err, res) {
-          console.log('db.adapter:', db.adapter);
-          console.log('db.getAttachment() returned:', JSON.stringify({ err, res }));
           if (adapter === 'local') {
             if (db.adapter === 'indexeddb') {
-              console.log('res:', res);
               testUtils.readBlob(res, function (data) {
                 data.should.equal('This is a base64 encoded text', 'correct data');
                 done();
@@ -2083,24 +2080,18 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it.only('Test attachments:true for _local doc', function (done) {
-      var db = new PouchDB(dbs.name);
+    it('Test attachments:true for _local doc', function (done) {
+      const db = new PouchDB(dbs.name);
       db.put(binAttDocLocal, function (err) {
         should.not.exist(err);
         db.get('_local/bin_doc', { attachments: true }, function (err, doc) {
-          console.log('adapter:', adapter);
-          console.log('err:', err);
-          console.log('GOT:', JSON.stringify(doc));
           if (err) {
             return done(err);
           }
 
           if (adapter === 'local') {
-            console.log('checking type...');
             doc._attachments['foo.txt'].content_type.should.equal('text/plain');
-            console.log('checking data...');
             doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
-            console.log('data checked.');
             done();
           } else if (adapter === 'http') {
             testUtils.getServerType(serverType => {

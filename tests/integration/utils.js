@@ -186,7 +186,6 @@ testUtils.getServerType = function (cb) {
   PouchDB.fetch(url, options).then(function (response) {
     return response.json();
   }).then(function (res) {
-    console.log('getServerType()', JSON.stringify(res));
     for (const known of knownServers) {
       if (res[known]) {
         return cb(known);
