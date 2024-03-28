@@ -12,6 +12,7 @@
     "assert": "readonly",
     "testUtils": "readonly",
     "importScripts": "readonly",
-    "testCases": "readonly"
+    "testCases": "readonly",
+    "globalThis": "readonly"
   }
 }
