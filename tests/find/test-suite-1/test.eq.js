@@ -457,6 +457,19 @@ describe('test.eq.js', function () {
       resp.docs.should.deep.equal([]);
     });
   });
+
+  it('does queries with array containing null', async () => {
+    const db = context.db;
+
+    await db.put({ _id: '1', field: [null] });
+
+    const resp = await db.find({
+      selector: { field: [null] }
+    });
+
+    resp.docs.should.have.length(1);
+  });
+
   describe("implicit/explicit $eq", () => {
     it('implicit $eq queries against objects recurse', function () {
       var db = context.db;
