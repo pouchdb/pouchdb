@@ -91,7 +91,6 @@
     "ncp": "2.0.0",
     "playwright": "1.42.1",
     "pouchdb-express-router": "0.0.11",
-    "query-string": "6.10.1",
     "replace": "1.2.1",
     "rimraf": "2.7.1",
     "rollup": "0.67.4",
