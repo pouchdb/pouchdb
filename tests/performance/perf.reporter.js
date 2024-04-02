@@ -3,7 +3,6 @@ var isNode = process && !process.browser;
 var UAParser = require('ua-parser-js');
 var ua = !isNode && new UAParser(navigator.userAgent);
 var marky = require('marky');
-var median = require('median');
 
 var results = {
   tests: {}
@@ -98,3 +97,12 @@ exports.complete = function (adapter) {
   emitMochaEvent({ name: 'end', obj: results });
 };
 
+function median(arr) {
+  arr = [...arr].sort();
+  const mid = Math.floor(arr.length / 2);
+  if (arr.length % 2) {
+    return arr[mid];
+  } else {
+    return (arr[mid] + arr[mid-1]) / 2;
+  }
+}
