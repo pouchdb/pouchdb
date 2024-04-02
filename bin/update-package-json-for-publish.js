@@ -12,8 +12,7 @@ var path = require('path');
 var glob = require('glob');
 var findRequires = require('find-requires');
 var builtinModules = require('builtin-modules');
-var uniq = require('lodash.uniq');
-var flatten = require('lodash.flatten');
+const { flatten, uniq } = require('lodash');
 
 var topPkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 var modules = fs.readdirSync('./packages/node_modules');
