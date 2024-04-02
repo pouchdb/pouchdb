@@ -2,8 +2,9 @@
 
 'use strict';
 
+const http = require('http');
 var watch = require('watch-glob');
-var http_server = require('http-server');
+const serveHandler = require('serve-handler');
 var debounce = require('lodash.debounce');
 var browserify = require('browserify');
 var fs = require('fs');
@@ -92,7 +93,15 @@ var readyCallback;
 
 function startServers(callback) {
   readyCallback = callback;
-  http_server.createServer().listen(HTTP_PORT, function () {
+  const server = http.createServer((req, res) => {
+    // Add cross-origin isolation headers to allow for more precise performance measurements.
+    // See: https://developer.mozilla.org/en-US/docs/Web/API/Performance/now#security_requirements
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+
+    return serveHandler(req, res, { trailingSlash:true });
+  });
+  server.listen(HTTP_PORT, () => {
     var testRoot = 'http://127.0.0.1:' + HTTP_PORT;
     const query = new URLSearchParams(queryParams);
     console.log(`Integration  tests: ${testRoot}/tests/integration/?${query}`);
