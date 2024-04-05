@@ -182,17 +182,17 @@ testUtils.getServerType = function (cb) {
     'pouchdb-express-router',
   ];
 
-  var {url, options} = parseHostWithCreds(testUtils.couchHost());
+  const { url, options } = parseHostWithCreds(testUtils.couchHost());
   PouchDB.fetch(url, options).then(function (response) {
     return response.json();
   }).then(function (res) {
     for (const known of knownServers) {
       if (res[known]) {
-        return cb(known);
+        return cb(null, known);
       }
     }
-    cb('unknown');
-  });
+    cb(new Error(`Could not find a known server type in response: ${JSON.stringify(res)}`));
+  }).catch(cb);
 };
 
 testUtils.writeDocs = function (db, docs, callback, res) {

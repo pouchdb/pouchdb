@@ -2094,7 +2094,11 @@ adapters.forEach(function (adapter) {
             doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
             done();
           } else if (adapter === 'http') {
-            testUtils.getServerType(serverType => {
+            testUtils.getServerType((err, serverType) => {
+              if (err) {
+                return done(err);
+              }
+
               if (serverType === 'couchdb') {
                 should.not.exist(doc._attachments);
               } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
