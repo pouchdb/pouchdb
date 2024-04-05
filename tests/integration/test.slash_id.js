@@ -34,6 +34,7 @@ adapters.forEach(function (adapter) {
         db.putAttachment(docId, attachmentId, info.rev, blob, 'text/plain',
                          function () {
           db.getAttachment(docId, attachmentId, function (err, res) {
+            res.should.equal(blobData);
             testUtils.readBlob(res, function () {
               db.get(docId, function (err, res) {
                 res._id.should.equal(docId);
