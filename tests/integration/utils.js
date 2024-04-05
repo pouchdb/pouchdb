@@ -51,8 +51,6 @@ testUtils.readBlob = function (blob, callback) {
   }
 };
 
-testUtils.readBlobPromise = (blob) => new Promise(resolve => testUtils.readBlob(blob, resolve));
-
 testUtils.readBlobPromise = function (blob) {
   return new Promise(function (resolve) {
     testUtils.readBlob(blob, resolve);
