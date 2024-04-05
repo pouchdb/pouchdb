@@ -51,6 +51,8 @@ testUtils.readBlob = function (blob, callback) {
   }
 };
 
+testUtils.readBlobPromise = (blob) => new Promise(resolve => testUtils.readBlob(blob, resolve));
+
 testUtils.readBlobPromise = function (blob) {
   return new Promise(function (resolve) {
     testUtils.readBlob(blob, resolve);
@@ -175,7 +177,7 @@ testUtils.isCouchDB = function (cb) {
   });
 };
 
-testUtils.getServerType = function (cb) {
+testUtils.getServerType = async () => {
   const knownServers = [
     'couchdb',
     'express-pouchdb',
@@ -183,16 +185,16 @@ testUtils.getServerType = function (cb) {
   ];
 
   const { url, options } = parseHostWithCreds(testUtils.couchHost());
-  PouchDB.fetch(url, options).then(function (response) {
-    return response.json();
-  }).then(function (res) {
-    for (const known of knownServers) {
-      if (res[known]) {
-        return cb(null, known);
-      }
+  const res = await PouchDB.fetch(url, options);
+  const body = await res.json();
+
+  for (const known of knownServers) {
+    if (body[known]) {
+      return known;
     }
-    cb(new Error(`Could not find a known server type in response: ${JSON.stringify(res)}`));
-  }).catch(cb);
+  }
+
+  throw new Error(`Could not find a known server type in response: ${JSON.stringify(res)}`);
 };
 
 testUtils.writeDocs = function (db, docs, callback, res) {

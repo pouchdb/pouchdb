@@ -2040,83 +2040,68 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Test getAttachment for _local doc - should not return attachment', function (done) {
+    it('Test getAttachment for _local doc - should not return attachment', async () => {
       const db = new PouchDB(dbs.name);
-      db.put(binAttDocLocal, function (err) {
-        should.not.exist(err);
-        db.getAttachment('_local/bin_doc', 'foo.txt', function (err, res) {
-          if (adapter === 'local') {
-            if (db.adapter === 'indexeddb') {
-              testUtils.readBlob(res, function (data) {
-                data.should.equal('This is a base64 encoded text', 'correct data');
-                done();
-              });
-            } else {
-              err.reason.should.equal('missing');
-              done();
-            }
-          } else if (adapter === 'http') {
-            testUtils.getServerType((err, serverType) => {
-              if (serverType === 'couchdb') {
-                err.status.should.equal(400);
-                err.json().then(body => {
-                  body.reason.should.equal('_local documents do not accept attachments.');
-                  done();
-                }).catch(done);
-              } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
-                err.status.should.equal(404);
-                err.json().then(body => {
-                  body.reason.should.equal('missing');
-                  done();
-                }).catch(done);
-              } else {
-                done(new Error(`No handling for server type: '${serverType}'`));
-              }
-            });
-          } else {
-            throw new Error(`No handling for adapter: '${adapter}'`);
-          }
-        });
-      });
+      await db.put(binAttDocLocal);
+
+      let res, err;
+      try {
+        res = await db.getAttachment('_local/bin_doc', 'foo.txt');
+      } catch (caughtErr) {
+        err = caughtErr;
+      }
+
+      if (adapter === 'local') {
+        if (db.adapter === 'indexeddb') {
+          const data = await testUtils.readBlobPromise(res);
+          data.should.equal('This is a base64 encoded text', 'correct data');
+        } else {
+          err.reason.should.equal('missing');
+        }
+      } else if (adapter === 'http') {
+        const serverType = await testUtils.getServerType();
+        if (serverType === 'couchdb') {
+          err.status.should.equal(400);
+          const body = await err.json();
+          body.reason.should.equal('_local documents do not accept attachments.');
+        } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
+          err.status.should.equal(404);
+          const body = await err.json();
+          body.reason.should.equal('missing');
+        } else {
+          throw new Error(`No handling for server type: '${serverType}'`);
+        }
+      } else {
+        throw new Error(`No handling for adapter: '${adapter}'`);
+      }
     });
 
-    it('Test attachments:true for _local doc', function (done) {
+    it('Test attachments:true for _local doc', async () => {
       const db = new PouchDB(dbs.name);
-      db.put(binAttDocLocal, function (err) {
-        should.not.exist(err);
-        db.get('_local/bin_doc', { attachments: true }, function (err, doc) {
-          if (err) {
-            return done(err);
-          }
+      await db.put(binAttDocLocal);
 
-          if (adapter === 'local') {
-            doc._attachments['foo.txt'].content_type.should.equal('text/plain');
-            doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
-            done();
-          } else if (adapter === 'http') {
-            testUtils.getServerType((err, serverType) => {
-              if (err) {
-                return done(err);
-              }
+      const doc = await db.get('_local/bin_doc', { attachments: true });
 
-              if (serverType === 'couchdb') {
-                should.not.exist(doc._attachments);
-              } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
-                doc._attachments['foo.txt'].content_type.should.equal('text/plain');
-                JSON.parse(decodeBase64(doc._attachments['foo.txt'].data)).should.deep.equal({
-                  error: 'not_found',
-                  reason: 'missing',
-                });
-              } else {
-                done(new Error(`No handling for server type: '${serverType}'`));
-              }
-            });
-            done();
-          } else {
-            throw new Error(`No handling for adapter: '${adapter}'`);
-          }
-        });
-      });
+      if (adapter === 'local') {
+        doc._attachments['foo.txt'].content_type.should.equal('text/plain');
+        doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
+      } else if (adapter === 'http') {
+        const serverType = await testUtils.getServerType();
+
+        if (serverType === 'couchdb') {
+          should.not.exist(doc._attachments);
+        } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
+          doc._attachments['foo.txt'].content_type.should.equal('text/plain');
+          JSON.parse(decodeBase64(doc._attachments['foo.txt'].data)).should.deep.equal({
+            error: 'not_found',
+            reason: 'missing',
+          });
+        } else {
+          throw new Error(`No handling for server type: '${serverType}'`);
+        }
+      } else {
+        throw new Error(`No handling for adapter: '${adapter}'`);
+      }
     });
 
     it('Test getAttachment with stubs', function () {
