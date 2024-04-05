@@ -2056,7 +2056,7 @@ adapters.forEach(function (adapter) {
               done();
             }
           } else if (adapter === 'http') {
-            testUtils.getServerType(serverType => {
+            testUtils.getServerType((err, serverType) => {
               if (serverType === 'couchdb') {
                 err.status.should.equal(400);
                 err.json().then(body => {
