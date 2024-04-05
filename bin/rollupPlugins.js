@@ -15,12 +15,10 @@ function rollupPlugins(nodeResolveConfig) {
     }),
     inject({
       exclude: [
-        '**/pouchdb-utils/src/assign.js',
         '**/pouchdb-collections/src/**'
       ],
       Map: ['pouchdb-collections', 'Map'],
       Set: ['pouchdb-collections', 'Set'],
-      'Object.assign': ['pouchdb-utils', 'assign']
     })
   ];
 }
