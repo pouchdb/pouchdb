@@ -21,7 +21,7 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    it('Insert a doc, putAttachment and allDocs', function (done) {
+    it('Insert a doc, putAttachment and get', function (done) {
       var db = new PouchDB(dbs.name);
       var docId = 'doc/with/slashes';
       var attachmentId = 'attachment/with/slashes';
