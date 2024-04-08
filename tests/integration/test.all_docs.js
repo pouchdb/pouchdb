@@ -473,16 +473,34 @@ adapters.forEach(function (adapter) {
         for (let i=300; i<400; ++i) {
           docs[i]._deleted = true;
           docs[i]._rev = res[i].rev;
-          deletes.push(db.remove(docs[i]));
+          deletes.push(docs[i]);
         }
         for (let i=700; i<800; ++i) {
           docs[i]._deleted = true;
           docs[i]._rev = res[i].rev;
-          deletes.push(db.remove(docs[i]));
+          deletes.push(docs[i]);
         }
-        return Promise.all(deletes);
-      }).then(function (deleted) {
-        deleted.should.have.length(200);
+        if (adapter === 'http') {
+          return testUtils.getServerType().then(serverType => {
+            if (serverType === 'pouchdb-express-router') {
+              // Workaround for https://github.com/pouchdb/pouchdb-server/issues/476
+              return deletes.reduce(
+                (chain, doc) => chain.then(() => db.remove(doc)),
+                Promise.resolve(),
+              );
+            }
+            return Promise.all(deletes.map(doc => db.remove(doc)))
+              .then(function (deleted) {
+                deleted.should.have.length(200);
+              });
+          });
+        } else {
+          return Promise.all(deletes.map(doc => db.remove(doc)))
+            .then(function (deleted) {
+              deleted.should.have.length(200);
+            });
+        }
+      }).then(function () {
         return db.allDocs();
       }).then(function (res) {
         res.rows.should.have.length(800,  'correctly return rows');
