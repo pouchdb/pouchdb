@@ -151,10 +151,6 @@ following values:
 - `couchdb-master`: use this value if you already have CouchDB running; it
   causes `COUCH_HOST` to be set to the correct value.
 
-#### `SKIP_MIGRATION` (default: `0`)
-
-Set this to `1` to skip the migration tests.
-
 #### `VIEW_ADAPTERS` (default: `memory`)
 
 Comma-separated list of preferred view adapter backends that PouchDB will use. 

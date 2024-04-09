@@ -50,7 +50,6 @@ const qs = {
   viewAdapters: process.env.VIEW_ADAPTERS,
   autoCompaction: process.AUTO_COMPACTION,
   SERVER: process.env.SERVER,
-  SKIP_MIGRATION: process.env.SKIP_MIGRATION,
   srcRoot: process.env.SRC_ROOT,
   src: process.env.POUCHDB_SRC,
   useMinified: process.env.USE_MINIFIED,
