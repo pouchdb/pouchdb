@@ -213,48 +213,6 @@ jobs:
         if: steps.retry.outcome == 'failure'
         run: ${{ matrix.cmd }}
 
-  # Run the integration, find and mapreduce tests using pouchdb-server as the
-  # remote adapter. This checks that pouchdb-server works with the current
-  # PouchDB source tree. We run this on Node.js and on every target browser.
-  # Running against different versions of Node.js might require splitting this
-  # out into a distinct job.
-
-  pouchdb-server:
-    needs: lint
-    strategy:
-      fail-fast: false
-      matrix:
-        client: ['node', 'firefox', 'chromium', 'webkit']
-        cmd:
-          - npm test
-          - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
-          - TYPE=mapreduce ADAPTERS=http npm test
-    runs-on: ubuntu-latest
-    env:
-      CLIENT: ${{ matrix.client }}
-      SERVER: pouchdb-server
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/install-node-package
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - if: ${{ matrix.client != 'node' }}
-        uses: ./.github/actions/install-playwright
-      - uses: ./.github/actions/build-pouchdb
-      - id: test
-        run: ${{ matrix.cmd }}
-        continue-on-error: true
-      - name: First retry
-        id: retry
-        if: steps.test.outcome == 'failure'
-        run: ${{ matrix.cmd }}
-        continue-on-error: true
-      - name: Second retry
-        if: steps.retry.outcome == 'failure'
-        run: ${{ matrix.cmd }}
-
   # Run all the other testing tasks -- unit tests, and so on. These should be
   # run on every version of Node.js that we support.
 

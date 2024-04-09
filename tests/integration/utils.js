@@ -171,14 +171,13 @@ testUtils.isCouchDB = function (cb) {
   PouchDB.fetch(url, options).then(function (response) {
     return response.json();
   }).then(function (res) {
-    cb('couchdb' in res || 'express-pouchdb' in res);
+    cb('couchdb' in res);
   });
 };
 
 testUtils.getServerType = async () => {
   const knownServers = [
     'couchdb',
-    'express-pouchdb',
     'pouchdb-express-router',
   ];
 

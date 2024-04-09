@@ -20,7 +20,6 @@ lib_unit
 src_browser/
 tests/integration/utils-bundle.js
 *.heapsnapshot
-/pouchdb-server-install
 package-lock.json
 yarn.lock
 /.eslintcache

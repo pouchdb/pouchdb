@@ -146,8 +146,6 @@ following values:
 - `pouchdb-express-router` (default): a minimal implementation of the CouchDB
   API that supports the replication protocol but not the `query()` or `find()`
   methods.
-- `pouchdb-server`: this is a full reimplementation of the CouchDB API on top of
-  PouchDB, including Mango and map-reduce queries.
 - `couchdb-master`: use this value if you already have CouchDB running; it
   causes `COUCH_HOST` to be set to the correct value.
 
@@ -194,13 +192,6 @@ specifically we need to ensure compatibility with CouchDB itself. We do this by
 setting `ADAPTERS=http` and pointing `COUCH_HOST` at our server:
 
     $ TYPE=mapreduce ADAPTERS=http COUCH_HOST='<your CouchDB URL>' npm test
-
-And we test [pouchdb-server](https://github.com/pouchdb/pouchdb-server) using
-the current PouchDB source tree. This is an implementation of the CouchDB API
-and supports the `find()` and `query()` methods. Run the test suites against it
-like so:
-
-    $ TYPE=mapreduce ADAPTERS=http SERVER=pouchdb-server npm test
 
 Note that the default choice for the `SERVER` value (`pouchdb-express-router`)
 does not support `find` or `mapreduce` and does not need to pass these tests.

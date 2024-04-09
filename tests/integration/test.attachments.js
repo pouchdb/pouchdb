@@ -2064,7 +2064,7 @@ adapters.forEach(function (adapter) {
           err.status.should.equal(400);
           const body = await err.json();
           body.reason.should.equal('_local documents do not accept attachments.');
-        } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
+        } else if (serverType === 'pouchdb-express-router') {
           err.status.should.equal(404);
           const body = await err.json();
           body.reason.should.equal('missing');
@@ -2090,7 +2090,7 @@ adapters.forEach(function (adapter) {
 
         if (serverType === 'couchdb') {
           should.not.exist(doc._attachments);
-        } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
+        } else if (serverType === 'pouchdb-express-router') {
           doc._attachments['foo.txt'].content_type.should.equal('text/plain');
           JSON.parse(decodeBase64(doc._attachments['foo.txt'].data)).should.deep.equal({
             error: 'not_found',

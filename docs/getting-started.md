@@ -161,7 +161,7 @@ function todoBlurred(todo, event) {
 
 {% include anchor.html class="h3" title="Installing CouchDB" hash="installing_couchdb" %}
 
-Now we'll implement the syncing. You need to have a compatible server instance. You can install either [PouchDB-Server](https://github.com/pouchdb/pouchdb-server), [CouchDB](http://couchdb.apache.org/) or use an hosted Couch service such as [Cloudant](https://cloudant.com/)
+Now we'll implement the syncing. You need to have a compatible server instance. You can either install [CouchDB](http://couchdb.apache.org/) or use an hosted Couch service such as [Cloudant](https://cloudant.com/)
 
 {% include anchor.html class="h3" title="Enabling CORS" hash="enabling_cors" %}
 
