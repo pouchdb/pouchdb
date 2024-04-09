@@ -483,7 +483,7 @@ adapters.forEach(function (adapter) {
         if (adapter === 'http') {
           return testUtils.getServerType().then(serverType => {
             if (serverType === 'pouchdb-express-router') {
-              // Workaround for https://github.com/pouchdb/pouchdb-server/issues/476
+              // Workaround for https://github.com/pouchdb/pouchdb-express-router/issues/18
               return deletes.reduce(
                 (chain, doc) => chain.then(() => db.remove(doc)),
                 Promise.resolve(),
