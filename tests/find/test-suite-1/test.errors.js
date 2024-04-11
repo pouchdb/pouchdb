@@ -163,4 +163,52 @@ describe('test.errors.js', function () {
       });
     });
   });
+
+  it('should throw an instance of error if createIndex throws', async () => {
+    const db = context.db;
+
+    try {
+      await db.createIndex({});
+    } catch (exception) {
+      //! FIXME check for instance of PouchError if available
+      exception.should.be.instanceOf(Error);
+    }
+  });
+
+  it('should throw an instance of error if find throws', async () => {
+    const db = context.db;
+
+    try {
+      await db.find({ selector: [] });
+    } catch (exception) {
+      //! FIXME check for instance of PouchError if available
+      exception.should.be.instanceOf(Error);
+    }
+  });
+
+  it('should throw an instance of error if explain throws', async () => {
+    const db = context.db;
+
+    try {
+      await db.explain({});
+    } catch (exception) {
+      //! FIXME check for instance of PouchError if available
+      exception.should.be.instanceOf(Error);
+    }
+  });
+
+  it('should throw an instance of error if deleteIndex throws', async () => {
+    const db = context.db;
+
+    try {
+      await db.deleteIndex({
+        ddoc: "foo",
+        name: "bar"
+      });
+    }
+    catch (exception) {
+      //! FIXME check for instance of PouchError if available
+      exception.should.be.instanceOf(Error);
+    }
+  });
 });
