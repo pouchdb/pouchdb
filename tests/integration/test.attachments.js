@@ -1,5 +1,7 @@
 'use strict';
 
+const should = require('chai').should();
+
 var adapters = ['local', 'http'];
 var repl_adapters = [
   ['local', 'http'],
@@ -55,6 +57,15 @@ adapters.forEach(function (adapter) {
         'foo.txt': {
           content_type: 'text/plain',
           data: ''
+        }
+      }
+    };
+    const binAttDocLocal = {
+      _id: '_local/bin_doc',
+      _attachments: {
+        'foo.txt': {
+          content_type: 'text/plain',
+          data: 'VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ='
         }
       }
     };
@@ -2031,6 +2042,142 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    it('Test getAttachment for _local doc - should not return attachment', async () => {
+      const db = new PouchDB(dbs.name);
+      await db.put(binAttDocLocal);
+
+      let res, err;
+      try {
+        res = await db.getAttachment('_local/bin_doc', 'foo.txt');
+      } catch (caughtErr) {
+        err = caughtErr;
+      }
+      should.not.exist(res);
+
+      if (adapter === 'local') {
+        err.message.should.equal('missing');
+        // TODO indexeddb errors should probably have .reason set
+        if (db.adapter !== 'indexeddb') {
+          err.reason.should.equal('missing');
+        }
+      } else if (adapter === 'http') {
+        const serverType = await testUtils.getServerType();
+        if (serverType === 'couchdb') {
+          err.status.should.equal(400);
+          const body = await err.json();
+          body.reason.should.equal('_local documents do not accept attachments.');
+        } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
+          err.status.should.equal(404);
+          const body = await err.json();
+          body.reason.should.equal('missing');
+        } else {
+          throw new Error(`No handling for server type: '${serverType}'`);
+        }
+      } else {
+        throw new Error(`No handling for adapter: '${adapter}'`);
+      }
+    });
+
+    it('Test getAttachment for _local doc - should not return non-existent attachment', async () => {
+      const db = new PouchDB(dbs.name);
+      await db.put(binAttDocLocal);
+
+      let res, err;
+      try {
+        res = await db.getAttachment('_local/bin_doc', 'not-real.txt');
+      } catch (caughtErr) {
+        err = caughtErr;
+      }
+      should.not.exist(res);
+
+      if (adapter === 'local') {
+        err.message.should.equal('missing');
+        // TODO indexeddb errors should probably have .reason set
+        if (db.adapter !== 'indexeddb') {
+          err.reason.should.equal('missing');
+        }
+      } else if (adapter === 'http') {
+        const serverType = await testUtils.getServerType();
+        if (serverType === 'couchdb') {
+          err.status.should.equal(400);
+          const body = await err.json();
+          body.reason.should.equal('_local documents do not accept attachments.');
+        } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
+          err.status.should.equal(404);
+          const body = await err.json();
+          body.reason.should.equal('missing');
+        } else {
+          throw new Error(`No handling for server type: '${serverType}'`);
+        }
+      } else {
+        throw new Error(`No handling for adapter: '${adapter}'`);
+      }
+    });
+
+    it('Test getAttachment for _local doc - should not return attachment on non-existent doc', async () => {
+      const db = new PouchDB(dbs.name);
+      await db.put(binAttDocLocal);
+
+      let res, err;
+      try {
+        res = await db.getAttachment('_local/not_a_doc', 'not-real.txt');
+      } catch (caughtErr) {
+        err = caughtErr;
+      }
+      should.not.exist(res);
+
+      if (adapter === 'local') {
+        err.message.should.equal('missing');
+        // TODO indexeddb errors should probably have .reason set
+        if (db.adapter !== 'indexeddb') {
+          err.reason.should.equal('missing');
+        }
+      } else if (adapter === 'http') {
+        const serverType = await testUtils.getServerType();
+        if (serverType === 'couchdb') {
+          err.status.should.equal(400);
+          const body = await err.json();
+          body.reason.should.equal('_local documents do not accept attachments.');
+        } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
+          err.status.should.equal(404);
+          const body = await err.json();
+          body.reason.should.equal('missing');
+        } else {
+          throw new Error(`No handling for server type: '${serverType}'`);
+        }
+      } else {
+        throw new Error(`No handling for adapter: '${adapter}'`);
+      }
+    });
+
+    it('Test attachments:true for _local doc', async () => {
+      const db = new PouchDB(dbs.name);
+      await db.put(binAttDocLocal);
+
+      const doc = await db.get('_local/bin_doc', { attachments: true });
+
+      if (adapter === 'local') {
+        doc._attachments['foo.txt'].content_type.should.equal('text/plain');
+        doc._attachments['foo.txt'].data.should.equal('VGhpcyBpcyBhIGJhc2U2NCBlbmNvZGVkIHRleHQ=');
+      } else if (adapter === 'http') {
+        const serverType = await testUtils.getServerType();
+
+        if (serverType === 'couchdb') {
+          should.not.exist(doc._attachments);
+        } else if (serverType === 'pouchdb-express-router' || serverType === 'express-pouchdb') {
+          doc._attachments['foo.txt'].content_type.should.equal('text/plain');
+          JSON.parse(decodeBase64(doc._attachments['foo.txt'].data)).should.deep.equal({
+            error: 'not_found',
+            reason: 'missing',
+          });
+        } else {
+          throw new Error(`No handling for server type: '${serverType}'`);
+        }
+      } else {
+        throw new Error(`No handling for adapter: '${adapter}'`);
+      }
+    });
+
     it('Test getAttachment with stubs', function () {
       var db = new PouchDB(dbs.name);
       return db.put({
@@ -3985,3 +4132,11 @@ repl_adapters.forEach(function (adapters) {
     });
   });
 });
+
+function decodeBase64(str) {
+  // Polyfill for node14 - currently used in CI :'(
+  if (!globalThis.atob) {
+    return Buffer.from(str, 'base64').toString();
+  }
+  return atob(str);
+}
