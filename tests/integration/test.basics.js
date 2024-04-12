@@ -293,6 +293,25 @@ adapters.forEach(function (adapter) {
       ({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:'hi' }),
       ({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:() => 'hi' }),
     ].forEach((generateRev, idx) => {
+      it(`post doc with illegal rev value #${idx}`, async () => {
+        const db = new PouchDB(dbs.name);
+
+        let threw;
+        try {
+          await db.post({
+            _rev: generateRev({ rev:'1-valid' }),
+            another: 'test'
+          });
+        } catch (err) {
+          threw = true;
+          err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
+        }
+
+        if (!threw) {
+          throw new Error('db.put() should have thrown.');
+        }
+      });
+
       it(`Modify a doc with illegal rev value #${idx}`, async () => {
         const db = new PouchDB(dbs.name);
 
@@ -304,6 +323,52 @@ adapters.forEach(function (adapter) {
             _id: info.id,
             _rev: generateRev(info),
             another: 'test'
+          });
+        } catch (err) {
+          threw = true;
+          err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
+        }
+
+        if (!threw) {
+          throw new Error('db.put() should have thrown.');
+        }
+      });
+
+      it(`bulkDocs with illegal rev value #${idx} (existing doc)`, async () => {
+        const db = new PouchDB(dbs.name);
+
+        const info = await db.post({ test: 'somestuff' });
+
+        let threw;
+        try {
+          await db.bulkDocs({
+            docs: [ {
+              _id: info.id,
+              _rev: generateRev(info),
+              another: 'test'
+            } ],
+          });
+        } catch (err) {
+          threw = true;
+          err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
+        }
+
+        if (!threw) {
+          throw new Error('db.put() should have thrown.');
+        }
+      });
+
+      it(`bulkDocs with illegal rev value #${idx} (new doc)`, async () => {
+        const db = new PouchDB(dbs.name);
+
+        let threw;
+        try {
+          await db.bulkDocs({
+            docs: [ {
+              _id: '1',
+              _rev: generateRev({ rev:'1_valid' }),
+              another: 'test'
+            } ],
           });
         } catch (err) {
           threw = true;
