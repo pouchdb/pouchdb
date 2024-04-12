@@ -293,25 +293,26 @@ adapters.forEach(function (adapter) {
       ({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:'hi' }),
       ({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:() => 'hi' }),
     ].forEach((generateRev, idx) => {
-      it(`Modify a doc with illegal rev value #${idx}`, function (done) {
-        var db = new PouchDB(dbs.name);
-        db.post({ test: 'somestuff' }, function (err, info) {
-          var nDoc = {
+      it(`Modify a doc with illegal rev value #${idx}`, async () => {
+        const db = new PouchDB(dbs.name);
+
+        const info = await db.post({ test: 'somestuff' });
+
+        let threw;
+        try {
+          await db.put({
             _id: info.id,
             _rev: generateRev(info),
             another: 'test'
-          };
-          db.put(nDoc, function (err) {
-            try {
-              should.exist(err);
-              should.exist(err.message);
-              err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
-              done();
-            } catch (err) {
-              done(err);
-            }
           });
-        });
+        } catch (err) {
+          threw = true;
+          err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
+        }
+
+        if (!threw) {
+          throw new Error('db.put() should have thrown.');
+        }
       });
     });
 
