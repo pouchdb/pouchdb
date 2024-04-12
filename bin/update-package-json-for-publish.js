@@ -12,7 +12,7 @@ var path = require('path');
 var glob = require('glob');
 var findRequires = require('find-requires');
 var builtinModules = require('builtin-modules');
-const { flatten, uniq } = require('lodash');
+const { uniq } = require('lodash');
 
 var topPkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 var modules = fs.readdirSync('./packages/node_modules');
@@ -24,14 +24,14 @@ modules.forEach(function (mod) {
 
   // for the dependencies, find all require() calls
   var srcFiles = glob.sync(path.join(pkgDir, 'lib/**/*.js'));
-  var uniqDeps = uniq(flatten(srcFiles.map(function (srcFile) {
+  var uniqDeps = uniq(srcFiles.map(function (srcFile) {
     var code = fs.readFileSync(srcFile, 'utf8');
     try {
       return findRequires(code);
     } catch (e) {
       return []; // happens if this is an es6 module, parsing fails
     }
-  }))).filter(function (dep) {
+  }).flat()).filter(function (dep) {
     // some modules require() themselves, e.g. for plugins
     return dep !== pkg.name &&
       // exclude built-ins like 'inherits', 'fs', etc.
