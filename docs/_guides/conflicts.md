@@ -24,7 +24,7 @@ In CouchDB, conflicts can occur in two places: immediately, when you try to comm
 **Immediate conflicts** can occur with any API that takes a `rev` or a document with `_rev` as input &ndash; `put()`, `post()`, `remove()`, `bulkDocs()`, and `putAttachment()`. They manifest as a `409` (conflict) error:
 
 ```js
-var myDoc = {
+const myDoc = {
   _id: 'someid',
   _rev: '1-somerev'
 };

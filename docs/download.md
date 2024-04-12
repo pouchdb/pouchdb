@@ -9,7 +9,7 @@ sidebar: nav.html
 {% highlight html %}
 <script src="https://cdn.jsdelivr.net/npm/pouchdb@{{site.version}}/dist/pouchdb.min.js"></script>
 <script>
-  var db = new PouchDB('my_database');
+  const db = new PouchDB('my_database');
 </script>
 {% endhighlight %}
 
@@ -29,8 +29,8 @@ PouchDB can be installed through [npm](https://npmjs.com):
 After installing, call `require()` to use it:
 
 {% highlight javascript %}
-var PouchDB = require('pouchdb');
-var db = new PouchDB('my_database');
+const PouchDB = require('pouchdb');
+const db = new PouchDB('my_database');
 {% endhighlight %}
 
 PouchDB can be used either in Node or in the browser. A bundler such as [Browserify](https://browserify.org/), [Webpack](https://webpack.github.io/), or [Rollup](https://rollupjs.org/) is needed for browser usage.
@@ -43,8 +43,8 @@ faster install times:
 {% highlight bash %}npm install --save pouchdb-browser{% endhighlight %}
 
 {% highlight javascript %}
-var PouchDB = require('pouchdb-browser');
-var db = new PouchDB('my_database');
+const PouchDB = require('pouchdb-browser');
+const db = new PouchDB('my_database');
 {% endhighlight %}
 
 See [custom builds]({{ site.baseurl }}/custom.html) for more options.

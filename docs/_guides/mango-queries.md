@@ -36,7 +36,7 @@ If you are using Node, Browserify, Webpack, Rollup, etc., then you can install i
 Then in code:
 
 ```js
-var PouchDB = require('pouchdb');
+const PouchDB = require('pouchdb');
 PouchDB.plugin(require('pouchdb-find'));
 ```
 

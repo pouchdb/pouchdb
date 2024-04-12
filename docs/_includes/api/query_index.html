@@ -33,7 +33,7 @@ db.find({
 {% include code/start.html id="query_idx" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {name: 'Mario'},
     fields: ['_id', 'name'],
     sort: ['name']
@@ -134,7 +134,7 @@ db.find({
 {% include code/start.html id="query_idx2" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {name: {$eq: 'Mario'}}
   });
 } catch (err) {
@@ -171,7 +171,7 @@ db.find({
 {% include code/start.html id="query_idx3" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {name: 'Mario'}
   });
 } catch (err) {
@@ -212,7 +212,7 @@ db.find({
 {% include code/start.html id="query_idx4" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {
       series: 'Mario',
       debut: { $gt: 1990 }
@@ -260,7 +260,7 @@ db.find({
 {% include code/start.html id="query_idx5" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {
       $and: [
         { series: 'Mario' },
@@ -310,7 +310,7 @@ db.find({
 {% include code/start.html id="query_idx6" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {
       debut: {'$gte': null}
     },
