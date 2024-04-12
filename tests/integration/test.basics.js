@@ -746,23 +746,61 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Error when document is not an object', function (done) {
-      var db = new PouchDB(dbs.name);
-      var doc1 = [{ _id: 'foo' }, { _id: 'bar' }];
-      var doc2 = 'this is not an object';
-      var count = 5;
-      var callback = function (err) {
-        should.exist(err);
-        count--;
-        if (count === 0) {
-          done();
-        }
-      };
-      db.post(doc1, callback);
-      db.post(doc2, callback);
-      db.put(doc1, callback);
-      db.put(doc2, callback);
-      db.bulkDocs({docs: [doc1, doc2]}, callback);
+    [
+      null,
+      undefined,
+      [],
+      [{ _id: 'foo' }, { _id: 'bar' }],
+      'this is not an object',
+      String('this is not an object'),
+      //new String('this is not an object'), actually, this _is_ an object
+    ].forEach((badDoc, idx) => {
+      describe(`Should error when document is not an object #${idx}`, () => {
+        let db;
+
+        beforeEach(() => {
+          db = new PouchDB(dbs.name);
+        });
+
+        it('should error for .post()', async () => {
+          let threw;
+          try {
+            await db.post(badDoc);
+          } catch (err) {
+            threw = true;
+            err.message.should.equal('Document must be a JSON object');
+          }
+          if (!threw) {
+            throw new Error('should have thrown');
+          }
+        });
+
+        it('should error for .put()', async () => {
+          let threw;
+          try {
+            await db.post(badDoc);
+          } catch (err) {
+            threw = true;
+            err.message.should.equal('Document must be a JSON object');
+          }
+          if (!threw) {
+            throw new Error('should have thrown');
+          }
+        });
+
+        it('should error for .bulkDocs()', async () => {
+          let threw;
+          try {
+            await db.bulkDocs({docs: [badDoc]});
+          } catch (err) {
+            threw = true;
+            err.message.should.equal('Document must be a JSON object');
+          }
+          if (!threw) {
+            throw new Error('should have thrown');
+          }
+        });
+      });
     });
 
     it('Test instance update_seq updates correctly', function (done) {
