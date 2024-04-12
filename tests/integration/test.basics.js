@@ -747,8 +747,8 @@ adapters.forEach(function (adapter) {
     });
 
     [
-      null,
       undefined,
+      null,
       [],
       [{ _id: 'foo' }, { _id: 'bar' }],
       'this is not an object',
@@ -758,48 +758,26 @@ adapters.forEach(function (adapter) {
       describe(`Should error when document is not an object #${idx}`, () => {
         let db;
 
+        const expectNotAnObject = fn => async () => {
+          let threw;
+          try {
+            await fn();
+          } catch (err) {
+            threw = true;
+            err.message.should.equal('Document must be a JSON object');
+          }
+          if (!threw) {
+            throw new Error('should have thrown');
+          }
+        };
+
         beforeEach(() => {
           db = new PouchDB(dbs.name);
         });
 
-        it('should error for .post()', async () => {
-          let threw;
-          try {
-            await db.post(badDoc);
-          } catch (err) {
-            threw = true;
-            err.message.should.equal('Document must be a JSON object');
-          }
-          if (!threw) {
-            throw new Error('should have thrown');
-          }
-        });
-
-        it('should error for .put()', async () => {
-          let threw;
-          try {
-            await db.post(badDoc);
-          } catch (err) {
-            threw = true;
-            err.message.should.equal('Document must be a JSON object');
-          }
-          if (!threw) {
-            throw new Error('should have thrown');
-          }
-        });
-
-        it('should error for .bulkDocs()', async () => {
-          let threw;
-          try {
-            await db.bulkDocs({docs: [badDoc]});
-          } catch (err) {
-            threw = true;
-            err.message.should.equal('Document must be a JSON object');
-          }
-          if (!threw) {
-            throw new Error('should have thrown');
-          }
-        });
+        it('should error for .post()', expectNotAnObject(() => db.post(badDoc)));
+        it('should error for .put()', expectNotAnObject(() => db.put(badDoc)));
+        it('should error for .bulkDocs()', expectNotAnObject(() => db.bulkDocs({docs: [badDoc]})));
       });
     });
 
