@@ -69,14 +69,14 @@ npm install pouchdb-browser
 ```
 
 ```js
-var PouchDB = require('pouchdb-browser');
-var db = new PouchDB('mydb');
+const PouchDB = require('pouchdb-browser');
+const db = new PouchDB('mydb');
 ```
 
 #### Source code (simplified)
 
 ```js
-var PouchDB = require('pouchdb-core')
+const PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-idb'))
   .plugin(require('pouchdb-adapter-http'))
   .plugin(require('pouchdb-mapreduce'))
@@ -98,14 +98,14 @@ npm install pouchdb-node
 ```
 
 ```js
-var PouchDB = require('pouchdb-node');
-var db = new PouchDB('mydb');
+const PouchDB = require('pouchdb-node');
+const db = new PouchDB('mydb');
 ```
 
 #### Source code (simplified)
 
 ```js
-var PouchDB = require('pouchdb-core')
+const PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-leveldb'))
   .plugin(require('pouchdb-adapter-http'))
   .plugin(require('pouchdb-mapreduce'))
@@ -125,7 +125,7 @@ npm install pouchdb-core
 ```
 
 ```js
-var PouchDB = require('pouchdb-core');
+const PouchDB = require('pouchdb-core');
 PouchDB.plugin(/* attach plugins to make me more interesting! */);
 ```
 
@@ -150,7 +150,7 @@ npm install pouchdb-adapter-idb
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-idb'));
-var db = new PouchDB('mydb', {adapter: 'idb'});
+const db = new PouchDB('mydb', {adapter: 'idb'});
 console.log(db.adapter); // 'idb'
 ```
 
@@ -169,7 +169,7 @@ npm install pouchdb-adapter-websql
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-websql'));
-var db = new PouchDB('mydb', {adapter: 'websql'});
+const db = new PouchDB('mydb', {adapter: 'websql'});
 console.log(db.adapter); // 'websql'
 ```
 
@@ -186,7 +186,7 @@ npm install pouchdb-adapter-leveldb
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-leveldb'));
-var db = new PouchDB('mydb', {adapter: 'leveldb'});
+const db = new PouchDB('mydb', {adapter: 'leveldb'});
 console.log(db.adapter); // 'leveldb'
 ```
 
@@ -207,7 +207,7 @@ npm install pouchdb-adapter-http
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-http'));
-var db = new PouchDB('http://127.0.0.1:5984/mydb');
+const db = new PouchDB('http://127.0.0.1:5984/mydb');
 console.log(db.adapter); // 'http'
 ```
 
@@ -224,7 +224,7 @@ npm install pouchdb-adapter-memory
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-memory'));
-var db = new PouchDB('mydb', {adapter: 'memory'});
+const db = new PouchDB('mydb', {adapter: 'memory'});
 console.log(db.adapter); // 'memory'
 ```
 
@@ -241,7 +241,7 @@ npm install pouchdb-adapter-localstorage
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-localstorage'));
-var db = new PouchDB('mydb', {adapter: 'localstorage'});
+const db = new PouchDB('mydb', {adapter: 'localstorage'});
 console.log(db.adapter); // 'localstorage'
 ```
 
@@ -258,7 +258,7 @@ npm install pouchdb-adapter-fruitdown
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-fruitdown'));
-var db = new PouchDB('mydb', {adapter: 'fruitdown'});
+const db = new PouchDB('mydb', {adapter: 'fruitdown'});
 console.log(db.adapter); // 'fruitdown'
 ```
 
@@ -275,7 +275,7 @@ npm install pouchdb-adapter-node-websql
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-node-websql'));
-var db = new PouchDB('mydb', {adapter: 'websql'});
+const db = new PouchDB('mydb', {adapter: 'websql'});
 console.log(db.adapter); // 'websql'
 ```
 
@@ -299,7 +299,7 @@ npm install pouchdb-adapter-indexeddb
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-indexeddb'));
-var db = new PouchDB('mydb', {adapter: 'indexeddb'});
+const db = new PouchDB('mydb', {adapter: 'indexeddb'});
 console.log(db.adapter); // 'indexeddb'
 ```
 
@@ -315,7 +315,7 @@ npm install pouchdb-find
 
 ```js
 PouchDB.plugin(require('pouchdb-find'));
-var db = new PouchDB('mydb');
+const db = new PouchDB('mydb');
 db.find(/* see API docs for full info */);
 ```
 
@@ -331,7 +331,7 @@ npm install pouchdb-mapreduce
 
 ```js
 PouchDB.plugin(require('pouchdb-mapreduce'));
-var db = new PouchDB('mydb');
+const db = new PouchDB('mydb');
 db.query(/* see query API docs for full info */);
 ```
 
@@ -347,7 +347,7 @@ npm install pouchdb-replication
 
 ```js
 PouchDB.plugin(require('pouchdb-replication'));
-var db = new PouchDB('mydb');
+const db = new PouchDB('mydb');
 db.replicate(/* see replicate/sync API docs for full info */);
 ```
 

@@ -26,7 +26,7 @@ db.getAttachment('doc', 'att.txt', function(err, blobOrBuffer) {
 {% include code/start.html id="get_att1" type="async" %}
 {% highlight js %}
 try {
-  var blobOrBuffer = await db.getAttachment('doc', 'att.txt');
+  const blobOrBuffer = await db.getAttachment('doc', 'att.txt');
 } catch (err) {
   console.log(err);
 }
@@ -58,7 +58,7 @@ db.getAttachment('doc', 'att.txt', {rev: '1-abcd'}, function(err, blobOrBuffer) 
 {% include code/start.html id="get_att2" type="async" %}
 {% highlight js %}
 try {
-  var blobOrBuffer = await db.getAttachment('doc', 'att.txt', {rev: '1-abcd'});
+  const blobOrBuffer = await db.getAttachment('doc', 'att.txt', {rev: '1-abcd'});
 } catch (err) {
   console.log(err);
 }
