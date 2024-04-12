@@ -262,38 +262,38 @@ adapters.forEach(function (adapter) {
           another: 'test'
         };
         db.put(nDoc, function (err) {
-          console.log('err:', err);
           should.exist(err);
           done();
         });
       });
     });
 
-    it('dodgy rev  1', testBadRev(() => 'bad-format'));
-    it('dodgy rev  3', testBadRev(() => ({})));
-    it('dodgy rev  5', testBadRev(() => ({ toString:'2-abc' })));
-    it('dodgy rev  6', testBadRev(() => ({ toString:'2-abc', indexOf:777 })));
-    it('dodgy rev  7', testBadRev(() => ({ toString:'2-abc', indexOf:() => -1000 })));
-    it('dodgy rev  8', testBadRev(() => ({ toString:'2-abc', indexOf:() => -1000, substring:'hi' })));
-    it('dodgy rev  9', testBadRev(() => ({ toString:'2-abc', indexOf:() => -1000, substring:() => 'hi' })));
-    it('dodgy rev 10', testBadRev(() => ({ toString:() => '2-abc' })));
-    it('dodgy rev 11', testBadRev(() => ({ toString:() => '2-abc', indexOf:777 })));
-    it('dodgy rev 12', testBadRev(() => ({ toString:() => '2-abc', indexOf:() => 12 })));
-    it('dodgy rev 13', testBadRev(() => ({ toString:() => '2-abc', indexOf:() => 12, substring:'hi' })));
-    it('dodgy rev 14', testBadRev(() => ({ toString:() => '2-abc', indexOf:() => 12, substring:() => 'hi' })));
-    it('dodgy rev 17', testBadRev(({ rev }) => ({ toString:rev })));
-    it('dodgy rev 18', testBadRev(({ rev }) => ({ toString:rev, indexOf:777 })));
-    it('dodgy rev 19', testBadRev(({ rev }) => ({ toString:rev, indexOf:() => -1000 })));
-    it('dodgy rev 20', testBadRev(({ rev }) => ({ toString:rev, indexOf:() => -1000, substring:'hi' })));
-    it('dodgy rev 21', testBadRev(({ rev }) => ({ toString:rev, indexOf:() => -1000, substring:() => 'hi' })));
-    it('dodgy rev 22', testBadRev(({ rev }) => ({ toString:() => rev })));
-    it('dodgy rev 23', testBadRev(({ rev }) => ({ toString:() => rev, indexOf:777 })));
-    it('dodgy rev 24', testBadRev(({ rev }) => ({ toString:() => rev, indexOf:() => 12 })));
-    it('dodgy rev 25', testBadRev(({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:'hi' })));
-    it('dodgy rev 26', testBadRev(({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:() => 'hi' })));
-
-    function testBadRev(generateRev) {
-      return done => {
+    [
+      () => '-format',
+      () => 'bad-format',
+      () => ({}),
+      () => ({ toString:'2-abc' }),
+      () => ({ toString:'2-abc', indexOf:777 }),
+      () => ({ toString:'2-abc', indexOf:() => -1000 }),
+      () => ({ toString:'2-abc', indexOf:() => -1000, substring:'hi' }),
+      () => ({ toString:'2-abc', indexOf:() => -1000, substring:() => 'hi' }),
+      () => ({ toString:() => '2-abc' }),
+      () => ({ toString:() => '2-abc', indexOf:777 }),
+      () => ({ toString:() => '2-abc', indexOf:() => 12 }),
+      () => ({ toString:() => '2-abc', indexOf:() => 12, substring:'hi' }),
+      () => ({ toString:() => '2-abc', indexOf:() => 12, substring:() => 'hi' }),
+      ({ rev }) => ({ toString:rev }),
+      ({ rev }) => ({ toString:rev, indexOf:777 }),
+      ({ rev }) => ({ toString:rev, indexOf:() => -1000 }),
+      ({ rev }) => ({ toString:rev, indexOf:() => -1000, substring:'hi' }),
+      ({ rev }) => ({ toString:rev, indexOf:() => -1000, substring:() => 'hi' }),
+      ({ rev }) => ({ toString:() => rev }),
+      ({ rev }) => ({ toString:() => rev, indexOf:777 }),
+      ({ rev }) => ({ toString:() => rev, indexOf:() => 12 }),
+      ({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:'hi' }),
+      ({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:() => 'hi' }),
+    ].forEach((generateRev, idx) => {
+      it(`Modify a doc with illegal rev value #${idx}`, function (done) {
         var db = new PouchDB(dbs.name);
         db.post({ test: 'somestuff' }, function (err, info) {
           var nDoc = {
@@ -312,8 +312,8 @@ adapters.forEach(function (adapter) {
             }
           });
         });
-      };
-    }
+      });
+    });
 
     it('Remove doc', function (done) {
       var db = new PouchDB(dbs.name);
