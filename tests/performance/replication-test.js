@@ -32,7 +32,6 @@ module.exports = function (PouchDB, Promise) {
         remoteDbs[i] = new PouchDB(remoteCouchUrl, remoteDbOpts);
       }
 
-      console.log('Generating docs...');
       for (i = 0; i < NUM_DOCS; i++) {
         for (let j = 0; j < openRevs; j++) {
           docs.push({
