@@ -42,13 +42,13 @@ In this way, CouchDB replication "just works."
 As you already know, you can create either local PouchDBs:
 
 ```js
-var localDB = new PouchDB('mylocaldb')
+const localDB = new PouchDB('mylocaldb')
 ```
 
 or remote PouchDBs:
 
 ```js
-var remoteDB = new PouchDB('http://localhost:5984/myremotedb')
+const remoteDB = new PouchDB('http://localhost:5984/myremotedb')
 ```
 
 This pattern comes in handy when you want to share data between the two.
@@ -132,7 +132,7 @@ This is ideal for scenarios where the user may be flitting in and out of connect
 Sometimes, you may want to manually cancel replication &ndash; for instance, because the user logged out. You can do so by calling `cancel()` and then waiting for the `'complete'` event:
 
 ```js
-var syncHandler = localDB.sync(remoteDB, {
+const syncHandler = localDB.sync(remoteDB, {
   live: true,
   retry: true
 });
@@ -147,7 +147,7 @@ syncHandler.cancel(); // <-- this cancels it
 The `replicate` API also supports canceling:
 
 ```js
-var replicationHandler = localDB.replicate.to(remoteDB, {
+const replicationHandler = localDB.replicate.to(remoteDB, {
   live: true,
   retry: true
 });

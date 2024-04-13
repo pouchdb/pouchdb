@@ -30,7 +30,7 @@ db.put({
 {% include code/start.html id="newDoc" type="async" %}
 {% highlight js %}
 try {
-  var response = await db.put({
+  const response = await db.put({
     _id: 'mydoc',
     title: 'Heroes'
   });
@@ -74,8 +74,8 @@ db.get('mydoc', function(err, doc) {
 {% include code/start.html id="updateDoc" type="async" %}
 {% highlight js %}
 try {
-  var doc = await db.get('mydoc');
-  var response = await db.put({
+  const doc = await db.get('mydoc');
+  const response = await db.put({
     _id: 'mydoc',
     _rev: doc._rev,
     title: "Let's Dance"
@@ -139,7 +139,7 @@ db.post({
 {% include code/start.html id="post_doc" type="async" %}
 {% highlight js %}
 try {
-  var response = await db.post({
+  const response = await db.post({
     title: 'Ziggy Stardust'
   });
 } catch (err) {

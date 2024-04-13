@@ -39,21 +39,21 @@ This method creates a database or opens an existing one. If you use a URL like `
 
 #### Example Usage:
 {% highlight js %}
-var db = new PouchDB('dbname');
+const db = new PouchDB('dbname');
 // or
-var db = new PouchDB('http://localhost:5984/dbname');
+const db = new PouchDB('http://localhost:5984/dbname');
 {% endhighlight %}
 
 Create an in-memory Pouch (must install `pouchdb-adapter-memory` first):
 
 {% highlight js %}
-var db = new PouchDB('dbname', {adapter: 'memory'});
+const db = new PouchDB('dbname', {adapter: 'memory'});
 {% endhighlight %}
 
 Create a remote PouchDB with special fetch options:
 
 {% highlight js %}
-var db = new PouchDB('http://example.com/dbname', {
+const db = new PouchDB('http://example.com/dbname', {
   fetch: function (url, opts) {
     opts.headers.set('X-Some-Special-Header', 'foo');
     return PouchDB.fetch(url, opts);

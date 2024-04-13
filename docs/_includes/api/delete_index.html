@@ -40,7 +40,7 @@ db.deleteIndex({
 {% include code/start.html id="delete_idx" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.deleteIndex({
+  const result = await db.deleteIndex({
     "ddoc": "_design/idx-0f3a6f73110868266fa5c688caf8acd3",
     "name": "idx-0f3a6f73110868266fa5c688caf8acd3",
     "type": "json",
@@ -102,8 +102,8 @@ db.getIndexes(function (err, indexesResult) {
 {% include code/start.html id="delete_idx2" type="async" %}
 {% highlight js %}
 try {
-  var indexesResult = await db.getIndexes();
-  var result = await db.deleteIndex(indexesResult.indexes[1]);
+  const indexesResult = await db.getIndexes();
+  const result = await db.deleteIndex(indexesResult.indexes[1]);
 } catch (err) {
   console.log(err);
 }
