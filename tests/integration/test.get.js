@@ -494,10 +494,6 @@ adapters.forEach(function (adapter) {
             db.put(conflicts[1], { new_edits: false }, function () {
               db.put(conflicts[2], { new_edits: false }, function () {
                 db.get('3', { open_revs: 'all' }, function (err, res) {
-                  if (err) {
-                    return done(err);
-                  }
-
                   var i;
                   res = res.map(function (row) {
                     return row.ok;
