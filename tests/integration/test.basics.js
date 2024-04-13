@@ -271,6 +271,7 @@ adapters.forEach(function (adapter) {
     [
       () => '-format',
       () => 'bad-format',
+      () => '1-ok-bad',
       () => ({}),
       () => ({ toString:'2-abc' }),
       () => ({ toString:'2-abc', indexOf:777 }),
