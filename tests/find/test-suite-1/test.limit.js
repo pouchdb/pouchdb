@@ -285,7 +285,7 @@ describe('test.limit.js', function () {
     });
   });
 
-  it.only('should have default limit of 25', async () => {
+  it('should have default limit of 25', async () => {
     const  extraDocs = Array
       .from({ length: 30 }, (_, i) => ({ name: `Test${i}`, series: 'Test' }));
     await context.db.bulkDocs(extraDocs);
