@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env -S bash -e
 
 if [ -n "$DRY_RUN" ]; then
   echo "Doing a dry run release..."

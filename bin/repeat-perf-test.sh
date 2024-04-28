@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/usr/bin/env -S bash -eu
 
 scriptName="$(basename "$0")"
 log() { echo "[$scriptName] $*"; }

@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env -S bash -e
 
 : "${TIMEOUT:=5000}"
 : "${REPORTER:="spec"}"

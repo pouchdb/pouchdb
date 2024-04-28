@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env -S bash -e
 
 #
 # Build PouchDB with Webpack instead of Browserify, and test that.
