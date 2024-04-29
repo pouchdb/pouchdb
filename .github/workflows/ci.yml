@@ -50,7 +50,7 @@ jobs:
       matrix:
         node: [14, 16]
         cmd:
-          - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage
+          - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run test-coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
