@@ -2,7 +2,7 @@
 
 'use strict';
 
-var watch = require('watch-glob');
+var watch = require('glob-watcher');
 var http_server = require('http-server');
 const { debounce } = require('lodash');
 var browserify = require('browserify');
