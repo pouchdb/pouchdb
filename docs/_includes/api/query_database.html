@@ -64,7 +64,7 @@ For details, see the [CouchDB query options documentation](https://docs.couchdb.
 {% include code/start.html id="query1" type="callback" %}
 {% highlight js %}
 // create a design doc
-var ddoc = {
+const ddoc = {
   _id: '_design/index',
   views: {
     index: {
@@ -98,7 +98,7 @@ db.put(ddoc, function (err) {
 {% include code/start.html id="query1" type="async" %}
 {% highlight js %}
 // create a design doc
-var ddoc = {
+const ddoc = {
   _id: '_design/index',
   views: {
     index: {
@@ -122,7 +122,7 @@ try {
     // ignore if doc already exists
   }
   // find docs where title === 'Lisa Says'
-  var result = await db.query('index', {
+  const result = await db.query('index', {
     key: 'Lisa Says',
     include_docs: true
   });
@@ -135,7 +135,7 @@ try {
 {% include code/start.html id="query1" type="promise" %}
 {% highlight js %}
 // create a design doc
-var ddoc = {
+const ddoc = {
   _id: '_design/index',
   views: {
     index: {
@@ -216,7 +216,7 @@ function map(doc) {
   emit([doc.lastName, doc.firstName, doc.age]);
 }
 try {
-  var result = await db.query(map);
+  const result = await db.query(map);
 } catch (err) {
   console.log(err);
 }
@@ -294,7 +294,7 @@ function map(doc) {
   }
 }
 try {
-  var result = await db.query(map, {include_docs : true});
+  const result = await db.query(map, {include_docs : true});
 } catch (err) {
   console.log(err);
 }
@@ -380,7 +380,7 @@ If you pass a function to `db.query` and give it the `emit` function as the seco
 {% include code/start.html id="query4" type="callback" %}
 {% highlight js %}
 // BAD! will throw error
-var myId = 'foo';
+const myId = 'foo';
 db.query(function(doc) {
   if (doc._id === myId) {
     emit(doc);
@@ -390,7 +390,7 @@ db.query(function(doc) {
 });
 
 // will be fine
-var myId = 'foo';
+const myId = 'foo';
 db.query(function(doc, emit) {
   if (doc._id === myId) {
     emit(doc);
@@ -405,9 +405,9 @@ db.query(function(doc, emit) {
 {% include code/start.html id="query4" type="async" %}
 {% highlight js %}
 // BAD! will throw error
-var myId = 'foo';
+const myId = 'foo';
 try {
-  var result = await db.query(function(doc) {
+  const result = await db.query(function(doc) {
     if (doc._id === myId) {
       emit(doc);
     }
@@ -417,9 +417,9 @@ try {
 }
 
 // will be fine
-var myId = 'foo';
+const myId = 'foo';
 try {
-  var result = await db.query(function(doc, emit) {
+  const result = await db.query(function(doc, emit) {
     if (doc._id === myId) {
       emit(doc);
     }
@@ -433,7 +433,7 @@ try {
 {% include code/start.html id="query4" type="promise" %}
 {% highlight js %}
 // BAD! will throw error
-var myId = 'foo';
+const myId = 'foo';
 db.query(function(doc) {
   if (doc._id === myId) {
     emit(doc);
@@ -443,7 +443,7 @@ db.query(function(doc) {
 }
 
 // will be fine
-var myId = 'foo';
+const myId = 'foo';
 db.query(function(doc, emit) {
   if (doc._id === myId) {
     emit(doc);

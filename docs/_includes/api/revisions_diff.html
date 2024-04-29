@@ -26,7 +26,7 @@ db.revsDiff({
 {% include code/start.html id="revsdiff1" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.revsDiff({
+  const result = await db.revsDiff({
     myDoc1: [
       "1-b2e54331db828310f3c772d6e042ac9c",
       "2-3a24009a9525bde9e4bfa8a99046b00d"

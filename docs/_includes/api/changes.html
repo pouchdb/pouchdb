@@ -42,7 +42,7 @@ All options default to `false` unless otherwise specified.
 #### Example Usage:
 
 {% highlight js %}
-var changes = db.changes({
+const changes = db.changes({
   since: 'now',
   live: true,
   include_docs: true
@@ -161,7 +161,7 @@ db.changes({
 {% include code/start.html id="changes1" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.changes({
+  const result = await db.changes({
     limit: 10,
     since: 0
   });

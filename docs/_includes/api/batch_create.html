@@ -27,7 +27,7 @@ db.bulkDocs([
 {% include code/start.html id="bulk_docs_1" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.bulkDocs([
+  const result = await db.bulkDocs([
     {title : 'Lisa Says', _id: 'doc1'},
     {title : 'Space Oddity', _id: 'doc2'}
   ]);
@@ -67,7 +67,7 @@ db.bulkDocs([
 {% include code/start.html id="bulk_docs_2" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.bulkDocs([
+  const result = await db.bulkDocs([
     {title : 'Lisa Says'},
     {title : 'Space Oddity'}
   ]);
@@ -155,7 +155,7 @@ db.bulkDocs([
 {% include code/start.html id="bulk_docs3" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.bulkDocs([
+  const result = await db.bulkDocs([
     {
       title  : 'Lisa Says',
       artist : 'Velvet Underground',
@@ -225,7 +225,7 @@ db.bulkDocs([
 {% include code/start.html id="bulk_docs_4" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.bulkDocs([
+  const result = await db.bulkDocs([
     {
       title    : 'Lisa Says',
       _deleted : true,

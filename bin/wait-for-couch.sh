@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/usr/bin/env -S bash -eu
 
 maxWait="${1:-0}"
 

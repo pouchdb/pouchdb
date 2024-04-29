@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/usr/bin/env -S bash -eu
 
 # Download a pouchdb production build for testing inter-version migrations in
 # tests/integration/browser.migration.js

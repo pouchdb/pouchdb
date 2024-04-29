@@ -116,8 +116,8 @@ db.put({
 }).then(function () {
   return db.getAttachment('meowth', 'meowth.png');
 }).then(function (blob) {
-  var url = URL.createObjectURL(blob);
-  var img = document.createElement('img');
+  const url = URL.createObjectURL(blob);
+  const img = document.createElement('img');
   img.src = url;
   document.body.appendChild(img);
 }).catch(function (err) {
@@ -150,8 +150,8 @@ For instance, we can read the image data from an `<img>` tag using a `canvas` el
 
 ```js
 function convertImgToBlob(img, callback) {
-   var canvas = document.createElement('canvas');
-   var context = canvas.getContext('2d');
+   const canvas = document.createElement('canvas');
+   const context = canvas.getContext('2d');
    context.drawImage(img, 0, 0);
 
     // Warning: toBlob() isn't supported by every browser.
@@ -159,7 +159,7 @@ function convertImgToBlob(img, callback) {
    canvas.toBlob(callback, 'image/png');
 }
 
-var catImage = document.getElementById('cat');
+const catImage = document.getElementById('cat');
 convertImgToBlob(catImage, function (blob) {
   db.putAttachment('meowth', 'meowth.png', blob, 'image/png').then(function () {
     return db.get('meowth', {attachments: true});
@@ -196,9 +196,9 @@ Here is an example of allowing a user to choose a file from their filesystem:
 And then "uploading" that file directly into PouchDB:
 
 ```js
-var input = document.querySelector('input');
+const input = document.querySelector('input');
 input.addEventListener('change', function () {
-  var file = input.files[0]; // file is a Blob
+  const file = input.files[0]; // file is a Blob
 
   db.put({
     _id: 'mydoc',
@@ -285,7 +285,7 @@ The other "read" APIs, such as `get()`, `allDocs()`, `changes()`, and `query()` 
 Blobs have their own `type`, but there is also a `content_type` that you specify when you store it in PouchDB:
 
 ```js
-var myBlob = new Blob(['I am plain text!'], {type: 'text/plain'});
+const myBlob = new Blob(['I am plain text!'], {type: 'text/plain'});
 console.log(myBlob.type); // 'text/plain'
 
 db.put({
