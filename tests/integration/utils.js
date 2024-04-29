@@ -175,6 +175,26 @@ testUtils.isCouchDB = function (cb) {
   });
 };
 
+testUtils.getServerType = async () => {
+  const knownServers = [
+    'couchdb',
+    'express-pouchdb',
+    'pouchdb-express-router',
+  ];
+
+  const { url, options } = parseHostWithCreds(testUtils.couchHost());
+  const res = await PouchDB.fetch(url, options);
+  const body = await res.json();
+
+  for (const known of knownServers) {
+    if (body[known]) {
+      return known;
+    }
+  }
+
+  throw new Error(`Could not find a known server type in response: ${JSON.stringify(res)}`);
+};
+
 testUtils.writeDocs = function (db, docs, callback, res) {
   if (!res) {
     res = [];

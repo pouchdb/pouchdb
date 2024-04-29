@@ -259,6 +259,8 @@ async function startTest() {
       }
 
       console.log('Unhandled error in test page:', err);
+      console.log('  stack:', err.stack);
+      console.log('  cause:', err.cause);
       process.exit(1);
     });
 

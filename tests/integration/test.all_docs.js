@@ -460,6 +460,147 @@ adapters.forEach(function (adapter) {
 
     });
 
+    it('test total_rows with a variety of criteria * 100', function (done) {
+      var db = new PouchDB(dbs.name);
+
+      const docs = [];
+      for (let i=0; i<1000; ++i) {
+        docs.push({ _id:i.toString().padStart(5, '0') });
+      }
+
+      db.bulkDocs({docs}).then(function (res) {
+        const deletes = [];
+        for (let i=300; i<400; ++i) {
+          docs[i]._deleted = true;
+          docs[i]._rev = res[i].rev;
+          deletes.push(docs[i]);
+        }
+        for (let i=700; i<800; ++i) {
+          docs[i]._deleted = true;
+          docs[i]._rev = res[i].rev;
+          deletes.push(docs[i]);
+        }
+        if (adapter === 'http') {
+          return testUtils.getServerType().then(serverType => {
+            if (serverType === 'pouchdb-express-router') {
+              // Workaround for https://github.com/pouchdb/pouchdb-express-router/issues/18
+              return deletes.reduce(
+                (chain, doc) => chain.then(() => db.remove(doc)),
+                Promise.resolve(),
+              );
+            }
+            return Promise.all(deletes.map(doc => db.remove(doc)))
+              .then(function (deleted) {
+                deleted.should.have.length(200);
+              });
+          });
+        } else {
+          return Promise.all(deletes.map(doc => db.remove(doc)))
+            .then(function (deleted) {
+              deleted.should.have.length(200);
+            });
+        }
+      }).then(function () {
+        return db.allDocs();
+      }).then(function (res) {
+        res.rows.should.have.length(800,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00500'});
+      }).then(function (res) {
+        res.rows.should.have.length(400,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00500', skip : 200, limit : 1000});
+      }).then(function (res) {
+        res.rows.should.have.length(200,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00500', limit : 0});
+      }).then(function (res) {
+        res.rows.should.have
+          .length(0,  'correctly return rows, startkey w/ limit=0');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({keys : ['00500'], limit : 0});
+      }).then(function (res) {
+        res.rows.should.have
+          .length(0,  'correctly return rows, keys w/ limit=0');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({limit : 0});
+      }).then(function (res) {
+        res.rows.should.have.length(0,  'correctly return rows, limit=0');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00500', descending : true, skip : 1});
+      }).then(function (res) {
+        res.rows.should.have.length(400,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00500', endkey : 'z'});
+      }).then(function (res) {
+        res.rows.should.have.length(400,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00500', endkey : '00500'});
+      }).then(function (res) {
+        res.rows.should.have.length(1,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00500', endkey : '00400'});
+      }).then(function (res) {
+        res.rows.should.have.length(0,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00599', endkey : '00400', descending : true});
+      }).then(function (res) {
+        res.rows.should.have.length(200,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey:'00599', endkey:'00400', descending:true, inclusive_end:false });
+      }).then(function (res) {
+        res.rows.should.have.length(199,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00300', endkey : '00799', descending : false});
+      }).then(function (res) {
+        res.rows.should.have.length(300,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey:'00300', endkey:'00799', descending:false, inclusive_end:false });
+      }).then(function (res) {
+        res.rows.should.have.length(300,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '00799', endkey : '00300', descending : true});
+      }).then(function (res) {
+        res.rows.should.have.length(300,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({startkey : '', endkey : '00000'});
+      }).then(function (res) {
+        res.rows.should.have.length(1,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({keys : ['00000', '00100', '00300']});
+      }).then(function (res) {
+        res.rows.should.have.length(3,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({keys : ['00000', '00100', '00000', '00200', '00100', '00100']});
+      }).then(function (res) {
+        res.rows.should.have.length(6,  'correctly return rows');
+        res.rows.map(function (row) { return row.key; }).should.deep.equal(
+          ['00000', '00100', '00000', '00200', '00100', '00100']);
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({keys : []});
+      }).then(function (res) {
+        res.rows.should.have.length(0,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({keys : ['00700']});
+      }).then(function (res) {
+        res.rows.should.have.length(1,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({key : '00300'});
+      }).then(function (res) {
+        res.rows.should.have.length(0,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({key : '00200'});
+      }).then(function (res) {
+        res.rows.should.have.length(1,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        return db.allDocs({key : 'z'});
+      }).then(function (res) {
+        res.rows.should.have.length(0,  'correctly return rows');
+        res.total_rows.should.equal(800,  'correctly return total_rows');
+        done();
+      }, done);
+    });
+
     it('test total_rows with both skip and limit', function (done) {
       var db = new PouchDB(dbs.name);
       var docs = {
