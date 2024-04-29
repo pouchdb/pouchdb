@@ -2,9 +2,9 @@
 
 'use strict';
 
-var watch = require('watch-glob');
+var watch = require('glob-watcher');
 var http_server = require('http-server');
-var debounce = require('lodash.debounce');
+const { debounce } = require('lodash');
 var browserify = require('browserify');
 var fs = require('fs');
 

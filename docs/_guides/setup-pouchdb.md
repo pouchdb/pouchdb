@@ -63,7 +63,7 @@ $ npm install pouchdb
 Then in your JavaScript:
 
 ```js
-var PouchDB = require('pouchdb');
+const PouchDB = require('pouchdb');
 ```
 
 {% include anchor.html title="With TypeScript" hash="typescript" %}

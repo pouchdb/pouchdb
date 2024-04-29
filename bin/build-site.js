@@ -71,7 +71,7 @@ function buildEverything() {
 
 if (!process.env.BUILD) {
   const http_server = require('http-server');
-  const watchGlob = require('watch-glob');
+  const watchGlob = require('glob-watcher');
 
   watchGlob('**', buildJekyll);
   watchGlob('docs/static/less/*/*.less', buildCSS);

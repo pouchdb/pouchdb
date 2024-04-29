@@ -55,8 +55,8 @@ The rest of the work will be done inside `app.js`. We will start by creating a d
 {% highlight js %}
 // EDITING STARTS HERE (you don't need to edit anything above this line)
 
-var db = new PouchDB('todos');
-var remoteCouch = false;
+const db = new PouchDB('todos');
+const remoteCouch = false;
 {% endhighlight %}
 
 You don't need to create a schema for the database. After giving it a name, you can immediately start writing objects to it.
@@ -67,7 +67,7 @@ The first thing we shall do is start writing items to the database. The main inp
 
 {% highlight js %}
 function addTodo(text) {
-  var todo = {
+  const todo = {
     _id: new Date().toISOString(),
     title: text,
     completed: false
@@ -103,7 +103,7 @@ Once you have included this code, you should be able to refresh the page to see 
 We don't want to refresh the page to see new items. More typically you would update the UI manually when you write data to it, however, in PouchDB you may be syncing data remotely, so you want to make sure you update whenever the remote data changes. To do this we will call `db.changes` which subscribes to updates to the database, wherever they come from. You can enter this code between the `remoteCouch` and `addTodo` declaration:
 
 {% highlight js %}
-var remoteCouch = false;
+const remoteCouch = false;
 
 db.changes({
   since: 'now',
@@ -149,7 +149,7 @@ Similar to editing a document, both the `_id` and `_rev` properties are required
 
 {% highlight js %}
 function todoBlurred(todo, event) {
-  var trimmedText = event.target.value.trim();
+  const trimmedText = event.target.value.trim();
   if (!trimmedText) {
     db.remove(todo);
   } else {
@@ -191,8 +191,8 @@ Now we will have the todo list sync. Back in `app.js` we need to specify the add
 {% highlight js %}
 // EDITING STARTS HERE (you don't need to edit anything above this line)
 
-var db = new PouchDB('todos');
-var remoteCouch = 'http://user:pass@myname.example.com/todos';
+const db = new PouchDB('todos');
+const remoteCouch = 'http://user:pass@myname.example.com/todos';
 {% endhighlight %}
 
 Then we can implement the sync function like so:
@@ -200,7 +200,7 @@ Then we can implement the sync function like so:
 {% highlight js %}
 function sync() {
   syncDom.setAttribute('data-sync-state', 'syncing');
-  var opts = {live: true};
+  const opts = {live: true};
   db.replicate.to(remoteCouch, opts, syncError);
   db.replicate.from(remoteCouch, opts, syncError);
 }

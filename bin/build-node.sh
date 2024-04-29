@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env -S bash -e
 
 # don't bother doing this in GHA because it's already been built
 if [ -z "$GITHUB_REPOSITORY" ]; then

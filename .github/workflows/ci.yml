@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -36,6 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - run: sudo apt-get install shellcheck
       - run: git ls-files '*.sh' | xargs shellcheck
 
@@ -62,6 +66,8 @@ jobs:
       SKIP_MIGRATION: 1
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
@@ -105,6 +111,8 @@ jobs:
       SKIP_MIGRATION: 1
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -146,6 +154,8 @@ jobs:
       ADAPTERS: ${{ matrix.adapter }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
@@ -184,6 +194,8 @@ jobs:
       ADAPTERS: ${{ matrix.adapter }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -223,6 +235,8 @@ jobs:
       SERVER: pouchdb-server
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -262,6 +276,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}

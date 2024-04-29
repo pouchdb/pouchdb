@@ -37,7 +37,7 @@ All options default to `false` unless otherwise specified.
 #### Example Usage:
 
 {% highlight js %}
-var rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {
+const rep = PouchDB.replicate('mydb', 'http://localhost:5984/mydb', {
   live: true,
   retry: true
 }).on('change', function (info) {
@@ -93,7 +93,7 @@ db.replicate.to(remote, function (err, result) {
 {% include code/start.html id="replication1" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.replicate.to(remote);
+  const result = await db.replicate.to(remote);
 } catch (err) {
   console.log(err);
 }

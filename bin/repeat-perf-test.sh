@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/usr/bin/env -S bash -eu
 
 scriptName="$(basename "$0")"
 log() { echo "[$scriptName] $*"; }
@@ -37,7 +37,7 @@ if [[ "$#" -lt 1 ]]; then
       Repeatedly run the performance test suite against one or more versions of the codebase.
 
     USAGE
-      [PERF_REPEATS=<N>] $0 ...tree-ish
+      [PERF_REPEATS=<N>] $0 ...tree-ish:adapter
 
 EOF
   exit 1
@@ -52,10 +52,13 @@ fi
 log
 declare -a commits
 i=0
-for treeish in "$@"; do
+for treeish_adapter in "$@"; do
+  adapter="${treeish_adapter#*:}"
+  treeish="${treeish_adapter%:*}"
+  adapters[i]="$adapter"
   commits[i]="$(git rev-parse "$treeish")"
   description="$(git show --oneline --no-patch "$treeish")"
-  log "  $((i=i+1)). $description ($treeish)"
+  log "  $((i=i+1)). $adapter: $description ($treeish)"
 done
 log
 log "!!! This may cause strange issues if you have uncomitted changes. !!!"
@@ -91,13 +94,16 @@ npm_install # in case of different deps on different branches
 npm run build-test
 
 iterate_tests() {
-  for commit in "${commits[@]}"; do
-    log "Running perf tests on $commit..."
+  for i in "${!commits[@]}"; do
+    commit="${commits[$i]}"
+    adapter="${adapters[$i]}"
+    log "Running perf tests on $commit with adapter-$adapter..."
     SRC_ROOT="../../dist-bundles/$commit" \
     JSON_REPORTER=1 \
     PERF=1 \
     USE_MINIFIED=1 \
     MANUAL_DEV_SERVER=1 \
+    ADAPTERS="$adapter" \
     node ./bin/test-browser.js
 
     sleep 1

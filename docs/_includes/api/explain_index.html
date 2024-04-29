@@ -36,7 +36,7 @@ db.explain({
 {% include code/start.html id="explain_idx" type="async" %}
 {% highlight js %}
 try {
-  var explanation = await db.explain({
+  const explanation = await db.explain({
     selector: {
       name: 'Mario',
       series: "mario"
