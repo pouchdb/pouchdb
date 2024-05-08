@@ -17,6 +17,9 @@ env:
   NODE_VERSION: 14
   TEST_HOST: localhost
 
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
 jobs:
 
   # Check style compliance of JavaScript code.
