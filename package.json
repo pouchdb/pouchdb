@@ -52,7 +52,6 @@
     "ltgt": "2.2.1",
     "memdown": "1.4.1",
     "node-fetch": "2.6.9",
-    "readable-stream": "1.1.14",
     "spark-md5": "3.0.2",
     "through2": "3.0.2",
     "uuid": "8.3.2",
@@ -106,13 +105,11 @@
   },
   "// greenkeeper": [
     "// chai-as-promised is pinned because of breaking changes in 6.0.0",
-    "// readable-stream has breaking changes in 2.0.0",
     "// stream-to-promise is pinned because there's a breaking change in 2.0.0"
   ],
   "greenkeeper": {
     "ignore": [
       "chai-as-promised",
-      "readable-stream",
       "stream-to-promise"
     ]
   }
