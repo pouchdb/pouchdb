@@ -38,7 +38,6 @@
     "url": "https://github.com/pouchdb/pouchdb.git"
   },
   "dependencies": {
-    "abort-controller": "3.0.0",
     "clone-buffer": "1.0.0",
     "double-ended-queue": "2.1.0-0",
     "fetch-cookie": "2.2.0",
