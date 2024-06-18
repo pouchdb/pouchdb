@@ -2,7 +2,6 @@
 
 var nodeResolve = require('rollup-plugin-node-resolve');
 var replace = require('rollup-plugin-replace');
-var inject = require('rollup-plugin-inject');
 
 function rollupPlugins(nodeResolveConfig) {
   return [
@@ -12,13 +11,6 @@ function rollupPlugins(nodeResolveConfig) {
       'process.env.COVERAGE': JSON.stringify(!!process.env.COVERAGE),
       // test for fetch vs xhr
       'process.env.FETCH': JSON.stringify(!!process.env.FETCH)
-    }),
-    inject({
-      exclude: [
-        '**/pouchdb-collections/src/**'
-      ],
-      Map: ['pouchdb-collections', 'Map'],
-      Set: ['pouchdb-collections', 'Set'],
     })
   ];
 }
