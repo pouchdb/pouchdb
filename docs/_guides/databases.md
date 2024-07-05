@@ -12,7 +12,7 @@ PouchDB databases come in two flavors: local and remote.
 To create a local database, you simply call `new PouchDB` and give it a name:
 
 ```js
-var db = new PouchDB('kittens');
+const db = new PouchDB('kittens');
 ```
 
 You can see a **[live example](http://bl.ocks.org/nolanlawson/bddac54b92c2d8d39241)** of this code.
@@ -37,7 +37,7 @@ Now the site is up and running at <a href='http://localhost:8000'>http://localho
 To create a remote database, you call `new PouchDB` and give it a path to a database in CouchDB.
 
 ```js
-var db = new PouchDB('http://localhost:5984/kittens');
+const db = new PouchDB('http://localhost:5984/kittens');
 ```
 
 {% include alert/start.html variant="info" %}

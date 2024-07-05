@@ -30,7 +30,7 @@ db.getIndexes(function (err, result) {
 {% include code/start.html id="get_idxs" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.getIndexes();
+  const result = await db.getIndexes();
 } catch (err) {
   console.log(err);
 }

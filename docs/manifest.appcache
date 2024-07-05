@@ -17,19 +17,19 @@ CACHE:
 /static/js/code.min.js
 /static/js/stickyfill.min.js
 
-http://code.jquery.com/jquery.min.js
-http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js
-http://cdn.jsdelivr.net/npm/pouchdb/dist/pouchdb.min.js
+https://code.jquery.com/jquery.min.js
+https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js
+https://cdn.jsdelivr.net/npm/pouchdb/dist/pouchdb.min.js
 
-http://fonts.googleapis.com/css?family=Lato:400,700|Open+Sans:400,700
-http://fonts.gstatic.com/s/lato/v11/8qcEw_nrk_5HEcCpYdJu8BTbgVql8nDJpwnrE27mub0.woff2
-http://fonts.gstatic.com/s/lato/v11/MDadn8DQ_3oT6kvnUq_2rxTbgVql8nDJpwnrE27mub0.woff2
-http://fonts.gstatic.com/s/lato/v11/rZPI2gHXi8zxUjnybc2ZQFKPGs1ZzpMvnHX-7fPOuAc.woff2
-http://fonts.gstatic.com/s/lato/v11/MgNNr5y1C_tIEuLEmicLm1KPGs1ZzpMvnHX-7fPOuAc.woff2
-http://fonts.gstatic.com/s/opensans/v10/u-WUoqrET9fUeobQW7jkRZBw1xU1rKptJj_0jans920.woff2
-http://fonts.gstatic.com/s/opensans/v10/cJZKeOuBrn4kERxqtaUH3ZBw1xU1rKptJj_0jans920.woff2
-http://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzCYtBUPDK3WL7KRKS_3q7OE.woff2
-http://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzBampu5_7CjHW5spxoeN3Vs.woff2
+https://fonts.googleapis.com/css?family=Lato:400,700|Open+Sans:400,700
+https://fonts.gstatic.com/s/lato/v11/8qcEw_nrk_5HEcCpYdJu8BTbgVql8nDJpwnrE27mub0.woff2
+https://fonts.gstatic.com/s/lato/v11/MDadn8DQ_3oT6kvnUq_2rxTbgVql8nDJpwnrE27mub0.woff2
+https://fonts.gstatic.com/s/lato/v11/rZPI2gHXi8zxUjnybc2ZQFKPGs1ZzpMvnHX-7fPOuAc.woff2
+https://fonts.gstatic.com/s/lato/v11/MgNNr5y1C_tIEuLEmicLm1KPGs1ZzpMvnHX-7fPOuAc.woff2
+https://fonts.gstatic.com/s/opensans/v10/u-WUoqrET9fUeobQW7jkRZBw1xU1rKptJj_0jans920.woff2
+https://fonts.gstatic.com/s/opensans/v10/cJZKeOuBrn4kERxqtaUH3ZBw1xU1rKptJj_0jans920.woff2
+https://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzCYtBUPDK3WL7KRKS_3q7OE.woff2
+https://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzBampu5_7CjHW5spxoeN3Vs.woff2
 
 /static/img/apple-indexeddb.png
 /static/img/cors_in_couchdb.png
@@ -46,8 +46,6 @@ http://fonts.gstatic.com/s/opensans/v10/k3k702ZOKiLJc3WVjuplzBampu5_7CjHW5spxoeN
 /static/img/friends/couchdb.svg
 /static/img/friends/github.svg
 /static/img/friends/leveldb.svg
-/static/img/friends/saucelabs.svg
-/static/img/friends/travis.svg
 /static/img/friends/twitter.svg
 
 /static/img/browser-logos/android_32x32.png

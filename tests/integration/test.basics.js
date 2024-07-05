@@ -268,6 +268,120 @@ adapters.forEach(function (adapter) {
       });
     });
 
+    [
+      () => '-format',
+      () => 'bad-format',
+      () => '1-ok-bad',
+      () => ({}),
+      () => ({ toString:'2-abc' }),
+      () => ({ toString:'2-abc', indexOf:777 }),
+      () => ({ toString:'2-abc', indexOf:() => -1000 }),
+      () => ({ toString:'2-abc', indexOf:() => -1000, substring:'hi' }),
+      () => ({ toString:'2-abc', indexOf:() => -1000, substring:() => 'hi' }),
+      () => ({ toString:() => '2-abc' }),
+      () => ({ toString:() => '2-abc', indexOf:777 }),
+      () => ({ toString:() => '2-abc', indexOf:() => 12 }),
+      () => ({ toString:() => '2-abc', indexOf:() => 12, substring:'hi' }),
+      () => ({ toString:() => '2-abc', indexOf:() => 12, substring:() => 'hi' }),
+      ({ rev }) => ({ toString:rev }),
+      ({ rev }) => ({ toString:rev, indexOf:777 }),
+      ({ rev }) => ({ toString:rev, indexOf:() => -1000 }),
+      ({ rev }) => ({ toString:rev, indexOf:() => -1000, substring:'hi' }),
+      ({ rev }) => ({ toString:rev, indexOf:() => -1000, substring:() => 'hi' }),
+      ({ rev }) => ({ toString:() => rev }),
+      ({ rev }) => ({ toString:() => rev, indexOf:777 }),
+      ({ rev }) => ({ toString:() => rev, indexOf:() => 12 }),
+      ({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:'hi' }),
+      ({ rev }) => ({ toString:() => rev, indexOf:() => 12, substring:() => 'hi' }),
+    ].forEach((generateRev, idx) => {
+      it(`post doc with illegal rev value #${idx}`, async () => {
+        const db = new PouchDB(dbs.name);
+
+        let threw;
+        try {
+          await db.post({
+            _rev: generateRev({ rev:'1-valid' }),
+            another: 'test'
+          });
+        } catch (err) {
+          threw = true;
+          err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
+        }
+
+        if (!threw) {
+          throw new Error('db.put() should have thrown.');
+        }
+      });
+
+      it(`Modify a doc with illegal rev value #${idx}`, async () => {
+        const db = new PouchDB(dbs.name);
+
+        const info = await db.post({ test: 'somestuff' });
+
+        let threw;
+        try {
+          await db.put({
+            _id: info.id,
+            _rev: generateRev(info),
+            another: 'test'
+          });
+        } catch (err) {
+          threw = true;
+          err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
+        }
+
+        if (!threw) {
+          throw new Error('db.put() should have thrown.');
+        }
+      });
+
+      it(`bulkDocs with illegal rev value #${idx} (existing doc)`, async () => {
+        const db = new PouchDB(dbs.name);
+
+        const info = await db.post({ test: 'somestuff' });
+
+        let threw;
+        try {
+          await db.bulkDocs({
+            docs: [ {
+              _id: info.id,
+              _rev: generateRev(info),
+              another: 'test'
+            } ],
+          });
+        } catch (err) {
+          threw = true;
+          err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
+        }
+
+        if (!threw) {
+          throw new Error('db.put() should have thrown.');
+        }
+      });
+
+      it(`bulkDocs with illegal rev value #${idx} (new doc)`, async () => {
+        const db = new PouchDB(dbs.name);
+
+        let threw;
+        try {
+          await db.bulkDocs({
+            docs: [ {
+              _id: '1',
+              _rev: generateRev({ rev:'1_valid' }),
+              another: 'test'
+            } ],
+          });
+        } catch (err) {
+          threw = true;
+          err.message.should.equal('Invalid rev format'); // TODO should be err.reason?
+        }
+
+        if (!threw) {
+          throw new Error('db.put() should have thrown.');
+        }
+      });
+    });
+
     it('Remove doc', function (done) {
       var db = new PouchDB(dbs.name);
       db.post({ test: 'somestuff' }, function (err, info) {
@@ -350,9 +464,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('Remove doc twice with specified id', function () {
-      if (testUtils.isIE()) {
-        return Promise.resolve();
-      }
       var db = new PouchDB(dbs.name);
       return db.put({_id: 'specifiedId', test: 'somestuff'}).then(function () {
         return db.get('specifiedId');
@@ -628,7 +739,7 @@ adapters.forEach(function (adapter) {
         if (++sent === TO_SEND) {
           clearInterval(timer);
         }
-        db.bulkDocs({docs: docs}, bulkCallback);
+        db.bulkDocs({docs}, bulkCallback);
       };
 
       timer = setInterval(save, 10);
@@ -749,23 +860,39 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Error when document is not an object', function (done) {
-      var db = new PouchDB(dbs.name);
-      var doc1 = [{ _id: 'foo' }, { _id: 'bar' }];
-      var doc2 = 'this is not an object';
-      var count = 5;
-      var callback = function (err) {
-        should.exist(err);
-        count--;
-        if (count === 0) {
-          done();
-        }
-      };
-      db.post(doc1, callback);
-      db.post(doc2, callback);
-      db.put(doc1, callback);
-      db.put(doc2, callback);
-      db.bulkDocs({docs: [doc1, doc2]}, callback);
+    [
+      undefined,
+      null,
+      [],
+      [{ _id: 'foo' }, { _id: 'bar' }],
+      'this is not an object',
+      String('this is not an object'),
+      //new String('this is not an object'), actually, this _is_ an object
+    ].forEach((badDoc, idx) => {
+      describe(`Should error when document is not an object #${idx}`, () => {
+        let db;
+
+        const expectNotAnObject = fn => async () => {
+          let threw;
+          try {
+            await fn();
+          } catch (err) {
+            threw = true;
+            err.message.should.equal('Document must be a JSON object');
+          }
+          if (!threw) {
+            throw new Error('should have thrown');
+          }
+        };
+
+        beforeEach(() => {
+          db = new PouchDB(dbs.name);
+        });
+
+        it('should error for .post()', expectNotAnObject(() => db.post(badDoc)));
+        it('should error for .put()', expectNotAnObject(() => db.put(badDoc)));
+        it('should error for .bulkDocs()', expectNotAnObject(() => db.bulkDocs({docs: [badDoc]})));
+      });
     });
 
     it('Test instance update_seq updates correctly', function (done) {

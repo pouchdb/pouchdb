@@ -25,3 +25,5 @@ package-lock.json
 yarn.lock
 /.eslintcache
 release-todo.txt
+/perf-test-results/
+/dist-bundles/

@@ -49,12 +49,12 @@ adapters.forEach(function (adapters) {
       }).then(function (res) {
         res.rows.should.have.length(4, 'allDocs empty opts');
         if (!db.query) {
-          return testUtils.Promise.resolve();
+          return Promise.resolve();
         }
         return db.query('all/all', {key: 'constructor'});
       }).then(function (res) {
         if (!db.query) {
-          return testUtils.Promise.resolve();
+          return Promise.resolve();
         }
         res.rows.should.have.length(1, 'query with key');
         return db.query('all/all', {keys: ['constructor']});
@@ -62,7 +62,7 @@ adapters.forEach(function (adapters) {
         if (db.query) {
           res.rows.should.have.length(1, 'query with keys');
         }
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           db.replicate.to(remote).on('complete', resolve).on('error', reject);
         });
       });

@@ -1,0 +1,18 @@
+{
+  "extends": "../.eslintrc.json",
+  "env": {
+    "mocha": true
+  },
+
+  "globals": {
+    "chrome": "readonly",
+    "sqlitePlugin": "readonly",
+    "PouchDB": "readonly",
+    "should": "readonly",
+    "assert": "readonly",
+    "testUtils": "readonly",
+    "importScripts": "readonly",
+    "testCases": "readonly",
+    "globalThis": "readonly"
+  }
+}

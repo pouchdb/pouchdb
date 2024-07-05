@@ -9,19 +9,11 @@ var results = {
   tests: {}
 };
 
-// Capture test events for test runner output
-var testEventsBuffer = [];
-
-global.testEvents = function () {
-  var events = testEventsBuffer;
-  testEventsBuffer = [];
-  return events;
-};
-
-// fix for Firefox max timing entries capped to 150:
-// https://bugzilla.mozilla.org/show_bug.cgi?id=1331135
-if (typeof performance !== 'undefined' && performance.setResourceTimingBufferSize) {
-  performance.setResourceTimingBufferSize(100000);
+function emitMochaEvent(details) {
+  // NodeJS perf testing just reports with console.log().
+  if (typeof window !== 'undefined') {
+    window.postMessage({ type: 'mocha', details });
+  }
 }
 
 var pre = !isNode && global.document.getElementById('output');
@@ -38,11 +30,11 @@ exports.log = log;
 
 exports.startSuite = function (suiteName) {
   log('Starting suite: ' + suiteName + '\n\n');
-  testEventsBuffer.push({ name: 'suite', obj: { title: suiteName } });
+  emitMochaEvent({ name: 'suite', obj: { title: suiteName } });
 };
 
 exports.endSuite = function (suiteName) {
-  testEventsBuffer.push({ name: 'suite end', obj: { title: suiteName } });
+  emitMochaEvent({ name: 'suite end', obj: { title: suiteName } });
 };
 
 exports.start = function (testCase, iter) {
@@ -61,8 +53,8 @@ exports.end = function (testCase) {
   obj.numIterations = obj.iterations.length;
   delete obj.iterations; // keep it simple when reporting
   log('median: ' + obj.median + ' ms\n');
-  testEventsBuffer.push({ name: 'pass', obj: { title: testCase.name } });
-  testEventsBuffer.push({ name: 'benchmark:result', obj });
+  emitMochaEvent({ name: 'pass', obj: { title: testCase.name } });
+  emitMochaEvent({ name: 'benchmark:result', obj });
 };
 
 exports.startIteration = function (testCase) {
@@ -75,7 +67,7 @@ exports.endIteration = function (testCase) {
 };
 
 exports.startAll = function () {
-  testEventsBuffer.push({ name: 'start' });
+  emitMochaEvent({ name: 'start' });
 };
 
 exports.complete = function (adapter) {
@@ -97,6 +89,6 @@ exports.complete = function (adapter) {
   results.adapter = adapter;
   console.log('=>', JSON.stringify(results, null, '  '), '<=');
   log('\nTests Complete!\n\n');
-  testEventsBuffer.push({ name: 'end', obj: results });
+  emitMochaEvent({ name: 'end', obj: results });
 };
 

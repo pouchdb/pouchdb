@@ -1,0 +1,16 @@
+name: Install CouchDB
+description: Intall CouchDB with the version specified in `inputs.couchdb-version`
+
+inputs:
+  couchdb-version:
+    description: the version of CouchDB to install
+    required: false
+    default: '3.1'
+
+runs:
+  using: composite
+
+  steps:
+    - uses: iamssen/couchdb-github-action@master
+      with:
+        couchdb-version: ${{ inputs.couchdb-version }}

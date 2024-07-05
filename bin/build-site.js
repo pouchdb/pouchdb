@@ -30,7 +30,7 @@ function buildCSS() {
 }
 
 function buildJekyll(path) {
-  // Dont rebuild on website artifacts being written
+  // Don't rebuild on website artifacts being written
   if (path && /^_site/.test(path.relative)) {
     return;
   }
@@ -71,7 +71,7 @@ function buildEverything() {
 
 if (!process.env.BUILD) {
   const http_server = require('http-server');
-  const watchGlob = require('watch-glob');
+  const watchGlob = require('glob-watcher');
 
   watchGlob('**', buildJekyll);
   watchGlob('docs/static/less/*/*.less', buildCSS);
