@@ -2,7 +2,7 @@
 name: Documentation update
 about: Propose document updates
 title: ''
-labels: ''
+labels: 'documentation'
 assignees: ''
 
 ---
