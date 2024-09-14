@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "add-cors-to-couchdb": "0.0.6",
-    "body-parser": "1.19.0",
+    "body-parser": "1.20.3",
     "browserify": "16.4.0",
     "browserify-incremental": "3.1.1",
     "builtin-modules": "3.1.0",
