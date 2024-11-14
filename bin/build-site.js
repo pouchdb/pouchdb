@@ -5,7 +5,6 @@
 var fs = require('fs');
 var replace = require('replace');
 var exec = require('child-process-promise').exec;
-var mkdirp = require('mkdirp');
 var cssmin = require('cssmin');
 
 var POUCHDB_CSS = __dirname + '/../docs/static/css/pouchdb.css';
@@ -20,7 +19,7 @@ function checkJekyll() {
 }
 
 function buildCSS() {
-  mkdirp.sync(__dirname + '/../docs/static/css');
+  fs.mkdirSync(__dirname + '/../docs/static/css', { recursive:true });
   var cmd = __dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS;
   return exec(cmd).then(function (child) {
     var minifiedCss = cssmin(child.stdout);
