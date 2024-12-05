@@ -37,8 +37,6 @@
     "url": "https://github.com/pouchdb/pouchdb.git"
   },
   "dependencies": {
-    "abort-controller": "3.0.0",
-    "clone-buffer": "1.0.0",
     "double-ended-queue": "2.1.0-0",
     "fetch-cookie": "2.2.0",
     "fruitdown": "1.0.2",
@@ -59,7 +57,7 @@
   },
   "devDependencies": {
     "add-cors-to-couchdb": "0.0.6",
-    "body-parser": "1.19.0",
+    "body-parser": "1.20.3",
     "browserify": "16.4.0",
     "browserify-incremental": "3.1.1",
     "builtin-modules": "3.1.0",
@@ -71,7 +69,7 @@
     "denodeify": "1.2.1",
     "derequire": "2.1.1",
     "eslint": "8.7.0",
-    "express": "4.19.2",
+    "express": "4.20.0",
     "express-pouchdb": "4.2.0",
     "find-requires": "1.0.0",
     "glob": "7.1.5",
@@ -90,7 +88,6 @@
     "replace": "1.2.1",
     "rimraf": "2.7.1",
     "rollup": "0.67.4",
-    "rollup-plugin-inject": "3.0.1",
     "rollup-plugin-node-resolve": "4.2.4",
     "rollup-plugin-replace": "1.2.1",
     "seedrandom": "3.0.5",

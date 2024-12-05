@@ -232,9 +232,20 @@ Sets the number of iterations each test uses by default.
 
 ### Running tests in the browser
 
-Normally we use `CLIENT=firefox` to run a set of tests in the browser
-automatically. This opens a browser window, automatically runs the requested
-tests in it, and reports the results back to the shell.
+To run tests in the browser, you first have to install playwright:
+
+```shell
+npx playwright install
+```
+
+This will download the `firefox`, `chromium` and `webkit` `CLIENT`s onto
+your system.
+
+PouchDB is tested with `CLIENT=firefox`, `CLIENT=chromium` and `CLIENT=webkit`
+to run a set of tests in the browser automatically. This runs these browsers
+in a “headless” mode and prints the test results back into the terminal.
+
+    $ CLIENT=firefox npm test
 
 You can also run browser tests in a more "manual" fashion by running the dev
 server and opening a browser window yourself. To run the server:
