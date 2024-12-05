@@ -14,7 +14,7 @@ on:
     branches: [master]
 
 env:
-  NODE_VERSION: 14
+  NODE_VERSION: 20
   TEST_HOST: localhost
 
 permissions:
@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [14, 16]
+        node: [18, 20]
         cmd:
           - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run test-coverage
     runs-on: ubuntu-latest

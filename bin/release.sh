@@ -31,7 +31,7 @@ ls packages/node_modules > release-todo.txt
 rm -fr lib src dist bower.json component.json package.json
 cp -r packages/node_modules/pouchdb/{src,lib,dist,bower.json,component.json,package.json} .
 git add -f -- lib src dist *.json
-git rm -fr packages bin docs scripts tests
+git rm -fr packages bin docs tests
 
 git commit -m "build $VERSION"
 
