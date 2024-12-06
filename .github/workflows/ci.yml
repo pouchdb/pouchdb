@@ -232,7 +232,6 @@ jobs:
           - npm run test-unit
           - npm run test-component
           - npm run test-fuzzy
-          # - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage
           - npm run verify-build
     runs-on: ubuntu-latest
     steps:
