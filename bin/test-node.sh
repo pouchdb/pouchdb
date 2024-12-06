@@ -29,10 +29,6 @@ fi
 if [ $TYPE = "find" ]; then
     TESTS_PATH="tests/find/*/test.*.js"
 fi
-if [ "$COVERAGE" ]; then
-    # run all tests when testing for coverage
-    TESTS_PATH="tests/{unit,integration,mapreduce,component}/test*.js tests/find/*/test.*.js"
-fi
 
 if [ "$PERF" ]; then
     node tests/performance/index.js
@@ -47,8 +43,11 @@ elif [ ! "$COVERAGE" ]; then
         --grep="$GREP" \
         "$TESTS_PATH"
 else
+    # Ignore TESTS_PATH:
+    # run all tests when testing for coverage
+
     # --exit required to workaround #8839
-    ./node_modules/.bin/istanbul cover \
+    ./node_modules/.bin/nyc \
        --no-default-excludes -x 'tests/**' -x 'node_modules/**' \
        ./node_modules/mocha/bin/_mocha -- \
         --exit \
@@ -57,9 +56,9 @@ else
         --require=./tests/integration/node.setup.js \
         --reporter="$REPORTER" \
         --grep="$GREP" \
-        "$TESTS_PATH"
-
-    ./node_modules/.bin/istanbul check-coverage --line 100
+        'tests/{unit,integration,mapreduce,component}/test*.js' \
+        'tests/find/*/test.*.js'
+    ./node_modules/.bin/nyc check-coverage --line 100
 fi
 
 EXIT_STATUS=$?
