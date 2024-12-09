@@ -10,7 +10,7 @@ fi
 
 #make sure deps are up to date
 rm -fr node_modules
-npm install
+npm clean-install
 
 # get current version
 VERSION=$(node --eval "console.log(require('./packages/node_modules/pouchdb/package.json').version);")
