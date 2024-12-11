@@ -3,12 +3,16 @@ name: PouchDB Docs
 on:
   push:
     paths:
+      - '.github/actions/**'
+      - '.github/workflows/docs.yml'
       - 'package.json'
       - 'bin/**'
       - 'docs/**'
   pull_request:
     branches: [master]
     paths:
+      - '.github/actions/**'
+      - '.github/workflows/docs.yml'
       - 'package.json'
       - 'bin/**'
       - 'docs/**'
@@ -24,7 +28,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/install-node-package
         with:
-          node-version: 14
+          node-version: 22
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7
