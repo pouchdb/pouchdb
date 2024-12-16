@@ -5,7 +5,7 @@ lockfile=package-lock.json
 log() { echo "[verify-package-lock] $*"; }
 
 log "Pruning dependencies..."
-npm prune --fund=false
+npm prune --fund=false --audit=false
 
 log "Checking for changes to $lockfile..."
 if [[ "$(git status --porcelain -- "$lockfile")" != "" ]]; then
