@@ -2,7 +2,7 @@
 
 lockfile=package-lock.json
 
-log() { echo >&2 "[verify-package-lock] $*"; }
+log() { echo "[verify-package-lock] $*"; }
 
 log "Pruning dependencies..."
 npm prune --fund=false
