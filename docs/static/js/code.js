@@ -111,3 +111,31 @@ function codeWrap(){
   }
 }
 codeWrap();
+
+function addCodeCopyButtons() {
+  if (!navigator.clipboard.writeText) return;
+
+  function copyCodeFor(codeElement) {
+    return () => {
+      navigator.clipboard.writeText(codeElement.textContent);
+      // TODO add animation to indicate success, e.g. a tick, which then fades back to copy icon
+    };
+  }
+
+  document
+    .querySelectorAll('code[data-lang]')
+    .forEach(codeElement => {
+      codeElement.parentElement.style.position = 'relative';
+
+      const btn = document.createElement('button');
+      btn.style.position = 'absolute';
+      btn.style.top   = '11.5px';
+      btn.style.right = '15px';
+      btn.textContent = '📎';
+
+      btn.onclick = copyCodeFor(codeElement);
+
+      codeElement.appendChild(btn);
+    });
+}
+addCodeCopyButtons();
