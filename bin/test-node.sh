@@ -5,13 +5,13 @@
 : "${BAIL:=1}"
 : "${TYPE:="integration"}"
 
-if [ $BAIL -eq 1 ]; then
+if [ "$BAIL" -eq 1 ]; then
     BAIL_OPT="--bail"
 else
     BAIL_OPT=""
 fi
 
-if [ $TYPE = "integration" ]; then
+if [ "$TYPE" = "integration" ]; then
     if  (: < /dev/tcp/127.0.0.1/3010) 2>/dev/null; then
         echo "down-server port already in use"
     else
@@ -20,13 +20,13 @@ if [ $TYPE = "integration" ]; then
 
     TESTS_PATH="tests/integration/test.*.js"
 fi
-if [ $TYPE = "fuzzy" ]; then
+if [ "$TYPE" = "fuzzy" ]; then
     TESTS_PATH="tests/fuzzy/test.*.js"
 fi
-if [ $TYPE = "mapreduce" ]; then
+if [ "$TYPE" = "mapreduce" ]; then
     TESTS_PATH="tests/mapreduce/test.*.js"
 fi
-if [ $TYPE = "find" ]; then
+if [ "$TYPE" = "find" ]; then
     TESTS_PATH="tests/find/*/test.*.js"
 fi
 if [ "$COVERAGE" ]; then
@@ -64,6 +64,6 @@ fi
 
 EXIT_STATUS=$?
 if [[ -n $DOWN_SERVER_PID ]]; then
-  kill $DOWN_SERVER_PID
+  kill "$DOWN_SERVER_PID"
 fi
 exit $EXIT_STATUS
