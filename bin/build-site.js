@@ -13,33 +13,29 @@ var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
 
 process.chdir('docs');
 
-function checkJekyll() {
-  return exec('bundle check').catch(function () {
+async function checkJekyll() {
+  try {
+    await exec('bundle check');
+  } catch (err) {
     throw new Error('Jekyll is not installed.  You need to do: npm run install-jekyll');
-  });
+  }
 }
 
-function buildCSS() {
+async function buildCSS() {
   mkdirp.sync(__dirname + '/../docs/static/css');
   var cmd = __dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS;
-  return exec(cmd).then(function (child) {
-    var minifiedCss = cssmin(child.stdout);
-    fs.writeFileSync(POUCHDB_CSS, minifiedCss);
-    console.log('Updated: ', POUCHDB_CSS);
-  });
+  const { stdout } = await exec(cmd);
+  const minifiedCss = cssmin(stdout);
+  fs.writeFileSync(POUCHDB_CSS, minifiedCss);
+  console.log('Updated:', POUCHDB_CSS);
 }
 
-function buildJekyll(path) {
-  // Don't rebuild on website artifacts being written
-  if (path && /^_site/.test(path.relative)) {
-    return;
-  }
-  return exec('bundle exec jekyll build').then(function () {
-    console.log('=> Rebuilt jekyll');
-    return highlightEs6();
-  }).then(function () {
-    console.log('=> Highlighted ES6');
-  });
+async function buildJekyll() {
+  await exec('bundle exec jekyll build');
+  console.log('=> Rebuilt jekyll');
+
+  highlightEs6();
+  console.log('=> Highlighted ES6');
 }
 
 function highlightEs6() {
