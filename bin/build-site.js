@@ -2,11 +2,14 @@
 
 'use strict';
 
+const Path = require('node:path');
+
 var fs = require('fs');
 var replace = require('replace');
 var exec = require('child-process-promise').exec;
 var mkdirp = require('mkdirp');
 var cssmin = require('cssmin');
+const terser = require('terser');
 
 var POUCHDB_CSS = __dirname + '/../docs/static/css/pouchdb.css';
 var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
@@ -26,6 +29,15 @@ function buildCSS() {
     var minifiedCss = cssmin(child.stdout);
     fs.writeFileSync(POUCHDB_CSS, minifiedCss);
     console.log('Updated: ', POUCHDB_CSS);
+
+    const srcPath = resolvePath('docs/src/code.js');
+    const targetPath = resolvePath('docs/_site/static/js/code.min.js');
+    const src = fs.readFileSync(srcPath, { encoding:'utf8' });
+    return terser.minify(src)
+      .then(({ code }) => {
+        fs.writeFileSync(targetPath, code);
+        console.log('Minifed javascript.');
+      });
   });
 }
 
@@ -67,6 +79,10 @@ function buildEverything() {
     .then(buildCSS)
     .then(buildJekyll)
     .catch(onError);
+}
+
+function resolvePath(projectLocalPath) {
+  return Path.resolve(__dirname, '..', projectLocalPath);
 }
 
 if (!process.env.BUILD) {
