@@ -77,6 +77,7 @@ if (!process.env.BUILD) {
   const http_server = require('http-server');
   const watchGlob = require('glob-watcher');
 
+  // Simpler ways of blacklisting certain paths here would be very welcome.
   fs.readdirSync('.')
     .forEach(path => {
       if (path === '_site' || path.startsWith('Gemfile')) {
