@@ -49,7 +49,9 @@ function buildJekyll(path) {
     const srcPath = resolvePath('docs/src/code.js');
     const targetPath = resolvePath('docs/_site/static/js/code.min.js');
     const src = fs.readFileSync(srcPath, { encoding:'utf8' });
-    const { code, error } = terser.minify(src);
+    const mangle = { toplevel: true };
+    const output = { ascii_only: true };
+    const { code, error } = terser.minify(src, { mangle, output });
     if (error) {
       if (process.env.BUILD) {
         throw error;
