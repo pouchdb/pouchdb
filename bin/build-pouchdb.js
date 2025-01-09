@@ -12,7 +12,7 @@ var denodeify = require('denodeify');
 var rollup = require('rollup');
 var rollupPlugins = require('./rollupPlugins');
 var rimraf = denodeify(require('rimraf'));
-const { mkdirSync } = require('fs');
+const { mkdir } = require('node:fs/promises');
 var all = Promise.all.bind(Promise);
 var buildUtils = require('./build-utils');
 var addPath = buildUtils.addPath;
@@ -150,7 +150,9 @@ var rimrafMkdirp = function (...args) {
   return all(args.map(function (otherPath) {
     return rimraf(addPath('pouchdb', otherPath));
   })).then(function () {
-    args.map(otherPath => mkdirSync(addPath('pouchdb', otherPath), { recursive:true }));
+    return all(args.map(function (otherPath) {
+      return mkdir(addPath('pouchdb', otherPath), { recursive:true });
+    }));
   });
 };
 
@@ -163,8 +165,8 @@ var doAll = function (...args) {
 };
 
 function doBuildNode() {
-  mkdirSync(addPath('pouchdb', 'lib/plugins'), { recursive:true });
-  return buildForNode();
+  return mkdir(addPath('pouchdb', 'lib/plugins'), { recursive:true })
+    .then(buildForNode);
 }
 
 function doBuildAll() {
