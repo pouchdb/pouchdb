@@ -51,7 +51,10 @@ function buildJekyll(path) {
       if (process.env.BUILD) {
         throw error;
       } else {
-        log(`Javascript minification failed on line ${error.line} col ${error.col}:`, error.message);
+        console.log(
+          `Javascript minification failed on line ${error.line} col ${error.col}:`,
+          error.message,
+        );
       }
     } else {
       fs.writeFileSync(targetPath, code);
