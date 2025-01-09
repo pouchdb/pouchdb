@@ -24,4 +24,4 @@ chai.use(require('chai-as-promised'));
 global.should = chai.should();
 global.assert = chai.assert;
 global.fs = require('fs');
-global.fs.mkdirSync('./tmp');
+global.fs.mkdirSync('./tmp', { recursive: true });
