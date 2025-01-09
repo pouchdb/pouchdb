@@ -72,7 +72,7 @@ function buildEverything() {
 }
 
 function resolvePath(projectLocalPath) {
-  return path.resolve(__dirname, '..', projectLocalPath);
+  return Path.resolve(__dirname, '..', projectLocalPath);
 }
 
 if (!process.env.BUILD) {
