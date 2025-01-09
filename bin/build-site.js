@@ -2,9 +2,11 @@
 
 'use strict';
 
+const { promisify } = require('node:util');
+const exec = promisify(require('node:child_process').exec);
+
 var fs = require('fs');
 var replace = require('replace');
-var exec = require('child-process-promise').exec;
 var mkdirp = require('mkdirp');
 var cssmin = require('cssmin');
 
