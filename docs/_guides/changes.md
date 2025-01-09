@@ -43,8 +43,8 @@ Also notice the option `{include_docs: true}`. By default, the documents themsel
 If you expect this to be a very large number of changes, you can also use the `limit` option to do pagination:
 
 ```js
-var pageSize = 10;
-var lastSeq = 0;
+const pageSize = 10;
+let lastSeq = 0;
 function fetchNextPage() {
   return db.changes({
     since: lastSeq,

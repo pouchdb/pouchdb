@@ -52,7 +52,7 @@ However, if that's not a concern, then compaction is a harmless operation. In fa
 If you really want to go all-in on compaction, then you can even put your database in `auto_compaction` mode. This means that it will automatically perform a `compact()` operation after every write.
 
 ```js
-var db = new PouchDB('mydb', {auto_compaction: true});
+const db = new PouchDB('mydb', {auto_compaction: true});
 db.put({_id: 'foo', version: 1}).then(function () {
   return db.get('foo');
 }).then(function (doc) {

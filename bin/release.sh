@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env -S bash -e
 
 if [ -n "$DRY_RUN" ]; then
   echo "Doing a dry run release..."
@@ -10,7 +10,7 @@ fi
 
 #make sure deps are up to date
 rm -fr node_modules
-npm install
+npm clean-install
 
 # get current version
 VERSION=$(node --eval "console.log(require('./packages/node_modules/pouchdb/package.json').version);")
@@ -31,7 +31,7 @@ ls packages/node_modules > release-todo.txt
 rm -fr lib src dist bower.json component.json package.json
 cp -r packages/node_modules/pouchdb/{src,lib,dist,bower.json,component.json,package.json} .
 git add -f -- lib src dist *.json
-git rm -fr packages bin docs scripts tests
+git rm -fr packages bin docs tests
 
 git commit -m "build $VERSION"
 

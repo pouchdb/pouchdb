@@ -54,25 +54,25 @@ attach it to their PouchDB object.)
 You can load plugins into PouchDB when you load it via `require()`.
 
 {% highlight js %}
-var greet = {sayHello: function() { console.log("Hello!"); }};
+const greet = {sayHello: function() { console.log("Hello!"); }};
 
-var PouchDB = require('pouchdb').plugin(greet);
+const PouchDB = require('pouchdb').plugin(greet);
 
-var db = new PouchDB('foobar');
+const db = new PouchDB('foobar');
 db.sayHello(); // prints "Hello!"
 {% endhighlight %}
 
 You can chain plugins, as well:
 
 {% highlight js %}
-var greet = {sayHello: function() { console.log("Hello!"); }};
-var manners = {thank: function(name) { console.log("Thank you, " + name); }};
+const greet = {sayHello: function() { console.log("Hello!"); }};
+const manners = {thank: function(name) { console.log("Thank you, " + name); }};
 
-var PouchDB = require('pouchdb')
+const PouchDB = require('pouchdb')
   .plugin(greet)
   .plugin(manners);
 
-var db = new PouchDB('foobar');
+const db = new PouchDB('foobar');
 db.sayHello(); // prints "Hello!"
 db.thank('Mom'); // prints "Thank you, Mom"
 {% endhighlight %}
@@ -87,7 +87,7 @@ Because PouchDB guarantees to plugin authors that all data changes ultimately ha
 
 {% highlight js %}
 // Keep a reference to the "upstream" function.
-var pouchBulkDocs = PouchDB.prototype.bulkDocs;
+const pouchBulkDocs = PouchDB.prototype.bulkDocs;
 PouchDB.plugin({bulkDocs: validBulkDocs});
 
 function validBulkDocs(body, options, callback) {
@@ -96,16 +96,17 @@ function validBulkDocs(body, options, callback) {
     options = {}
   }
 
+  let docs;
   if (Array.isArray(body)) {
-    var docs = body;
+    docs = body;
   } else {
-    var docs = body.docs;
+    docs = body.docs;
   }
 
   // All documents must have a .name field.
-  for (var i = 0; i < docs.length; i++) {
+  for (let i = 0; i < docs.length; i++) {
     if (!docs[i].name) {
-      var id = doc._id || '(no _id given)';
+      const id = doc._id || '(no _id given)';
       return callback(new Error('Document is missing .name field: ' + id));
     }
   }

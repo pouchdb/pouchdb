@@ -24,7 +24,7 @@ In CouchDB, conflicts can occur in two places: immediately, when you try to comm
 **Immediate conflicts** can occur with any API that takes a `rev` or a document with `_rev` as input &ndash; `put()`, `post()`, `remove()`, `bulkDocs()`, and `putAttachment()`. They manifest as a `409` (conflict) error:
 
 ```js
-var myDoc = {
+const myDoc = {
   _id: 'someid',
   _rev: '1-somerev'
 };
@@ -151,7 +151,7 @@ This strategy has been called the "every doc is a delta" strategy. A classic use
 
 In this system, it is impossible for two documents to conflict, because the document `_id`s are just timestamps. Ledger transactions are recorded in the order they were made, and at the end of the day, you only need to do an `allDocs()` or `query()` operation to sum the result.
 
-The wisdom of this strategy can be expressed by the maxim: ["Accountants don't use erasers"](https://blogs.msdn.microsoft.com/pathelland/2007/06/14/accountants-dont-use-erasers/). Like a diligent accountant, your app can just add new documents when you want to make a change, rather than going back and scrubbing out previous changes.
+The wisdom of this strategy can be expressed by the maxim: ["Accountants don't use erasers"](https://queue.acm.org/detail.cfm?id=2884038). Like a diligent accountant, your app can just add new documents when you want to make a change, rather than going back and scrubbing out previous changes.
 
 There is also a PouchDB plugin that implements this strategy: [delta-pouch](https://github.com/redgeoff/delta-pouch).
 

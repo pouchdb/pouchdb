@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env -S bash -e
 shopt -s nullglob
 
 cleanup() {
@@ -95,7 +95,7 @@ if [[ -n $SERVER ]]; then
       echo -e "pouchdb-server should be running on $COUCH_HOST\n"
     fi
   elif [ "$SERVER" == "couchdb-master" ]; then
-    if [ -z $COUCH_HOST ]; then
+    if [ -z "$COUCH_HOST" ]; then
       export COUCH_HOST="http://127.0.0.1:5984"
     fi
   elif [ "$SERVER" == "pouchdb-express-router" ]; then
@@ -120,7 +120,7 @@ fi
 
 if [ "$SERVER" == "couchdb-master" ]; then
   printf '\nEnabling CORS...'
-  ./node_modules/.bin/add-cors-to-couchdb $COUCH_HOST
+  ./node_modules/.bin/add-cors-to-couchdb "$COUCH_HOST"
 fi
 
 if [ "$CLIENT" == "unit" ]; then

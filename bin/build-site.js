@@ -70,10 +70,10 @@ function buildEverything() {
 
 if (!process.env.BUILD) {
   const http_server = require('http-server');
-  const watchGlob = require('watch-glob');
+  const watchGlob = require('glob-watcher');
 
   watchGlob('**', buildJekyll);
-  watchGlob('docs/static/less/*/*.less', buildCSS);
+  watchGlob('static/less/*/*.less', buildCSS);
   http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
   console.log('Server address: http://localhost:4000');
 }

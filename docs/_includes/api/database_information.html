@@ -20,7 +20,7 @@ db.info(function(err, info) {
 {% include code/start.html id="dbinfo" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.info();
+  const result = await db.info();
 } catch (err) {
   console.log(err);
 }
