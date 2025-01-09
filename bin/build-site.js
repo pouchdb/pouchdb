@@ -9,7 +9,7 @@ var mkdirp = require('mkdirp');
 var cssmin = require('cssmin');
 
 var POUCHDB_CSS = __dirname + '/../docs/static/css/pouchdb.css';
-var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
+var POUCHDB_LESS = __dirname + '/../docs/src/less/pouchdb/pouchdb.less';
 
 process.chdir('docs');
 
@@ -74,7 +74,7 @@ if (!process.env.BUILD) {
   const watchGlob = require('glob-watcher');
 
   watchGlob('**', buildJekyll);
-  watchGlob('static/less/*/*.less', buildCSS);
+  watchGlob('static/src/*/*.less', buildCSS);
   http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
   console.log('Server address: http://localhost:4000');
 }
