@@ -24,7 +24,7 @@ WORKDIR /pouchdb-docs
 COPY package.json package-lock.json .
 COPY ./bin/ ./bin/
 
-COPY ./docs/Gemfile* ./docs/
+COPY ./docs/ ./docs/
 RUN npm run install-jekyll
 RUN rm -rf ./docs
 
