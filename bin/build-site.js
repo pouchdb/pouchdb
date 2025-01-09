@@ -69,12 +69,18 @@ if (!process.env.BUILD) {
   const http_server = require('http-server');
   const watchGlob = require('glob-watcher');
 
-  watchGlob('!(_site)/**', buildJekyll);
-  watchGlob('*.html', buildJekyll);
-  watchGlob('*.md', buildJekyll);
-  watchGlob('*.xml', buildJekyll);
-  watchGlob('_config.yml', buildJekyll);
-  watchGlob('manifest.appcache', buildJekyll);
+  fs.readdirSync('.')
+    .forEach(path => {
+      if (path === '_site' || path.startsWith('Gemfile')) {
+        return;
+      }
+
+      if (fs.statSync(path).isDirectory()) {
+        watchGlob(`${path}/**`, buildJekyll);
+      } else {
+        watchGlob(path, buildJekyll);
+      }
+    });
 
   watchGlob('static/less/*/*.less', buildCSS);
 
