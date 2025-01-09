@@ -14,7 +14,7 @@ var cssmin = require('cssmin');
 const terser = require('terser');
 
 const POUCHDB_CSS = resolvePath('docs/static/css/pouchdb.css');
-const POUCHDB_LESS = resolvePath('docs/static/less/pouchdb/pouchdb.less');
+const POUCHDB_LESS = resolvePath('docs/src/less/pouchdb/pouchdb.less');
 
 process.chdir('docs');
 
