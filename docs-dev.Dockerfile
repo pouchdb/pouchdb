@@ -21,13 +21,12 @@ ENV PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 WORKDIR /pouchdb-docs
 
+COPY ./docs/ ./docs-bundler
+RUN cd docs-bundler && bundle install
+
 COPY package.json package-lock.json .
-COPY ./bin/ ./bin/
-
-COPY ./docs/ ./docs/
-RUN npm run install-jekyll
-RUN rm -rf ./docs
-
 RUN npm install --ci
+
+COPY ./bin/ ./bin/
 
 CMD ["npm", "run", "build-site"]
