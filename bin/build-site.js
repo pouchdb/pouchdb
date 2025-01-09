@@ -33,11 +33,9 @@ function buildCSS() {
     const srcPath = resolvePath('docs/src/code.js');
     const targetPath = resolvePath('docs/_site/static/js/code.min.js');
     const src = fs.readFileSync(srcPath, { encoding:'utf8' });
-    return terser.minify(src)
-      .then(({ code }) => {
-        fs.writeFileSync(targetPath, code);
-        console.log('Minifed javascript.');
-      });
+    const { code } = terser.minify(src)
+    fs.writeFileSync(targetPath, code);
+    console.log('Minifed javascript.');
   });
 }
 
