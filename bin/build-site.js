@@ -46,9 +46,17 @@ function buildJekyll(path) {
     const srcPath = resolvePath('docs/src/code.js');
     const targetPath = resolvePath('docs/_site/static/js/code.min.js');
     const src = fs.readFileSync(srcPath, { encoding:'utf8' });
-    const { code } = terser.minify(src);
-    fs.writeFileSync(targetPath, code);
-    console.log('Minified javascript.');
+    const { code, error } = terser.minify(src);
+    if (error) {
+      if (process.env.BUILD) {
+        throw error;
+      } else {
+        log(`Javascript minification failed on line ${error.line} col ${error.col}:`, error.message);
+      }
+    } else {
+      fs.writeFileSync(targetPath, code);
+      console.log('Minified javascript.');
+    }
   });
 }
 
