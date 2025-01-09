@@ -80,7 +80,7 @@ if (!process.env.BUILD) {
   watchGlob('_config.yml', buildJekyll);
   watchGlob('manifest.appcache', buildJekyll);
 
-  watchGlob('docs/static/less/*/*.less', buildCSS);
+  watchGlob('static/less/*/*.less', buildCSS);
 
   http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
   console.log('Server address: http://localhost:4000');
