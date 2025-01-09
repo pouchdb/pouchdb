@@ -29,13 +29,6 @@ function buildCSS() {
     var minifiedCss = cssmin(child.stdout);
     fs.writeFileSync(POUCHDB_CSS, minifiedCss);
     console.log('Updated: ', POUCHDB_CSS);
-
-    const srcPath = resolvePath('docs/src/code.js');
-    const targetPath = resolvePath('docs/_site/static/js/code.min.js');
-    const src = fs.readFileSync(srcPath, { encoding:'utf8' });
-    const { code } = terser.minify(src);
-    fs.writeFileSync(targetPath, code);
-    console.log('Minifed javascript.');
   });
 }
 
@@ -49,6 +42,13 @@ function buildJekyll(path) {
     return highlightEs6();
   }).then(function () {
     console.log('=> Highlighted ES6');
+
+    const srcPath = resolvePath('docs/src/code.js');
+    const targetPath = resolvePath('docs/_site/static/js/code.min.js');
+    const src = fs.readFileSync(srcPath, { encoding:'utf8' });
+    const { code } = terser.minify(src);
+    fs.writeFileSync(targetPath, code);
+    console.log('Minified javascript.');
   });
 }
 
