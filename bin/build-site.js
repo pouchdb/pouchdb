@@ -47,7 +47,7 @@ function highlightEs6() {
 
   // TODO: this is a fragile and hacky way to get
   // 'async' and 'await' to highlight correctly
-  // in this blog post.
+  // in blog posts & documentation.
   replace({
     regex: '<span class="nx">(await|async|of)</span>',
     replacement: '<span class="kd">$1</span>',
