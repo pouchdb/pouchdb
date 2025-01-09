@@ -116,7 +116,7 @@ function addCodeCopyButtons() {
   if (!navigator.clipboard.writeText) return;
 
   function copyCodeFor(codeElement) {
-    return () => {
+    return function() {
       navigator.clipboard.writeText(codeElement.textContent);
 
       const success = addButton('✅', codeElement);
