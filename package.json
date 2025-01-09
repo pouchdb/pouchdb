@@ -64,7 +64,6 @@
     "chai": "3.5.0",
     "chai-as-promised": "5.3.0",
     "change-case": "4.0.1",
-    "child-process-promise": "2.2.1",
     "cssmin": "0.4.3",
     "denodeify": "1.2.1",
     "derequire": "2.1.1",
