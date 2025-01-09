@@ -2,14 +2,19 @@
 
 'use strict';
 
+const { promisify } = require('node:util');
+const exec = promisify(require('node:child_process').exec);
+
 var fs = require('fs');
+const Path = require('node:path');
+
 var replace = require('replace');
-var exec = require('child-process-promise').exec;
 var mkdirp = require('mkdirp');
 var cssmin = require('cssmin');
+const terser = require('terser');
 
-var POUCHDB_CSS = __dirname + '/../docs/static/css/pouchdb.css';
-var POUCHDB_LESS = __dirname + '/../docs/static/less/pouchdb/pouchdb.less';
+const POUCHDB_CSS = resolvePath('docs/static/css/pouchdb.css');
+const POUCHDB_LESS = resolvePath('docs/static/less/pouchdb/pouchdb.less');
 
 process.chdir('docs');
 
@@ -20,8 +25,8 @@ function checkJekyll() {
 }
 
 function buildCSS() {
-  mkdirp.sync(__dirname + '/../docs/static/css');
-  var cmd = __dirname + '/../node_modules/less/bin/lessc ' + POUCHDB_LESS;
+  mkdirp.sync(resolvePath('docs/static/css'));
+  const cmd = [ resolvePath('node_modules/less/bin/lessc'), POUCHDB_LESS ].join(' ');
   return exec(cmd).then(function (child) {
     var minifiedCss = cssmin(child.stdout);
     fs.writeFileSync(POUCHDB_CSS, minifiedCss);
@@ -39,15 +44,35 @@ function buildJekyll(path) {
     return highlightEs6();
   }).then(function () {
     console.log('=> Highlighted ES6');
+
+    const srcPath = resolvePath('docs/src/code.js');
+    const targetPath = resolvePath('docs/_site/static/js/code.min.js');
+    const src = fs.readFileSync(srcPath, { encoding:'utf8' });
+    const mangle = { toplevel: true };
+    const output = { ascii_only: true };
+    const { code, error } = terser.minify(src, { mangle, output });
+    if (error) {
+      if (process.env.BUILD) {
+        throw error;
+      } else {
+        console.log(
+          `Javascript minification failed on line ${error.line} col ${error.col}:`,
+          error.message,
+        );
+      }
+    } else {
+      fs.writeFileSync(targetPath, code);
+      console.log('Minified javascript.');
+    }
   });
 }
 
 function highlightEs6() {
-  var path = require('path').resolve(__dirname, '../docs/_site');
+  const path = resolvePath('docs/_site');
 
   // TODO: this is a fragile and hacky way to get
   // 'async' and 'await' to highlight correctly
-  // in this blog post.
+  // in blog posts & documentation.
   replace({
     regex: '<span class="nx">(await|async|of)</span>',
     replacement: '<span class="kd">$1</span>',
@@ -67,6 +92,10 @@ function buildEverything() {
     .then(buildCSS)
     .then(buildJekyll)
     .catch(onError);
+}
+
+function resolvePath(projectLocalPath) {
+  return Path.resolve(__dirname, '..', projectLocalPath);
 }
 
 if (!process.env.BUILD) {
