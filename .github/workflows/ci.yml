@@ -241,7 +241,7 @@ jobs:
         cmd:
           - CLIENT=firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
-          - PERF=1 npm test
+          - TYPE=performance npm test
           - npm run test-unit
           - npm run test-component
           - npm run test-fuzzy

@@ -218,9 +218,9 @@ using the command:
 
 ### Performance tests
 
-The performance test suite is run using the `PERF` variable:
+This suite checks some performance metrics.  It can be run using the command:
 
-    $ PERF=1 npm test
+    $ TYPE=performance npm test
 
 This supports most of the same options as the integration suite, particularly
 the `CLIENT`, `ADAPTERS` and `GREP` options. It has some additional options of
