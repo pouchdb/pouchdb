@@ -14,7 +14,7 @@ var cssmin = require('cssmin');
 const terser = require('terser');
 
 const POUCHDB_CSS = resolvePath('docs/static/css/pouchdb.css');
-const POUCHDB_LESS = resolvePath('docs/static/less/pouchdb/pouchdb.less');
+const POUCHDB_LESS = resolvePath('docs/src/less/pouchdb/pouchdb.less');
 
 process.chdir('docs');
 
@@ -103,7 +103,7 @@ if (!process.env.BUILD) {
   const watchGlob = require('glob-watcher');
 
   watchGlob('**', buildJekyll);
-  watchGlob('static/less/*/*.less', buildCSS);
+  watchGlob('static/src/*/*.less', buildCSS);
   http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
   console.log('Server address: http://localhost:4000');
 }
