@@ -710,7 +710,7 @@ describe('test.persisted.js', function () {
       });
 
       // make sure prefixed DBs are tied to regular DBs
-      require('mkdirp').sync('./myprefix_./tmp/'); // TODO: bit hacky
+      require('fs').mkdirSync('./myprefix_./tmp/', { recursive:true }); // TODO: bit hacky
       var db = new PouchDB(dbName, {prefix: './myprefix_'});
       return testUtils.fin(createView(db, {
         map: function (doc) {

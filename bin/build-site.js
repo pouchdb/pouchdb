@@ -9,7 +9,6 @@ var fs = require('fs');
 const Path = require('node:path');
 
 var replace = require('replace');
-var mkdirp = require('mkdirp');
 var cssmin = require('cssmin');
 const terser = require('terser');
 
@@ -25,7 +24,7 @@ function checkJekyll() {
 }
 
 function buildCSS() {
-  mkdirp.sync(resolvePath('docs/static/css'));
+  fs.mkdirSync(__dirname + '/../docs/static/css', { recursive:true });
   const cmd = [ resolvePath('node_modules/less/bin/lessc'), POUCHDB_LESS ].join(' ');
   return exec(cmd).then(function (child) {
     var minifiedCss = cssmin(child.stdout);
