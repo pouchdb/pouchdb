@@ -78,6 +78,8 @@ adapters.forEach(function (adapter) {
                                       'correct error status returned');
             err.name.should.equal(testUtils.errors.MISSING_DOC.name,
                                       'correct error name returned');
+            err.reason.should.equal('deleted',
+                                      'correct error reason returned');
             done();
           });
         });
