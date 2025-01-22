@@ -86,7 +86,7 @@
     "pouchdb-express-router": "0.0.11",
     "replace": "1.2.1",
     "rimraf": "2.7.1",
-    "rollup": "0.67.4",
+    "rollup": "2.79.2",
     "rollup-plugin-node-resolve": "4.2.4",
     "rollup-plugin-replace": "1.2.1",
     "seedrandom": "3.0.5",
