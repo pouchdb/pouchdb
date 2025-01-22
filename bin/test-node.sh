@@ -34,7 +34,7 @@ if [ "$COVERAGE" ]; then
     TESTS_PATH="tests/{unit,integration,mapreduce,component}/test*.js tests/find/*/test.*.js"
 fi
 
-if [ "$PERF" ]; then
+if [ "$TYPE" = "performance" ]; then
     node tests/performance/index.js
 elif [ ! "$COVERAGE" ]; then
     # --exit required to workaround #8839

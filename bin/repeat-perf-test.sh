@@ -100,7 +100,7 @@ iterate_tests() {
     log "Running perf tests on $commit with adapter-$adapter..."
     SRC_ROOT="../../dist-bundles/$commit" \
     JSON_REPORTER=1 \
-    PERF=1 \
+    TYPE=performance \
     USE_MINIFIED=1 \
     MANUAL_DEV_SERVER=1 \
     ADAPTERS="$adapter" \
