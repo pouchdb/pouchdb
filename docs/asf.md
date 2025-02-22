@@ -19,6 +19,9 @@ space.
 > Yoko will be a CORBA server.
 
 PouchDB:
+PouchDB is an open-source JavaScript database inspired by [Apache CouchDB]
+(http://couchdb.apache.org/) that is designed to build offline-capable web
+applications.
 
 
 ## Proposal
@@ -34,6 +37,10 @@ and maintaining rich, interactive, Ajax-powered web applications. A basic
 principle of XAP is to leverage existing Ajax...
 
 PouchDB:
+PouchDB is an open-source JavaScript database inspired by [Apache CouchDB]
+(http://couchdb.apache.org/) that is designed to run well within the browser.
+PouchDB was created to help web developers build applications that work as
+well offline as they do online.
 
 
 ### Background
@@ -53,7 +60,14 @@ systems. Using context providers, existing and new systems such as directories,
 collaboration spaces
 
 PouchDB:
-
+Established in 2010, PouchDB has been designed as both a first-class document
+database for use in a web browser as well as a first-class data replication
+peer to Apache CouchDB. PouchDB’s JavaScript API closely mirrors CouchDB’s REST
+API and CouchDB’s peer-to-peer data synchronisation protocol allow web
+developers to build database driven applications that work when the web browser
+is offline. The replication protocol allows for seamless data reconciliation
+when one or more peers reconnect after being offline. Peers can be other web
+browser by replicating via WebRTC, or CouchDB instances.
 
 ### Rationale
 
@@ -69,7 +83,11 @@ to write tedious plumbing code; and tools authors are limited in what they can
 do to simplify the experience due to the underlying complexity.
 
 PouchDB:
-
+PouchDB has always been a sister project to Apache CouchDB. Since its inception,
+it has changed lead maintainers three times, all of which were informally
+running the project on its GitHub repository. With ever increasing popularity
+and reliance by mission-critical projects, PouchDB is looking for an open source
+foundation to join and has selected the ASF to be close to CouchDB.
 
 ### Initial Goals
 
@@ -89,7 +107,8 @@ compatibility with the DIX IETF proposal, describe Yadis integration, and allow
 either an URL or XRI be used as the End User's Identifier
 
 PouchDB:
-
+PouchDB aims to benefit from the ASF’s mature and transparent project- and
+community-management policies.
 
 ### Current Status
 
@@ -105,9 +124,6 @@ without an initial code base should just simply state that.
 
 Some proposals name this section criteria (though the term is a little
 misleading).
-
-PouchDB:
-
 
 #### Meritocracy:
 
@@ -140,6 +156,10 @@ done, and keeping track of and encouraging members of the community who make any
 contributions...
 
 PouchDB:
+PouchDB has always, if informally, rewarded contributors that have a persistent
+contribution history with commit access to the project directly. Over its 15-
+year history, core and occasional contributors have come and gone, while an
+active set of PouchDB practitioners has always looked after the project itself.
 
 
 #### Community:
@@ -166,7 +186,8 @@ source is tremendous as its use can be applied in many areas, thus providing the
 potential for an incredibly large community.
 
 PouchDB:
-
+PouchDB comes with an existing developer and user community. By establishing
+transaprent community guidelines, we hope to grow this community even further.
 
 #### Core Developers:
 
@@ -188,6 +209,11 @@ developers from Geronimo, Castor, OpenEJB, Mojo, Jetty, ActiveCluster, ActiveMQ,
 and ServiceMix.
 
 PouchDB:
+PouchDB is currently maintained by a handful of experienced developers that
+have a long history in open source. The current interim project lead is an ASF
+member and PMC Chair for Apache CouchDB. All developers are at least also end-
+users of Apache CouchDB, while some of them have also been active contributors
+on CouchDB.
 
 
 #### Alignment:
@@ -204,7 +230,10 @@ Velocity. There are other projects that we will need to work with, such as the
 Portals and Maven projects.
 
 PouchDB:
-
+PouchDB is an established project that looks for long-term stability and the ASF
+provides nothing but. PouchDB is used in various mission-critical projects and
+would like to benefit from ASF stewardship as a means of making it easier to be
+relied on long-term. PouchDB is also Apache 2 licensed already.
 
 ### Known Risks
 
@@ -212,6 +241,12 @@ An exercise in self-knowledge. Risks don't mean that a project is unacceptable.
 If they are recognized and noted, then they can be addressed during incubation.
 
 PouchDB:
+PouchDB’s main risk is stagnation through developer abandonment. In its history
+PouchDB had high- medium and low-velocity timespans, but it has always attracted
+enough developers (both volunteer and for-pay) to stay afloat. Most recently,
+PouchDB is at medium-velocity. Again, the PouchDB project hopes that by
+formalising project management structures, a long-term stability and
+dependability can be achieved.
 
 
 #### Project Name
@@ -222,7 +257,9 @@ Also indicate if the the wide use of the name likely to cause confusion about
 who owns the project or banding issues in the future.
 
 PouchDB:
-
+PouchDB is a tongue-in-cheek pun on its sister project CouchDB. The current
+holder of the project domain (pouchdb.com) and previous project lead Dale
+Harvey is on board with transferring any naming rights to the ASF.
 
 #### Orphaned Products
 
@@ -254,7 +291,9 @@ believe to be able to quickly grow the developer and user communities based on
 the benefits of a generic toolkit over custom alternatives.
 
 PouchDB:
-
+The current PouchDB maintainers already consist of representatives from various
+distinct organisations with strong technical and financial incentives. It is
+unlikely that a significant number would up and leave the project.
 
 #### Inexperience with Open Source:
 
@@ -299,7 +338,12 @@ open source development process. We do not, however, expect any difficulty in
 executing under normal meritocracy rules.
 
 PouchDB:
-
+PouchDB is an existing open source project and its maintainers consist mostly of
+very experienced developers, including some with over 15 years in active open
+souce development and one ASF Member and committer since 2008. For other
+maintainers, PouchDB was their first open source projects and they have since
+contributed to varoious other projects as well based on their good experience
+with PouchDB.
 
 #### Length of Incubation:
 
@@ -311,7 +355,8 @@ This shows the project has thought about the steps required to graduate and that
 there are not any unrealistic expectations.
 
 PouchDB:
-
+The project aims to graduate within 6–12 months based on the experience of the
+Apache CouchDB incubation in 2008 and general maturity of the project itself.
 
 #### Homogenous Developers:
 
@@ -353,7 +398,8 @@ Example (Ivy):
 Maarten knew each other only due to their common interest in Ivy.
 
 PouchDB:
-
+The current PouchDB maintainers consist of people from around the world,
+collaborating across all timezones.
 
 #### Reliance on Salaried Developers:
 
@@ -391,7 +437,10 @@ multiple projects, and will do so for a considerable while as their companies
 framework of choice.
 
 PouchDB:
+There is also a healthy mix of maintainers that are independent contributors
+and that work at organisations built around PouchDB.
 
+TODO ADD LIST AND AFFILIATIONS
 
 #### Relationships with Other Apache Products:
 
@@ -424,6 +473,19 @@ build tool. There are potential future ties (http server, database backend, etc)
 that will be explored.
 
 PouchDB:
+PouchDB has been developerd as a sister-project to Apache CouchDB. Both projects
+are inextricably linked in the sense that ever PouchDB user is at least also a
+PouchDB user. The reverse is not necessarily true, but in a recent CouchDB
+developer survey, TODOX% of participants stated to use PouchDB with CouchDB.
+
+The question of whether PouchDB should join CouchDB as as sub-project has been
+raised and it has been decided to not pursue this option. Both projects have
+significant technical differences (CouchDB is written in Erlang and PouchDB is
+written in JavaScript) so that a joint stewardship would raise more problems
+than it solves. Both the PouchDB and CouchDB maintainers agree on this point.
+Where needed (APIs, sync protocol), the two teams have worked together tightly
+and productively in the past. We don’t see a need to formalise this relationship
+to achieve future success.
 
 
 #### A Excessive Fascination with the Apache Brand:
@@ -460,7 +522,13 @@ founders, and that will be embraced by other Apache efforts, such as the
 Geronimo project.
 
 PouchDB:
-
+As mentioned before, PouchDB is looking for an open source foudnation that helps
+with long-term project stability and dependability. Both the OpenJS Foundation
+and the ASF have been evaluated. In the end, the PouchDB developers prefer the
+close proximity to Apache CouchDB. The maintainers believe that people having
+to make decision about whether to bet on a PouchDB/CouchDB development stack or
+not will have an easier time integrating both projects from a single foundation.
+If the ASF won’t have PouchDB, we are happy to reconsider alternatives.
 
 ### Documentation
 
@@ -477,6 +545,9 @@ Examples (Heraldry):
 > http://lists.danga.com/mailman/listinfo/yadis
 
 PouchDB:
+Project website: https://pouchdb.com/
+Including blog with release announcements: https://pouchdb.com/blog
+GitHub Project: https://github.com/pouchdb/pouchdb
 
 
 ### Initial Source
@@ -497,7 +568,7 @@ changed since early 2006. Like OpenID, it has libraries in various languages,
 and there is a large overlap between the two communities.
 
 PouchDB:
-
+The initial source tree lives at https://github.com/pouchdb/pouchdb
 
 ### Source and Intellectual Property Submission Plan
 
@@ -517,7 +588,17 @@ Ltd. and Johannes Ernst of NetMesh, Inc.
 various pieces of Open Source software.
 
 PouchDB:
+The PouchDB maintainers have yet to decide if they want to migrate the existing
+repository to the ASF GitHub organisation or if they want to submit a pristine
+copy, but either way, submitting the source code is a few git commands away.
 
+The pouchdb.com domain currently held by Dale Harvey is being transferred
+to Neighbourhoodie Software which also holds the couchdb.com/net/org domains
+in escrow for the Apache CouchDB project. ASF Member and CouchDB PMC Chair Jan
+Lehnardt is a shareholder and chief executive at Neighbourhoodie and they are
+trusted to hold and manage those domains in escrow until such time a transition
+is needed. The website publishing toolchain xan be easily adapted to the ASF-
+provided web publishing mechanisms.
 
 #### External Dependencies:
 
@@ -533,7 +614,10 @@ Example (CeltiXfire):
 CPL, MPL and MIT licensed dependencies.
 
 PouchDB:
+PouchDB depends directly on the following other projects. An automated licensing
+scean has revealed the following set of licenses in the dependency tree:
 
+TODO ADD DEPS AND LICENSE SCAN
 
 #### Cryptography:
 
@@ -541,7 +625,11 @@ If the proposal involves cryptographic code either directly or indirectly,
 Apache needs to know so that the relevant paperwork can be obtained.
 
 PouchDB:
+PouchDB does not directly include cryptography code, but makes use of in-browser
+TLS. A PouchDB plugin crypto-pouch exists that does record-level encryption, but
+it is currently not part of the PouchDB code base.
 
+TODO: check if md5 hashing is considered cryptography
 
 ### Required Resources
 
@@ -575,7 +663,9 @@ Example (Beehive):
 > * commits@beehive.incubator.apache.org
 
 PouchDB:
-
+* dev@pouchdb.incubator.apache.org
+* private@pouchdb.incubator.apache.org
+* commits@pouchdb.incubator.apache.org
 
 #### Subversion Directory:
 
@@ -587,7 +677,7 @@ Example (OpenJPA):
 > https://svn.apache.org/repos/asf/incubator/openjpa
 
 PouchDB:
-
+n/a
 
 #### Git Repositories:
 It is conventional to use all lower case, dash-separated (-) repository names.
@@ -598,7 +688,8 @@ Example (Batchee):
 > https://gitbox.apache.org/repos/asf/incubator-batchee.git
 
 PouchDB:
-
+* https://gitbox.apache.org/repos/asf/incubator-pouchdb.git
+* https://github.com/apache/incubator-pouchdb.git
 
 #### Issue Tracking:
 
@@ -609,7 +700,7 @@ Example (OpenJPA):
 > JIRA Open-JPA (OPEN-JPA)
 
 PouchDB:
-
+GitHub Issues
 
 #### Other Resources:
 
@@ -623,7 +714,8 @@ should be added after bootstrapping. The infrastructure documentation explains
 the process.
 
 PouchDB:
-
+PouchDB makes significant use of GitHub Actions for CI. E.g. a single PR test
+run usually takes XXXTODO minutes across XXXTODO distinct GitHub Action tasks.
 
 ### Initial Committers
 
@@ -650,7 +742,7 @@ Example (OpenJPA):
 > Craig Russell (clr at apache dot org) *
 
 PouchDB:
-
+ TODO ADD
 
 ### Sponsors
 
@@ -673,7 +765,7 @@ by their contributions and not by their background. This list should not be
 maintained after the bootstrap has been completed.
 
 PouchDB:
-
+TODO ADD
 
 #### Champion:
 The Champion is a person already associated with Apache who leads the proposal
@@ -685,7 +777,7 @@ role is to help formulate the proposal and work with you to resolve comments and
 questions put forth by the IPMC while reviewing the proposal.
 
 PouchDB:
-
+Jan Lehnardt (jan@apache.org), CouchDB PMC Chair.
 
 #### Nominated Mentors:
 
@@ -700,7 +792,8 @@ mentors to progress smoothly. There is no restriction on the number of mentors,
 formal or informal that a Podling may have.
 
 PouchDB:
-
+PJ Fanning (fanningpj@apache.org)
+Jean-Baptiste Onofré (jb@nanthrax.net)
 
 #### Sponsoring Entity:
 The Sponsor is the organizational unit within Apache taking responsibility for
