@@ -805,7 +805,7 @@ Diana Thayer garbados at apache dot org (CLA)
 Diana Barsan twisteddiana at gmail dot com
 Gareth Bowen gareth at medic dot org
 Jan Lehnardt jan at apache dot org (CLA)
-James Coglan 
+James Coglan james at neighbourhood dot ie
 Johannes Schmidt schmidt at netzmerk dot com
 Steven-John Lange sourcer85 at gmail dot com
 
