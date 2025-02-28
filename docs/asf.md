@@ -494,7 +494,7 @@ right place to convince everyone that is not the case.
 
 This is also the right place to build bridges with the community after past
 misdemeanors (for example, if any of those associated with the proposal have -
-in the past - sort to associate themselves with the Apache brand in factually
+in the past - sought to associate themselves with the Apache brand in factually
 incorrect ways) and promise good conduct for the future.
 
 Example (CeltiXfire):
