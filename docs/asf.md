@@ -473,8 +473,8 @@ that will be explored.
 
 PouchDB:
 PouchDB has been developerd as a sister-project to Apache CouchDB. Both projects
-are inextricably linked in the sense that ever PouchDB user is at least also a
-PouchDB user. The reverse is not necessarily true, but in a recent CouchDB
+are inextricably linked in the sense that every PouchDB user is at least also a
+CouchDB user. The reverse is not necessarily true, but in a recent CouchDB
 developer survey, 80% of participants stated to use PouchDB with CouchDB.
 
 The question of whether PouchDB should join CouchDB as as sub-project has been
