@@ -594,7 +594,7 @@ to Neighbourhoodie Software which also holds the couchdb.com/net/org domains
 in escrow for the Apache CouchDB project. ASF Member and CouchDB PMC Chair Jan
 Lehnardt is a shareholder and chief executive at Neighbourhoodie and they are
 trusted to hold and manage those domains in escrow until such time a transition
-is needed. The website publishing toolchain xan be easily adapted to the ASF-
+is needed. The website publishing toolchain can be easily adapted to the ASF-
 provided web publishing mechanisms.
 
 #### External Dependencies:
