@@ -614,7 +614,65 @@ PouchDB:
 PouchDB depends directly on the following other projects. An automated licensing
 scan has revealed the following set of licenses in the dependency tree:
 
-TODO ADD DEPS AND LICENSE SCAN
+Runtime dependencies: three dependencies with to-be-sorted-out licenses:
+- argsarray (WTFPL), trivially replaced with a compatible version.
+- fetch-cookie (Unlicense, public-domain), could be fine, but check with ASF.
+- readable-stream (incorrectly labelled BSD license), newer versions are MIT
+  licensed, we should upgrade.
+
+Development dependencies: if applicable, we’ll need to go through those and see
+what can be done about them:
+
+- argparse@2.0.1: Python-2.0
+- chai-as-promised@5.3.0: WTFPL
+- configstore@0.3.2: Invalid SPDX expression "BSD"
+- cookie@0.1.2: Invalid license metadata
+- cssmin@0.4.3: Invalid license metadata
+- escape-html@1.0.1: Invalid license metadata
+- esprima-fb@15001.1.0-dev-harmony-fb: Invalid license metadata
+- estraverse@1.9.3: Invalid license metadata
+- event-stream@0.5.3: Invalid license metadata
+- fetch-cookie@2.2.0: Unlicense
+- jsonify@0.0.1: Invalid SPDX expression "Public Domain"
+- JSONStream@0.10.0: Invalid license metadata
+- log-driver@1.2.5: Invalid license metadata
+- mime@1.2.11: Invalid license metadata
+- ms@0.7.0: Invalid license metadata
+- ms@0.6.2: Invalid license metadata
+- pako@1.0.11: (MIT AND Zlib)
+- path-to-regexp@0.1.3: Invalid license metadata
+- ps-tree@0.0.3: Invalid license metadata
+- qs@2.3.3: Invalid license metadata
+- random-uuid-v4@0.0.8: Unlicense
+- semver@2.3.2: Invalid SPDX expression "BSD"
+- sntp@1.0.9: Invalid license metadata
+- source-map@0.2.0: Invalid license metadata
+- truncate-utf8-bytes@1.0.2: WTFPL
+- tslib@2.6.3: 0BSD
+- tweetnacl@0.14.5: Unlicense
+- update-notifier@0.1.10: Invalid license metadata
+
+These are produced with the `licensee` tool, invocations for runtime
+dependencies:
+
+```
+licensee --corrections --errors-only --production
+```
+
+and for development dependencies:
+
+```
+licensee --corrections --errors-only
+```
+
+With the following licenses being permitted:
+
+- Apache-2.0
+- MIT
+- BSD-2-Clause
+- BSD-3-Clause
+- ISC
+- BSD
 
 #### Cryptography:
 
