@@ -401,6 +401,7 @@ PouchDB:
 The current PouchDB maintainers consist of people from around the world,
 collaborating across all timezones.
 
+
 #### Reliance on Salaried Developers:
 
 A project dominated by salaried developers who are interested in the code only
@@ -437,10 +438,8 @@ multiple projects, and will do so for a considerable while as their companies
 framework of choice.
 
 PouchDB:
-There is also a healthy mix of maintainers that are independent contributors
-and that work at organisations built around PouchDB.
-
-TODO ADD LIST AND AFFILIATIONS
+There is also a healthy mix of maintainers some of which are paid to work on
+PouchDB part time, but everyone also contributes in their spare time.
 
 #### Relationships with Other Apache Products:
 
@@ -487,7 +486,6 @@ Where needed (APIs, sync protocol), the two teams have worked together tightly
 and productively in the past. We don’t see a need to formalise this relationship
 to achieve future success.
 
-
 #### A Excessive Fascination with the Apache Brand:
 
 Concerns have been raised in the past that some projects appear to have been
@@ -522,7 +520,7 @@ founders, and that will be embraced by other Apache efforts, such as the
 Geronimo project.
 
 PouchDB:
-As mentioned before, PouchDB is looking for an open source foudnation that helps
+As mentioned before, PouchDB is looking for an open source foundation that helps
 with long-term project stability and dependability. Both the OpenJS Foundation
 and the ASF have been evaluated. In the end, the PouchDB developers prefer the
 close proximity to Apache CouchDB. The maintainers believe that people having
@@ -548,7 +546,6 @@ PouchDB:
 Project website: https://pouchdb.com/
 Including blog with release announcements: https://pouchdb.com/blog
 GitHub Project: https://github.com/pouchdb/pouchdb
-
 
 ### Initial Source
 
@@ -615,7 +612,7 @@ CPL, MPL and MIT licensed dependencies.
 
 PouchDB:
 PouchDB depends directly on the following other projects. An automated licensing
-scean has revealed the following set of licenses in the dependency tree:
+scan has revealed the following set of licenses in the dependency tree:
 
 TODO ADD DEPS AND LICENSE SCAN
 
@@ -627,9 +624,9 @@ Apache needs to know so that the relevant paperwork can be obtained.
 PouchDB:
 PouchDB does not directly include cryptography code, but makes use of in-browser
 TLS. A PouchDB plugin crypto-pouch exists that does record-level encryption, but
-it is currently not part of the PouchDB code base.
-
-TODO: check if md5 hashing is considered cryptography
+it is currently not part of the PouchDB code base. If md5 hashing is considered
+cryptography, PouchDB, like CouchDB, makes use of that (md5 hashing is not used
+for security relevant operations).
 
 ### Required Resources
 
@@ -714,8 +711,9 @@ should be added after bootstrapping. The infrastructure documentation explains
 the process.
 
 PouchDB:
-PouchDB makes significant use of GitHub Actions for CI. E.g. a single PR test
-run usually takes XXXTODO minutes across XXXTODO distinct GitHub Action tasks.
+PouchDB makes significant use of GitHub Actions for CI. For 2024, we have used
+214,556 total minutes across 53,831 job runs. This can be migrated if need be
+but it’d be great if this carefully crafted setup could remain in place.
 
 ### Initial Committers
 
@@ -742,7 +740,17 @@ Example (OpenJPA):
 > Craig Russell (clr at apache dot org) *
 
 PouchDB:
- TODO ADD
+
+Alba Herrerías Ramírez albaherreriasdev at gmail dot com
+Alex Anderson alexanderandersonofandover at gmail dot com
+Diana Thayer garbados at apache dot org (CLA)
+Diana Barsan twisteddiana at gmail dot com
+Gareth Bowen gareth at medic dot org
+Jan Lehnardt jan at apache dot org (CLA)
+James Coglan 
+Johannes Schmidt schmidt at netzmerk dot com
+Steven-John Lange sourcer85 at gmail dot com
+
 
 ### Sponsors
 
@@ -765,7 +773,15 @@ by their contributions and not by their background. This list should not be
 maintained after the bootstrap has been completed.
 
 PouchDB:
-TODO ADD
+Alba Herrerías Ramírez Neighbourhoodie
+Alex Anderson independent, formerly Medic
+Diana Thayer independent
+Diana Barsan Medic
+Gareth Bowen Medic
+Jan Lehnardt Neighbourhoodie
+James Coglan Neighbourhoodie
+Johannes Schmidt Mozilla / independent
+Steven-John Lange HZData GmbH / independent
 
 #### Champion:
 The Champion is a person already associated with Apache who leads the proposal
@@ -777,7 +793,7 @@ role is to help formulate the proposal and work with you to resolve comments and
 questions put forth by the IPMC while reviewing the proposal.
 
 PouchDB:
-Jan Lehnardt (jan@apache.org), CouchDB PMC Chair.
+Jan Lehnardt, CouchDB PMC Chair.
 
 #### Nominated Mentors:
 
@@ -792,8 +808,8 @@ mentors to progress smoothly. There is no restriction on the number of mentors,
 formal or informal that a Podling may have.
 
 PouchDB:
-PJ Fanning (fanningpj@apache.org)
-Jean-Baptiste Onofré (jb@nanthrax.net)
+PJ Fanning (fanningpj at apache dot org)
+Jean-Baptiste Onofré (jb at nanthrax dot net)
 
 #### Sponsoring Entity:
 The Sponsor is the organizational unit within Apache taking responsibility for
@@ -811,4 +827,4 @@ Note that the final destination within the Apache organizational structure will
 be decided upon graduation.
 
 PouchDB:
-
+The Incubator
