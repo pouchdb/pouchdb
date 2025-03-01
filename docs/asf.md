@@ -803,10 +803,10 @@ Alba Herrerías Ramírez albaherreriasdev at gmail dot com
 Alex Anderson alexanderandersonofandover at gmail dot com
 Diana Thayer garbados at apache dot org (CLA)
 Diana Barsan twisteddiana at gmail dot com
-Gareth Bowen gareth at medic dot org
+Gareth Bowen gareth at bowenwebdesign dot co dot nz
 Jan Lehnardt jan at apache dot org (CLA)
 James Coglan james at neighbourhood dot ie
-Johannes Schmidt schmidt at netzmerk dot com
+Johannes Schmidt schmidt at tf-fabrik dot de
 Steven-John Lange sourcer85 at gmail dot com
 
 
@@ -835,7 +835,7 @@ Alba Herrerías Ramírez Neighbourhoodie
 Alex Anderson independent, formerly Medic
 Diana Thayer independent
 Diana Barsan Medic
-Gareth Bowen Medic
+Gareth Bowen independent, formerly Medic
 Jan Lehnardt Neighbourhoodie
 James Coglan Neighbourhoodie
 Johannes Schmidt Mozilla / independent
