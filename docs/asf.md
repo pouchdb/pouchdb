@@ -801,7 +801,7 @@ PouchDB:
 
 Alba Herrerías Ramírez albaherreriasdev at gmail dot com
 Alex Anderson asf-pouchdb at alxndrsn dot com
-Diana Thayer garbados at apache dot org (CLA)
+Diana Belle garbados at apache dot org (CLA)
 Diana Barsan twisteddiana at gmail dot com
 Gareth Bowen gareth at bowenwebdesign dot co dot nz
 Jan Lehnardt jan at apache dot org (CLA)
@@ -833,7 +833,7 @@ maintained after the bootstrap has been completed.
 PouchDB:
 Alba Herrerías Ramírez Neighbourhoodie
 Alex Anderson independent, formerly Medic
-Diana Thayer independent
+Diana Belle independent
 Diana Barsan Medic
 Gareth Bowen independent, formerly Medic
 Jan Lehnardt Neighbourhoodie
