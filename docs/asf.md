@@ -800,7 +800,7 @@ Example (OpenJPA):
 PouchDB:
 
 Alba Herrerías Ramírez albaherreriasdev at gmail dot com
-Alex Anderson alexanderandersonofandover at gmail dot com
+Alex Anderson asf-pouchdb at alxndrsn dot com
 Diana Thayer garbados at apache dot org (CLA)
 Diana Barsan twisteddiana at gmail dot com
 Gareth Bowen gareth at bowenwebdesign dot co dot nz
