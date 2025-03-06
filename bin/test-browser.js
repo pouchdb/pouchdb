@@ -30,7 +30,7 @@ if (!SUPPORTED_BROWSERS.includes(browserName)) {
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
 var testUrl;
-if (process.env.PERF) {
+if (process.env.TYPE === 'performance') {
   testUrl = testRoot + 'performance/index.html';
 } else if (process.env.TYPE === 'fuzzy') {
   testUrl = testRoot + 'fuzzy/index.html';
@@ -217,8 +217,8 @@ async function startTest() {
     new BenchmarkConsoleReporter(runner);
 
     if (process.env.JSON_REPORTER) {
-      if (!process.env.PERF) {
-        console.log('!!! JSON_REPORTER should only be set if PERF is also set.');
+      if (process.env.TYPE !== 'performance') {
+        console.log('!!! JSON_REPORTER should only be set if TYPE is set to "performance".');
         process.exit(1);
       }
       new BenchmarkJsonReporter(runner);

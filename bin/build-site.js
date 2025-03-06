@@ -11,9 +11,10 @@ const Path = require('node:path');
 var replace = require('replace');
 var mkdirp = require('mkdirp');
 var cssmin = require('cssmin');
+const terser = require('terser');
 
 const POUCHDB_CSS = resolvePath('docs/static/css/pouchdb.css');
-const POUCHDB_LESS = resolvePath('docs/static/less/pouchdb/pouchdb.less');
+const POUCHDB_LESS = resolvePath('docs/src/less/pouchdb/pouchdb.less');
 
 process.chdir('docs');
 
@@ -40,6 +41,26 @@ async function buildJekyll() {
 
   highlightEs6();
   console.log('=> Highlighted ES6');
+
+  const srcPath = resolvePath('docs/src/code.js');
+  const targetPath = resolvePath('docs/_site/static/js/code.min.js');
+  const src = fs.readFileSync(srcPath, { encoding:'utf8' });
+  const mangle = { toplevel: true };
+  const output = { ascii_only: true };
+  const { code, error } = terser.minify(src, { mangle, output });
+  if (error) {
+    if (process.env.BUILD) {
+      throw error;
+    } else {
+      console.log(
+        `Javascript minification failed on line ${error.line} col ${error.col}:`,
+        error.message,
+      );
+    }
+  } else {
+    fs.writeFileSync(targetPath, code);
+    console.log('Minified javascript.');
+  }
 }
 
 function highlightEs6() {
@@ -91,7 +112,8 @@ if (!process.env.BUILD) {
       }
     });
 
-  watchGlob('static/less/*/*.less', buildCSS);
+
+  watchGlob('static/src/*/*.less', buildCSS);
 
   http_server.createServer({root: '_site', cache: '-1'}).listen(4000);
   console.log('Server address: http://localhost:4000');

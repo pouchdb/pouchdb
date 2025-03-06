@@ -11,3 +11,5 @@ github:
 collections:
   guides:
     output: true
+exclude:
+  - src
