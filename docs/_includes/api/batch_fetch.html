@@ -47,7 +47,7 @@ db.allDocs({
 {% include code/start.html id="all_docs" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.allDocs({
+  const result = await db.allDocs({
     include_docs: true,
     attachments: true
   });
@@ -125,7 +125,7 @@ db.allDocs({
 {% include code/start.html id="all_docs_2" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.allDocs({
+  const result = await db.allDocs({
     include_docs: true,
     attachments: true,
     startkey: 'bar',
@@ -175,7 +175,7 @@ db.allDocs({
 {% include code/start.html id="all_docs_3" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.allDocs({
+  const result = await db.allDocs({
     include_docs: true,
     attachments: true,
     startkey: 'foo',

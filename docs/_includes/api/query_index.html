@@ -33,7 +33,7 @@ db.find({
 {% include code/start.html id="query_idx" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {name: 'Mario'},
     fields: ['_id', 'name'],
     sort: ['name']
@@ -98,7 +98,7 @@ The above is a simple example. For an in-depth tutorial, please refer to
   * `$elemMatch` Matches all documents that contain an array field with at least one element that matches all the specified query criteria.
 * `fields` (Optional) Defines a list of fields that you want to receive. If omitted, you get the full documents.
 * `sort` (Optional) Defines a list of fields defining how you want to sort. Note that sorted fields also have to be selected in the `selector`.
-* `limit` (Optional) Maximum number of documents to return.
+* `limit` (Optional) Maximum number of documents to return. Default is `25` when connected to a local database.
 * `skip` (Optional) Number of docs to skip before returning.
 * `use_index` (Optional) Set which index to use for the query. It can be "design-doc-name" or "['design-doc-name', 'name']".
 
@@ -134,7 +134,7 @@ db.find({
 {% include code/start.html id="query_idx2" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {name: {$eq: 'Mario'}}
   });
 } catch (err) {
@@ -171,7 +171,7 @@ db.find({
 {% include code/start.html id="query_idx3" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {name: 'Mario'}
   });
 } catch (err) {
@@ -212,7 +212,7 @@ db.find({
 {% include code/start.html id="query_idx4" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {
       series: 'Mario',
       debut: { $gt: 1990 }
@@ -260,7 +260,7 @@ db.find({
 {% include code/start.html id="query_idx5" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {
       $and: [
         { series: 'Mario' },
@@ -310,7 +310,7 @@ db.find({
 {% include code/start.html id="query_idx6" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.find({
+  const result = await db.find({
     selector: {
       debut: {'$gte': null}
     },

@@ -16,7 +16,7 @@ For details, see the [CouchDB documentation on attachments](https://docs.couchdb
 
 {% include code/start.html id="attach1" type="callback" %}
 {% highlight js %}
-var attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
+const attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
 db.putAttachment('doc', 'att.txt', attachment, 'text/plain', function(err, res) {
   if (err) { return console.log(err); }
   // handle result
@@ -27,8 +27,8 @@ db.putAttachment('doc', 'att.txt', attachment, 'text/plain', function(err, res) 
 {% include code/start.html id="attach1" type="async" %}
 {% highlight js %}
 try {
-  var attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
-  var result = await db.putAttachment('doc', 'att.txt', attachment, 'text/plain');
+  const attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
+  const result = await db.putAttachment('doc', 'att.txt', attachment, 'text/plain');
 } catch (err) {
   console.log(err);
 }
@@ -37,7 +37,7 @@ try {
 
 {% include code/start.html id="attach1" type="promise" %}
 {% highlight js %}
-var attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
+const attachment = new Blob(['Is there life on Mars?'], {type: 'text/plain'});
 db.putAttachment('doc', 'att.txt', attachment, 'text/plain').then(function (result) {
   // handle result
 }).catch(function (err) {
@@ -59,7 +59,7 @@ db.putAttachment('doc', 'att.txt', attachment, 'text/plain').then(function (resu
 Within Node, you must use a `Buffer` instead of a `Blob`:
 
 {% highlight js %}
-var attachment = new Buffer('Is there life on Mars?');
+const attachment = new Buffer('Is there life on Mars?');
 {% endhighlight %}
 
 For details, see the [Mozilla docs on `Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob) or the [Node docs on `Buffer`](http://nodejs.org/api/buffer.html).
@@ -72,7 +72,7 @@ If you supply a string instead of a `Blob`/`Buffer`, then it will be assumed to 
 
 {% include code/start.html id="attach3" type="callback" %}
 {% highlight js %}
-var attachment = 
+const attachment =
         "TGVnZW5kYXJ5IGhlYXJ0cywgdGVhciB1cyBhbGwgYXBhcnQKTWFrZS" +
         "BvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA==";
 db.putAttachment('doc', 'att.txt', attachment, 'text/plain', function(err, res) {
@@ -85,10 +85,10 @@ db.putAttachment('doc', 'att.txt', attachment, 'text/plain', function(err, res) 
 {% include code/start.html id="attach3" type="async" %}
 {% highlight js %}
 try {
-  var attachment =
+  const attachment =
     "TGVnZW5kYXJ5IGhlYXJ0cywgdGVhciB1cyBhbGwgYXBhcnQKTWFrZS" +
     "BvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA==";
-  var result = await db.putAttachment('doc', 'att.txt', attachment, 'text/plain');
+  const result = await db.putAttachment('doc', 'att.txt', attachment, 'text/plain');
 } catch (err) {
   console.log(err);
 }
@@ -97,7 +97,7 @@ try {
 
 {% include code/start.html id="attach3" type="promise" %}
 {% highlight js %}
-var attachment = 
+const attachment =
         "TGVnZW5kYXJ5IGhlYXJ0cywgdGVhciB1cyBhbGwgYXBhcnQKTWFrZS" +
         "BvdXIgZW1vdGlvbnMgYmxlZWQsIGNyeWluZyBvdXQgaW4gbmVlZA==";
 db.putAttachment('doc', 'att.txt', attachment, 'text/plain').then(function (result) {
@@ -115,7 +115,7 @@ You can also inline attachments inside the document. The attachment data may be 
 
 {% include code/start.html id="attach2" type="callback" %}
 {% highlight js %}
-var doc = {
+const doc = {
   "_id": "doc",
   "title": "Legendary Hearts",
   "_attachments": {
@@ -136,7 +136,7 @@ db.put(doc, function (err, result) {
 {% include code/start.html id="attach2" type="async" %}
 {% highlight js %}
 try {
-  var doc = {
+  const doc = {
     "_id": "doc",
     "title": "Legendary Hearts",
     "_attachments": {
@@ -147,7 +147,7 @@ try {
       }
     }
   };
-  var result = await db.put(doc);
+  const result = await db.put(doc);
 } catch (err) {
   console.log(err);
 }
@@ -156,7 +156,7 @@ try {
 
 {% include code/start.html id="attach2" type="promise" %}
 {% highlight js %}
-var doc = {
+const doc = {
   "_id": "doc",
   "title": "Legendary Hearts",
   "_attachments": {
@@ -181,7 +181,7 @@ You can also inline `Blob`s/`Buffer`s:
 
 {% include code/start.html id="attach4" type="callback" %}
 {% highlight js %}
-var doc = {
+const doc = {
   "_id": "doc",
   "title": "Legendary Hearts",
   "_attachments": {
@@ -201,7 +201,7 @@ db.put(doc, function (err, result) {
 {% include code/start.html id="attach4" type="async" %}
 {% highlight js %}
 try {
-  var doc = {
+  const doc = {
     "_id": "doc",
     "title": "Legendary Hearts",
     "_attachments": {
@@ -211,7 +211,7 @@ try {
       }
     }
   };
-  var result = await db.put(doc);
+  const result = await db.put(doc);
 } catch (err) {
   console.log(err);
 }
@@ -220,7 +220,7 @@ try {
 
 {% include code/start.html id="attach4" type="promise" %}
 {% highlight js %}
-var doc = {
+const doc = {
   "_id": "doc",
   "title": "Legendary Hearts",
   "_attachments": {
@@ -244,7 +244,7 @@ The inline approach allows you to save multiple attachments to the same document
 
 {% include code/start.html id="attach5" type="callback" %}
 {% highlight js %}
-var doc = {
+const doc = {
   "_id": "doc",
   "title": "Legendary Hearts",
   "_attachments": {
@@ -278,7 +278,7 @@ db.put(doc, function (err, result) {
 {% include code/start.html id="attach5" type="async" %}
 {% highlight js %}
 try {
-  var doc = {
+  const doc = {
     "_id": "doc",
     "title": "Legendary Hearts",
     "_attachments": {
@@ -302,7 +302,7 @@ try {
       }
     }
   };
-  var result = await db.put(doc);
+  const result = await db.put(doc);
 } catch (err) {
   console.log(err);
 }
@@ -311,7 +311,7 @@ try {
 
 {% include code/start.html id="attach5" type="promise" %}
 {% highlight js %}
-var doc = {
+const doc = {
   "_id": "doc",
   "title": "Legendary Hearts",
   "_attachments": {

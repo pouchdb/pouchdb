@@ -14,19 +14,50 @@ on:
     branches: [master]
 
 env:
-  NODE_VERSION: 14
+  NODE_VERSION: 22
   TEST_HOST: localhost
 
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
 jobs:
+
+  # Check style compliance of JavaScript code.
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
       - run: npm run eslint
+
+  # Check shell scripts.
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: sudo apt-get install shellcheck
+      - run: git ls-files '*.sh' | xargs shellcheck
+
+  # Check package-lock.json is up-to-date
+
+  package-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: ./bin/verify-package-lock.sh
 
   # Run the integration, find and mapreduce tests against CouchDB on Node.js.
   # This should be run against every version of CouchDB and every version of
@@ -38,7 +69,7 @@ jobs:
       fail-fast: false
       matrix:
         couchdb: ['2.3', '3.1']
-        node: [14, 16]
+        node: [18, 20]
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
@@ -50,11 +81,16 @@ jobs:
       COUCH_HOST: http://admin:password@127.0.0.1:5984
       SKIP_MIGRATION: 1
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
+      - uses: ./.github/actions/install-couchdb
+        with:
           couchdb-version: ${{ matrix.couchdb }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -77,24 +113,30 @@ jobs:
       fail-fast: false
       matrix:
         couchdb: ['2.3','3.1']
-        client: ['firefox', 'chromium']
+        client: ['firefox', 'chromium', 'webkit']
         cmd:
           - npm test
           - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
           - TYPE=mapreduce ADAPTERS=http npm test
     runs-on: ubuntu-latest
     env:
-      POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
+      USE_MINIFIED: 1
       CLIENT: ${{ matrix.client }}
       SERVER: couchdb-master
       COUCH_HOST: http://admin:password@127.0.0.1:5984
       SKIP_MIGRATION: 1
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - uses: ./.github/actions/install-playwright
+      - uses: ./.github/actions/install-couchdb
+        with:
           couchdb-version: ${{ matrix.couchdb }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -116,7 +158,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [14, 16]
+        node: [18, 20]
         adapter: ['leveldb', 'memory']
         cmd:
           - npm test
@@ -127,10 +169,13 @@ jobs:
       CLIENT: node
       ADAPTERS: ${{ matrix.adapter }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -152,7 +197,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        client: ['firefox', 'chromium']
+        client: ['firefox', 'chromium', 'webkit']
         adapter: ['idb', 'indexeddb', 'memory']
         cmd:
           - npm test
@@ -160,51 +205,18 @@ jobs:
           - TYPE=mapreduce npm test
     runs-on: ubuntu-latest
     env:
-      POUCHDB_SRC: ../../packages/node_modules/pouchdb/dist/pouchdb.min.js
+      USE_MINIFIED: 1
       CLIENT: ${{ matrix.client }}
       ADAPTERS: ${{ matrix.adapter }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - id: test
-        run: ${{ matrix.cmd }}
-        continue-on-error: true
-      - name: First retry
-        id: retry
-        if: steps.test.outcome == 'failure'
-        run: ${{ matrix.cmd }}
-        continue-on-error: true
-      - name: Second retry
-        if: steps.retry.outcome == 'failure'
-        run: ${{ matrix.cmd }}
-
-  # Run the integration, find and mapreduce tests using pouchdb-server as the
-  # remote adapter. This checks that pouchdb-server works with the current
-  # PouchDB source tree. We run this on Node.js and on every target browser.
-  # Running against different versions of Node.js might require splitting this
-  # out into a distinct job.
-
-  pouchdb-server:
-    needs: lint
-    strategy:
-      fail-fast: false
-      matrix:
-        client: ['node', 'firefox', 'chromium']
-        cmd:
-          - npm test
-          - TYPE=find PLUGINS=pouchdb-find ADAPTERS=http npm test
-          - TYPE=mapreduce ADAPTERS=http npm test
-    runs-on: ubuntu-latest
-    env:
-      CLIENT: ${{ matrix.client }}
-      SERVER: pouchdb-server
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+      - uses: ./.github/actions/install-playwright
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true
@@ -225,22 +237,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [14, 16]
+        node: [18, 20]
         cmd:
           - CLIENT=firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
-          - PERF=1 npm test
+          - TYPE=performance npm test
           - npm run test-unit
           - npm run test-component
           - npm run test-fuzzy
-          # - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage
           - npm run verify-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-deps
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
         with:
           node-version: ${{ matrix.node }}
+      - uses: ./.github/actions/build-pouchdb
       - id: test
         run: ${{ matrix.cmd }}
         continue-on-error: true

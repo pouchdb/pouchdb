@@ -2,10 +2,9 @@
 
 'use strict';
 
-var watch = require('watch-glob');
+var watch = require('glob-watcher');
 var http_server = require('http-server');
-var debounce = require('lodash.debounce');
-var buildPouchDB = require('./build-pouchdb');
+const { debounce } = require('lodash');
 var browserify = require('browserify');
 var fs = require('fs');
 
@@ -32,10 +31,17 @@ if (process.env.COUCH_HOST) {
 if (process.env.ITERATIONS) {
   queryParams.iterations = process.env.ITERATIONS;
 }
+if (process.env.SRC_ROOT) {
+  queryParams.srcRoot = process.env.SRC_ROOT;
+}
+if (process.env.USE_MINIFIED) {
+  queryParams.useMinified = process.env.USE_MINIFIED;
+}
 
 var rebuildPromise = Promise.resolve();
 
 function rebuildPouch() {
+  const buildPouchDB = require('./build-pouchdb');
   rebuildPromise = rebuildPromise.then(buildPouchDB).then(function () {
     console.log('Rebuilt packages/node_modules/pouchdb');
   }).catch(console.error);
@@ -79,23 +85,6 @@ function watchAll() {
     debounce(rebuildPerf, 700, {leading: true}));
 }
 
-var filesWritten = false;
-
-Promise.resolve().then(function () {
-  if (process.env.TRAVIS) {
-    return; // don't bother rebuilding in Travis; we already built
-  }
-  return Promise.all([
-    rebuildPouch(),
-    rebuildTestUtils(),
-    rebuildPerf()
-  ]);
-}).then(function () {
-  console.log('Rebuilt PouchDB/test/perf JS bundles');
-  filesWritten = true;
-  checkReady();
-});
-
 var HTTP_PORT = 8000;
 
 var serversStarted;
@@ -116,7 +105,7 @@ function startServers(callback) {
 }
 
 function checkReady() {
-  if (filesWritten && serversStarted && readyCallback) {
+  if (serversStarted && readyCallback) {
     readyCallback();
   }
 }

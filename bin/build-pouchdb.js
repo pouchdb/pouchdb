@@ -12,7 +12,7 @@ var denodeify = require('denodeify');
 var rollup = require('rollup');
 var rollupPlugins = require('./rollupPlugins');
 var rimraf = denodeify(require('rimraf'));
-var mkdirp = denodeify(require('mkdirp'));
+const { mkdir } = require('node:fs/promises');
 var all = Promise.all.bind(Promise);
 var buildUtils = require('./build-utils');
 var addPath = buildUtils.addPath;
@@ -74,15 +74,15 @@ function doRollup(input, browser, formatsToFiles) {
   var start = process.hrtime();
   return rollup.rollup({
     input: addPath('pouchdb', input),
-    external: external,
+    external,
     plugins: rollupPlugins({
       mainFields: ["module"],
-      browser: browser
+      browser
     })
   }).then(function (bundle) {
     return Promise.all(Object.keys(formatsToFiles).map(function (format) {
       var fileOut = formatsToFiles[format];
-      return bundle.generate({format: format}).then(function (bundle) {
+      return bundle.generate({format}).then(function (bundle) {
         if (DEV_MODE) {
           var ms = Math.round(process.hrtime(start)[1] / 1000000);
           console.log('    took ' + ms + ' ms to rollup ' +
@@ -151,7 +151,7 @@ var rimrafMkdirp = function (...args) {
     return rimraf(addPath('pouchdb', otherPath));
   })).then(function () {
     return all(args.map(function (otherPath) {
-      return mkdirp(addPath('pouchdb', otherPath));
+      return mkdir(addPath('pouchdb', otherPath), { recursive:true });
     }));
   });
 };
@@ -165,7 +165,7 @@ var doAll = function (...args) {
 };
 
 function doBuildNode() {
-  return mkdirp(addPath('pouchdb', 'lib/plugins'))
+  return mkdir(addPath('pouchdb', 'lib/plugins'), { recursive:true })
     .then(buildForNode);
 }
 

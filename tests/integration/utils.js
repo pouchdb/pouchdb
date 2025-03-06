@@ -20,15 +20,6 @@ testUtils.isChrome = function () {
       /Google Inc/.test(window.navigator.vendor);
 };
 
-testUtils.isIE = function () {
-  var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
-      navigator.userAgent.toLowerCase() : '';
-  var isIE = ua.indexOf('msie') !== -1;
-  var isTrident = ua.indexOf('trident') !== -1;
-  var isEdge = ua.indexOf('edge') !== -1;
-  return (isIE || isTrident || isEdge);
-};
-
 testUtils.isSafari = function () {
   return (typeof process === 'undefined' || process.browser) &&
       /Safari/.test(window.navigator.userAgent) &&
@@ -61,7 +52,7 @@ testUtils.readBlob = function (blob, callback) {
 };
 
 testUtils.readBlobPromise = function (blob) {
-  return new testUtils.Promise(function (resolve) {
+  return new Promise(function (resolve) {
     testUtils.readBlob(blob, resolve);
   });
 };
@@ -81,7 +72,7 @@ testUtils.base64Blob = function (blob, callback) {
 testUtils.adapterUrl = function (adapter, name) {
 
   // CouchDB master has problems with cycling databases rapidly
-  // so give tests seperate names
+  // so give tests separate names
   name += '_' + Date.now();
 
   if (adapter === 'http') {
@@ -184,6 +175,26 @@ testUtils.isCouchDB = function (cb) {
   });
 };
 
+testUtils.getServerType = async () => {
+  const knownServers = [
+    'couchdb',
+    'express-pouchdb',
+    'pouchdb-express-router',
+  ];
+
+  const { url, options } = parseHostWithCreds(testUtils.couchHost());
+  const res = await PouchDB.fetch(url, options);
+  const body = await res.json();
+
+  for (const known of knownServers) {
+    if (body[known]) {
+      return known;
+    }
+  }
+
+  throw new Error(`Could not find a known server type in response: ${JSON.stringify(res)}`);
+};
+
 testUtils.writeDocs = function (db, docs, callback, res) {
   if (!res) {
     res = [];
@@ -239,7 +250,7 @@ testUtils.promisify = function (fun, context) {
     for (var i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];
     }
-    return new testUtils.Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       args.push(function (err, res) {
         if (err) {
           return reject(err);

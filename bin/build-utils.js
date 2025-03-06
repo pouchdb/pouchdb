@@ -29,8 +29,11 @@ function writeFile(filename, contents) {
 }
 
 function doUglify(pkgName, code, prepend, fileOut) {
-  var miniCode = prepend + terser.minify(code, { output: { ascii_only: true }}).code;
-  return writeFile(addPath(pkgName, fileOut), miniCode);
+  const filename = fileOut.replace(/.*\//, '');
+  const sourceMap = { filename, url: filename + '.map' };
+  const minified = terser.minify(code, { output: { ascii_only: true }, sourceMap });
+  return writeFile(addPath(pkgName, fileOut), prepend + minified.code)
+      .then(() => writeFile(addPath(pkgName, fileOut) + '.map', minified.map));
 }
 
 var browserifyCache = {};
@@ -48,9 +51,7 @@ function doBrowserify(pkgName, filepath, opts, exclude) {
             path.dirname(filepath) + '/' + path.basename(filepath));
         });
     } else {
-      bundler = browserify(addPath(pkgName, filepath), opts)
-        .transform('es3ify')
-        .plugin('bundle-collapser/plugin');
+      bundler = browserify(addPath(pkgName, filepath), opts);
     }
 
     if (exclude) {

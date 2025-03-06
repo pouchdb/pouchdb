@@ -24,7 +24,6 @@ adapters.forEach(function (adapters) {
 
     it('retry stuff', function (done) {
       var remote = new PouchDB(dbs.remote);
-      var Promise = testUtils.Promise;
       var bulkGet = remote.bulkGet;
 
       // Reject attempting to write 'foo' 3 times, then let it succeed
@@ -146,7 +145,6 @@ adapters.forEach(function (adapters) {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = testUtils.Promise;
 
       var bulkGet = remote.bulkGet;
       var i = 0;
@@ -226,7 +224,6 @@ adapters.forEach(function (adapters) {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = testUtils.Promise;
 
       var remoteBulkGet = remote.bulkGet;
       var i = 0;
@@ -309,7 +306,6 @@ adapters.forEach(function (adapters) {
 
         var db = new PouchDB(dbs.name);
         var remote = new PouchDB(dbs.remote);
-        var Promise = testUtils.Promise;
 
         var remoteBulkGet = remote.bulkGet;
         var i = 0;
@@ -385,7 +381,6 @@ adapters.forEach(function (adapters) {
 
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = testUtils.Promise;
 
       var remoteBulkGet = remote.bulkGet;
       var i = 0;
@@ -457,7 +452,6 @@ adapters.forEach(function (adapters) {
       this.timeout(200000);
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
-      var Promise = testUtils.Promise;
 
       var flunked = 0;
       var remoteBulkGet = remote.bulkGet;
@@ -576,9 +570,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('#5157 replicate many docs with live+retry', function () {
-      if (testUtils.isIE()) {
-        return Promise.resolve();
-      }
       var numDocs = 512; // uneven number
       var docs = [];
       for (var i = 0; i < numDocs; i++) {
@@ -600,7 +591,7 @@ adapters.forEach(function (adapters) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       return db.bulkDocs({
-        docs: docs,
+        docs,
         new_edits: false
       }).then(function () {
         function replicatePromise(fromDB, toDB) {
@@ -630,7 +621,6 @@ adapters.forEach(function (adapters) {
     });
 
     it('6510 no changes live+retry does not call backoff function', function () {
-      var Promise = testUtils.Promise;
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
       var called = false;

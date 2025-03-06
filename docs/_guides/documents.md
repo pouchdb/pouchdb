@@ -64,7 +64,7 @@ We'll discuss these concepts later on.
 To store a document, you simply `put` it:
 
 ```js
-var doc = {
+const doc = {
   "_id": "mittens",
   "name": "Mittens",
   "occupation": "kitten",

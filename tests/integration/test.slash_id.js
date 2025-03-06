@@ -21,7 +21,7 @@ adapters.forEach(function (adapter) {
       testUtils.cleanup([dbs.name], done);
     });
 
-    it('Insert a doc, putAttachment and allDocs', function (done) {
+    it('Insert a doc, putAttachment and get', function (done) {
       var db = new PouchDB(dbs.name);
       var docId = 'doc/with/slashes';
       var attachmentId = 'attachment/with/slashes';
@@ -34,7 +34,8 @@ adapters.forEach(function (adapter) {
         db.putAttachment(docId, attachmentId, info.rev, blob, 'text/plain',
                          function () {
           db.getAttachment(docId, attachmentId, function (err, res) {
-            testUtils.readBlob(res, function () {
+            testUtils.readBlob(res, function (data) {
+              data.should.equal(blobData);
               db.get(docId, function (err, res) {
                 res._id.should.equal(docId);
                 res._attachments.should.include.keys(attachmentId);
@@ -58,7 +59,7 @@ adapters.forEach(function (adapter) {
         }},
         {_id: 'part/doc3', int: 3}
       ];
-      db.bulkDocs({ docs: docs }, function (err, res) {
+      db.bulkDocs({ docs }, function (err, res) {
         for (var i = 0; i < 3; i++) {
           res[i].ok.should.equal(true, 'correctly inserted ' + docs[i]._id);
         }

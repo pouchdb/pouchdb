@@ -42,7 +42,6 @@ if (typeof process !== 'undefined' &&
     // fails on windows with EBUSY - "resource busy or locked", not worth fixing
     require('os').platform() !== 'win32') {
 
-  var mkdirp = require('mkdirp');
   var rimraf = require('rimraf');
   var fs = require('fs');
 
@@ -51,8 +50,8 @@ if (typeof process !== 'undefined' &&
     it('Test path prefix', function () {
 
       var prefix = './tmp/testfolder/';
-      mkdirp.sync(prefix);
-      var CustomPouch = PouchDB.defaults({prefix: prefix});
+      fs.mkdirSync(prefix, { recursive:true });
+      var CustomPouch = PouchDB.defaults({prefix});
 
       var db = new CustomPouch('testdb');
 

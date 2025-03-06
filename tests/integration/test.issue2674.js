@@ -32,9 +32,6 @@ adapterPairs.forEach(function (adapters) {
     });
 
     it('Should correctly synchronize attachments (#2674)', function () {
-      if (testUtils.isIE()) {
-        return Promise.resolve();
-      }
 // 1. So I ran client app on two browsers (let’s call them A and B).
 // 2. Then on client A I created plain document (without any attachments).
 // 3. After that I put two attachments one by one by using putAttachment method.
@@ -99,7 +96,7 @@ adapterPairs.forEach(function (adapters) {
 
       // sync() with remote CouchDB
       function syncWithRemote(source) {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           source.sync(remoteDb).on('complete', function () {
             resolve();
           }).on('error', function (error) {

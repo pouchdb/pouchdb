@@ -9,36 +9,30 @@
 
   "env": {
     "browser": true,
-    "node": true,
-    "mocha": true
+    "node": true
   },
 
   "globals": {
-    "Map": true,
-    "Set": true,
-    "Symbol": true,
-    "chrome": true,
-    "Promise": true,
-    "Uint8Array": true,
-    "ArrayBuffer": true,
-    "FileReaderSync": true,
-    "sqlitePlugin": true,
-    "emit": true,
-    "PouchDB": true,
-    "should": true,
-    "assert": true,
-    "testUtils": true,
-    "importScripts": true,
-    "testCases": true
+    "Map": "readonly",
+    "Set": "readonly",
+    "Symbol": "readonly",
+    "Promise": "readonly",
+    "Uint8Array": "readonly",
+    "ArrayBuffer": "readonly",
+    "FileReaderSync": "readonly",
+    "emit": "readonly",
+    "PouchDB": "readonly"
   },
 
   "rules": {
+    "comma-dangle": ["error", "only-multiline"],
     "eol-last": "error",
     "no-empty": "off",
     "no-console": "off",
     "no-tabs": "error",
     "no-trailing-spaces": "error",
     "no-undef-init": "error",
+    "object-shorthand": ["error", "properties"],
     "semi": ["error", "always"],
     "curly": ["error", "all"],
     "space-unary-ops": ["error", {"words": true}],

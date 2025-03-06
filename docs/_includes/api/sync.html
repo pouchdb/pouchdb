@@ -1,7 +1,7 @@
 {% include anchor.html edit="true" title="Sync a database" hash="sync" %} 
 
 {% highlight js %}
-var sync = PouchDB.sync(src, target, [options])
+const sync = PouchDB.sync(src, target, [options])
 {% endhighlight %}
 
 Sync data from `src` to `target` and `target` to `src`. This is a convenience method for bidirectional data replication.
@@ -29,7 +29,7 @@ Replication options such as `filter` passed to sync directly will be passed to b
 
 #### Example Usage:
 {% highlight js %}
-var sync = PouchDB.sync('mydb', 'http://localhost:5984/mydb', {
+const sync = PouchDB.sync('mydb', 'http://localhost:5984/mydb', {
   live: true,
   retry: true
 }).on('change', function (info) {
@@ -59,8 +59,8 @@ It is also possible to combine "one-way" replication and sync for performance re
 When your PouchDB application starts up it could perform a one-off, one-way replication to completion and then initiate the two-way, continuous retryable sync:
 
 {% highlight js %}
-var url = 'http://localhost:5984/mydb';
-var opts = { live: true, retry: true };
+const url = 'http://localhost:5984/mydb';
+const opts = { live: true, retry: true };
 
 // do one way, one-off sync from the server until completion
 db.replicate.from(url).on('complete', function(info) {

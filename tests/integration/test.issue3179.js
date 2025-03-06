@@ -100,109 +100,108 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('#3179 conflicts synced, live sync', function () {
-      var local = new PouchDB(dbs.name);
-      var remote = new PouchDB(dbs.remote);
-      var sync = local.sync(remote, { live: true });
-      function waitForUptodate() {
+    it('#3179 conflicts synced, live sync', async function () {
+      const local = new PouchDB(dbs.name);
+      const remote = new PouchDB(dbs.remote);
+      const sync1 = local.sync(remote, { live: true });
 
-        function defaultToEmpty(promise) {
-          return promise.catch(function (err) {
-            if (err.status !== 404) {
-              throw err;
-            }
-            return {_revisions: []};
-          });
-        }
+      function defaultToEmpty(promise) {
+        return promise.catch(function (err) {
+          if (err.status !== 404) {
+            throw err;
+          }
+          return { _revisions: [] };
+        });
+      }
 
-        return defaultToEmpty(local.get('1', {
-          revs: true,
-          conflicts: true
-        })).then(function (localDoc) {
-          return defaultToEmpty(remote.get('1', {
+      async function waitForUptodate() {
+        for (let limit = 0; limit < 10; ++limit) {
+          if (limit > 0) {
+            // we can get caught in an infinite loop here when using adapters based
+            // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
+            await new Promise(function (resolve) {
+              setTimeout(resolve, 100);
+            });
+          }
+
+          const localDoc = await defaultToEmpty(local.get('1', {
             revs: true,
             conflicts: true
-          })).then(function (remoteDoc) {
-            var revsEqual = JSON.stringify(localDoc._revisions) ===
-              JSON.stringify(remoteDoc._revisions);
-            var conflictsEqual = JSON.stringify(localDoc._conflicts || []) ===
-              JSON.stringify(remoteDoc._conflicts || []);
-            if (!revsEqual || !conflictsEqual) {
-              // we can get caught in an infinite loop here when using adapters based
-              // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
-              return new testUtils.Promise(function (resolve) {
-                setTimeout(resolve, 0);
-              }).then(waitForUptodate);
-            }
-          });
-        });
-      }
-
-      function waitForConflictsResolved() {
-        return new testUtils.Promise(function (resolve) {
-          var changes = remote.changes({
-            live: true,
-            include_docs: true,
+          }));
+          const remoteDoc = await defaultToEmpty(remote.get('1', {
+            revs: true,
             conflicts: true
-          }).on('change', function (change) {
-            if (!('_conflicts' in change.doc)) {
-              changes.cancel();
-            }
-          });
-          changes.on('complete', resolve);
-        });
+          }));
+          const revsEqual = JSON.stringify(localDoc._revisions) ===
+            JSON.stringify(remoteDoc._revisions);
+          const conflictsEqual = JSON.stringify(localDoc._conflicts || []) ===
+            JSON.stringify(remoteDoc._conflicts || []);
+
+          if (revsEqual && conflictsEqual) {
+            // Everything's fine, continue with the test.
+            return;
+          }
+        }
+
+        // Tried 10 times, throw an error to cancel the test.
+        throw new Error("retry limit reached");
       }
 
-      function cleanup() {
-        return new testUtils.Promise(function (resolve, reject) {
+      async function waitForConflictsResolved() {
+        const changes = remote.changes({
+          live: true,
+          include_docs: true,
+          conflicts: true,
+        });
+
+        changes.on('change', function (change) {
+          if (!('_conflicts' in change.doc)) {
+            changes.cancel();
+          }
+        });
+
+        return await changes;
+      }
+
+      function cleanup(sync) {
+        return new Promise(function (resolve, reject) {
           sync.on('complete', resolve);
           sync.on('error', reject);
           sync.cancel();
-          sync = null;
         });
       }
 
-      return local.put({ _id: '1'}).then(function () {
-        return waitForUptodate();
-      }).then(function () {
-        sync.cancel();
-        return waitForUptodate();
-      }).then(function () {
-        return local.get('1').then(function (doc) {
-          doc.foo = Math.random();
-          return local.put(doc);
-        });
-      }).then(function () {
-        return remote.get('1').then(function (doc) {
-          doc.foo = Math.random();
-          return remote.put(doc);
-        });
-      }).then(function () {
-        sync = local.sync(remote, { live: true });
-        return waitForUptodate();
-      }).then(function () {
-        return local.get('1', {conflicts: true}).then(function (doc) {
-          should.exist(doc._conflicts, 'conflicts expected, but none were found');
-          return local.remove(doc._id, doc._conflicts[0]);
-        });
-      }).then(function () {
-        return waitForConflictsResolved();
-      }).then(function () {
-        return local.get('1', {conflicts: true, revs: true});
-      }).then(function (localDoc) {
-        return remote.get('1', {
-          conflicts: true,
-          revs: true
-        }).then(function (remoteDoc) {
-          remoteDoc.should.deep.equal(localDoc);
-        });
-      }).then(function () {
-        return cleanup();
-      }, function (err) {
-        return cleanup().then(function () {
-          throw err;
-        });
+      await local.put({ _id: '1' });
+      await waitForUptodate();
+      await cleanup(sync1);
+
+      await waitForUptodate();
+      const doc1 = await local.get('1');
+      const randomNumber = Math.random();
+      doc1.foo = randomNumber;
+      await local.put(doc1);
+
+      const doc2 = await remote.get('1');
+      // set conflicting property `foo`
+      doc2.foo = randomNumber + 1;
+      await remote.put(doc2);
+
+      const sync2 = local.sync(remote, { live: true });
+      await waitForUptodate();
+
+      const doc3 = await local.get('1', { conflicts: true });
+      should.exist(doc3._conflicts, 'conflicts expected, but none were found');
+      await local.remove(doc3._id, doc3._conflicts[0]);
+      await waitForConflictsResolved();
+
+      const localDoc = await local.get('1', { conflicts: true, revs: true });
+      const remoteDoc = await remote.get('1', {
+        conflicts: true,
+        revs: true
       });
+
+      remoteDoc.should.deep.equal(localDoc);
+      await cleanup(sync2);
     });
 
     it('#3179 conflicts synced, live repl', function () {
@@ -213,7 +212,7 @@ adapters.forEach(function (adapters) {
       var repl2 = local.replicate.from(remote, { live: true });
 
       function waitForConflictsResolved() {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           var changes = remote.changes({
             live: true,
             include_docs: true,
@@ -253,7 +252,7 @@ adapters.forEach(function (adapters) {
             if (!revsEqual || !conflictsEqual) {
               // we can get caught in an infinite loop here when using adapters based
               // on microtasks, e.g. memdown, so use setTimeout() to get a macrotask
-              return new testUtils.Promise(function (resolve) {
+              return new Promise(function (resolve) {
                 setTimeout(resolve, 0);
               }).then(waitForUptodate);
             }
@@ -262,7 +261,7 @@ adapters.forEach(function (adapters) {
       }
 
       function cleanup() {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var numDone = 0;
 
           function checkDone() {

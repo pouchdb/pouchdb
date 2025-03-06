@@ -6,11 +6,11 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
     if (callback) {
       callback(123);
     } else {
-      return testUtils.Promise.resolve(123);
+      return Promise.resolve(123);
     }
   };
   this.get = function () {
-    return new testUtils.Promise(function (fulfill, reject) {
+    return new Promise(function (fulfill, reject) {
       setTimeout(function () {
         if (statusCodeToReturn !== 200) {
           reject({ status: statusCodeToReturn });
@@ -24,15 +24,15 @@ function MockDatabase(statusCodeToReturn, dataToReturn) {
     if (opts.complete) {
       opts.complete(null, {results: []});
     }
-    var promise = testUtils.Promise.resolve({results: []});
+    var promise = Promise.resolve({results: []});
     promise.on = function () { return this; };
     return promise;
   };
   this.put = function () {
-    return testUtils.Promise.resolve();
+    return Promise.resolve();
   };
   this.info = function () {
-    return testUtils.Promise.resolve({
+    return Promise.resolve({
       update_seq: 0
     });
   };

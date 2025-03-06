@@ -120,7 +120,21 @@ environment. For example:
 
 This overrides the path used to load PouchDB in the browser. We use this in CI
 to select different builds of the PouchDB library, for example to test the
-minified version, the Webpack version, etc.
+Webpack version, etc.
+
+This is an alternative to `SRC_ROOT` and `USE_MINIFIED`.
+
+#### `SRC_ROOT`
+
+This overrides the path used to load all PouchDB files in the browser. We use
+this in performance tests to allow easily comparing two different versions of
+PouchDB, including plugin and adapter implementations.
+
+#### `USE_MINIFIED`
+
+This changes the file extension used for loading PouchDB files in the browser.
+This can be used in CI and performance testing to select the minified version of
+PouchDB and its adapters, plugins, etc.
 
 #### `SERVER` (default: `pouchdb-express-router`)
 
@@ -204,9 +218,9 @@ using the command:
 
 ### Performance tests
 
-The performance test suite is run using the `PERF` variable:
+This suite checks some performance metrics.  It can be run using the command:
 
-    $ PERF=1 npm test
+    $ TYPE=performance npm test
 
 This supports most of the same options as the integration suite, particularly
 the `CLIENT`, `ADAPTERS` and `GREP` options. It has some additional options of
@@ -218,9 +232,20 @@ Sets the number of iterations each test uses by default.
 
 ### Running tests in the browser
 
-Normally we use `CLIENT=firefox` to run a set of tests in the browser
-automatically. This opens a browser window, automatically runs the requested
-tests in it, and reports the results back to the shell.
+To run tests in the browser, you first have to install playwright:
+
+```shell
+npx playwright install
+```
+
+This will download the `firefox`, `chromium` and `webkit` `CLIENT`s onto
+your system.
+
+PouchDB is tested with `CLIENT=firefox`, `CLIENT=chromium` and `CLIENT=webkit`
+to run a set of tests in the browser automatically. This runs these browsers
+in a “headless” mode and prints the test results back into the terminal.
+
+    $ CLIENT=firefox npm test
 
 You can also run browser tests in a more "manual" fashion by running the dev
 server and opening a browser window yourself. To run the server:
@@ -245,7 +270,9 @@ command-line options and their query string equivalents are:
 | `GREP`               | `grep`             |
 | `ITERATIONS`         | `iterations`       |
 | `PLUGINS`            | `plugins`          |
+| `SRC_ROOT`           | `srcRoot`          |
 | `POUCHDB_SRC`        | `src`              |
+| `USE_MINIFIED`       | `useMinified`      |
 | `VIEW_ADAPTERS`      | `viewAdapters`     |
 
 

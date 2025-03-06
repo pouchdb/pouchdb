@@ -50,7 +50,7 @@ First, you create a **design document**, which describes the `map` function you 
 ```js
 // document that tells PouchDB/CouchDB
 // to build up an index on doc.name
-var ddoc = {
+const ddoc = {
   _id: '_design/my_index',
   views: {
     by_name: {
@@ -203,7 +203,7 @@ As for _reduce_ functions, there are a few handy built-ins that do aggregate ope
 
 ```js
 // emit the first letter of each pokemon's name
-var myMapReduceFun = {
+const myMapReduceFun = {
   map: function (doc) {
     emit(doc.name.charAt(0));
   },

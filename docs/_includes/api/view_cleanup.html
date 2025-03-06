@@ -24,7 +24,7 @@ db.viewCleanup(function (err, result) {
 {% include code/start.html id="viewcleanup" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.viewCleanup();
+  const result = await db.viewCleanup();
 } catch (err) {
   console.log(err);
 }

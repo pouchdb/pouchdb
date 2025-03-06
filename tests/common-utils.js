@@ -83,6 +83,10 @@ commonUtils.loadPouchDB = function (opts) {
 
 commonUtils.loadPouchDBForNode = function (plugins) {
   var params = commonUtils.params();
+  if (params.src || params.useMinified) {
+    throw new Error('POUCHDB_SRC & USE_MINIFIED options cannot be used for node tests.');
+  }
+
   var scriptPath = '../packages/node_modules';
 
   var pouchdbSrc = params.COVERAGE
@@ -99,18 +103,31 @@ commonUtils.loadPouchDBForNode = function (plugins) {
   return PouchDB;
 };
 
-commonUtils.pouchdbSrc = function () {
-  const scriptPath = '../../packages/node_modules/pouchdb/dist';
+const srcExtension = () => {
   const params = commonUtils.params();
-  return params.src || `${scriptPath}/pouchdb.js`;
+  return params.useMinified ? 'min.js' : 'js';
+};
+
+const srcRoot = () => {
+  const params = commonUtils.params();
+  return params.srcRoot || '../../packages/node_modules/pouchdb/dist';
+};
+
+commonUtils.pouchdbSrc = function () {
+  const params = commonUtils.params();
+  if (params.src && params.srcRoot) {
+    throw new Error('Cannot use POUCHDB_SRC and SRC_ROOT options together.');
+  }
+  if (params.src && params.useMinified) {
+    throw new Error('Cannot use POUCHDB_SRC and USE_MINIFIED options together.');
+  }
+  return params.src || `${srcRoot()}/pouchdb.${srcExtension()}`;
 };
 
 commonUtils.loadPouchDBForBrowser = function (plugins) {
-  var scriptPath = '../../packages/node_modules/pouchdb/dist';
-
   plugins = plugins.map((plugin) => {
     plugin = plugin.replace(/^pouchdb-(adapter-)?/, '');
-    return `${scriptPath}/pouchdb.${plugin}.js`;
+    return `${srcRoot()}/pouchdb.${plugin}.${srcExtension()}`;
   });
 
   var scripts = [commonUtils.pouchdbSrc()].concat(plugins);
@@ -124,7 +141,7 @@ commonUtils.loadPouchDBForBrowser = function (plugins) {
 
 // Thanks to http://engineeredweb.com/blog/simple-async-javascript-loader/
 commonUtils.asyncLoadScript = function (url) {
-  return new commonUtils.Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     // Create a new script and setup the basics.
     var script = document.createElement("script");
 
@@ -171,15 +188,7 @@ commonUtils.safeRandomDBName = function () {
 };
 
 commonUtils.createDocId = function (i) {
-  var intString = i.toString();
-  while (intString.length < 10) {
-    intString = '0' + intString;
-  }
-  return 'doc_' + intString;
+  return 'doc_' + i.toString().padStart(10, '0');
 };
-
-var PouchForCoverage = require('../packages/node_modules/pouchdb-for-coverage');
-var pouchUtils = PouchForCoverage.utils;
-commonUtils.Promise = pouchUtils.Promise;
 
 module.exports = commonUtils;

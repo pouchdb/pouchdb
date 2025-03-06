@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 'use strict';
 
+const fs = require('node:fs');
 const playwright = require('playwright');
-
 const { identity, pickBy } = require('lodash');
+const { SourceMapConsumer } = require('source-map');
+const stacktraceParser = require('stacktrace-parser');
 
 var MochaSpecReporter = require('mocha').reporters.Spec;
-
-var devserver = require('./dev-server.js');
+const createMochaStatsCollector = require('mocha/lib/stats-collector');
 
 // BAIL=0 to disable bailing
 var bail = process.env.BAIL !== '0';
+
+// Track if the browser has closed at the request of this script, or due to an external event.
+let closeRequested;
 
 // Playwright BrowserType whitelist.
 // See: https://playwright.dev/docs/api/class-playwright
@@ -26,7 +30,7 @@ if (!SUPPORTED_BROWSERS.includes(browserName)) {
 
 var testRoot = 'http://127.0.0.1:8000/tests/';
 var testUrl;
-if (process.env.PERF) {
+if (process.env.TYPE === 'performance') {
   testUrl = testRoot + 'performance/index.html';
 } else if (process.env.TYPE === 'fuzzy') {
   testUrl = testRoot + 'fuzzy/index.html';
@@ -47,7 +51,9 @@ const qs = {
   autoCompaction: process.AUTO_COMPACTION,
   SERVER: process.env.SERVER,
   SKIP_MIGRATION: process.env.SKIP_MIGRATION,
+  srcRoot: process.env.SRC_ROOT,
   src: process.env.POUCHDB_SRC,
+  useMinified: process.env.USE_MINIFIED,
   plugins: process.env.PLUGINS,
   couchHost: process.env.COUCH_HOST,
   iterations: process.env.ITERATIONS,
@@ -56,62 +62,114 @@ const qs = {
 testUrl += '?';
 testUrl += new URLSearchParams(pickBy(qs, identity));
 
+let stackConsumer;
+
+class ArrayMap extends Map {
+  get(key) {
+    if (!this.has(key)) {
+      this.set(key, []);
+    }
+    return super.get(key);
+  }
+}
+
 class RemoteRunner {
-  constructor() {
-    this.handlers = {};
-    this.completed = false;
+  constructor(browser) {
     this.failed = false;
+    this.browser = browser;
+    this.handlers = new ArrayMap();
+    this.onceHandlers = new ArrayMap();
+    this.handleEvent = this.handleEvent.bind(this);
+    createMochaStatsCollector(this);
+  }
+
+  once(name, handler) {
+    this.onceHandlers.get(name).push(handler);
   }
 
   on(name, handler) {
-    var handlers = this.handlers;
-
-    if (!handlers[name]) {
-      handlers[name] = [];
-    }
-    handlers[name].push(handler);
+    this.handlers.get(name).push(handler);
   }
 
-  handleEvents(events) {
-    var handlers = this.handlers;
+  triggerHandlers(eventName, handlerArgs) {
+    const triggerHandler = handler => handler.apply(null, handlerArgs);
 
-    events.forEach((event) => {
-      this.completed = this.completed || event.name === 'end';
-      this.failed = this.failed || event.name === 'fail';
+    this.onceHandlers.get(eventName).forEach(triggerHandler);
+    this.onceHandlers.delete(eventName);
 
+    this.handlers.get(eventName).forEach(triggerHandler);
+  }
+
+  async handleEvent(event) {
+    try {
       var additionalProps = ['pass', 'fail', 'pending'].indexOf(event.name) === -1 ? {} : {
         slow: event.obj.slow ? function () { return event.obj.slow; } : function () { return 60; },
-        fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined
+        fullTitle: event.obj.fullTitle ? function () { return event.obj.fullTitle; } : undefined,
+        titlePath: event.obj.titlePath ? function () { return event.obj.titlePath; } : undefined,
       };
       var obj = Object.assign({}, event.obj, additionalProps);
 
-      handlers[event.name].forEach(function (handler) {
-        handler(obj, event.err);
-      });
+      this.triggerHandlers(event.name, [ obj, event.err ]);
 
-      if (event.logs && event.logs.length > 0) {
-        event.logs.forEach(function (line) {
-          if (line.type === 'log') {
-            console.log(line.content);
-          } else if (line.type === 'error') {
-            console.error(line.content);
-          } else {
-            console.error('Invalid log line', line);
-          }
-        });
-        console.log();
+      if (event.err && stackConsumer) {
+        let stackMapped;
+        const mappedStack = stacktraceParser
+          .parse(event.err.stack)
+          .map(v => {
+            if (v.file === 'http://127.0.0.1:8000/packages/node_modules/pouchdb/dist/pouchdb.min.js') {
+              const NON_UGLIFIED_HEADER_LENGTH = 6; // number of lines of header added in build-pouchdb.js
+              const target = { line:v.lineNumber-NON_UGLIFIED_HEADER_LENGTH, column:v.column-1 };
+              const mapped = stackConsumer.originalPositionFor(target);
+              v.file = 'packages/node_modules/pouchdb/dist/pouchdb.js';
+              v.lineNumber = mapped.line;
+              v.column = mapped.column+1;
+              if (mapped.name !== null) {
+                v.methodName = mapped.name;
+              }
+              stackMapped = true;
+            }
+            return v;
+          })
+          // NodeJS stack frame format: https://nodejs.org/docs/latest/api/errors.html#errorstack
+          .map(v => `at ${v.methodName} (${v.file}:${v.lineNumber}:${v.column})`)
+          .join('\n          ');
+        if (stackMapped) {
+          console.log(`      [${obj.title}] Minified error stacktrace mapped to:`);
+          console.log(`        ${event.err.name||'Error'}: ${event.err.message}`);
+          console.log(`          ${mappedStack}`);
+        }
       }
-    });
+
+      switch (event.name) {
+        case 'fail': this.handleFailed(); break;
+        case 'end': this.handleEnd(); break;
+      }
+    } catch (e) {
+      console.error('Tests failed:', e);
+
+      closeRequested = true;
+      await this.browser.close();
+      process.exit(3);
+    }
   }
 
-  bail() {
-    var handlers = this.handlers;
+  async handleEnd() {
+    closeRequested = true;
+    await this.browser.close();
+    process.exit(this.failed ? 1 : 0);
+  }
 
-    handlers['end'].forEach(function (handler) {
-      handler();
-    });
-
-    this.completed = true;
+  handleFailed() {
+    this.failed = true;
+    if (bail) {
+      try {
+        this.triggerHandlers('end');
+      } catch (e) {
+        console.log('An error occurred while bailing:', e);
+      } finally {
+        this.handleEnd();
+      }
+    }
   }
 }
 
@@ -123,90 +181,108 @@ function BenchmarkConsoleReporter(runner) {
 
 function BenchmarkJsonReporter(runner) {
   runner.on('end', results => {
-    if (runner.completed) {
-      const { mkdirSync, writeFileSync } = require('fs');
+    if (runner.failed) {
+      console.log('Runner failed; JSON will not be writted.');
+    } else {
+      results.srcRoot = process.env.SRC_ROOT;
 
       const resultsDir = 'perf-test-results';
-      mkdirSync(resultsDir, { recursive: true });
+      fs.mkdirSync(resultsDir, { recursive: true });
 
       const jsonPath = `${resultsDir}/${new Date().toISOString()}.json`;
-      writeFileSync(jsonPath, JSON.stringify(results, null, 2));
+      fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2));
       console.log('Wrote JSON results to:', jsonPath);
-    } else {
-      console.log('Runner failed; JSON will not be writted.');
     }
   });
 }
 
 async function startTest() {
-
-  console.log('Starting', browserName, 'on', testUrl);
-
-  const runner = new RemoteRunner();
-  new MochaSpecReporter(runner);
-  new BenchmarkConsoleReporter(runner);
-
-  if (process.env.JSON_REPORTER) {
-    if (!process.env.PERF) {
-      console.log('!!! JSON_REPORTER should only be set if PERF is also set.');
-      process.exit(1);
-    }
-    new BenchmarkJsonReporter(runner);
+  if (qs.src === '../../packages/node_modules/pouchdb/dist/pouchdb.min.js') {
+    const mapPath = './packages/node_modules/pouchdb/dist/pouchdb.min.js.map';
+    const rawMap = fs.readFileSync(mapPath, { encoding:'utf8' });
+    const jsonMap = JSON.parse(rawMap);
+    stackConsumer = await new SourceMapConsumer(jsonMap);
   }
 
-  const options = {
-    headless: true,
-  };
-  const browser = await playwright[browserName].launch(options);
-  const page = await browser.newPage();
+  try {
+    console.log('Starting', browserName, 'on', testUrl);
 
-  page.on('pageerror', err => {
-    console.log('Unhandled error in test page:', err);
-    process.exit(1);
-  });
+    const options = {
+      headless: true,
+    };
+    const browser = await playwright[browserName].launch(options);
 
-  if (process.env.BROWSER_CONSOLE) {
-    page.on('console', message => {
-      const { url, lineNumber } = message.location();
-      console.log('BROWSER', message.type().toUpperCase(), `${url}:${lineNumber}`, message.text());
-    });
-  }
+    const runner = new RemoteRunner(browser);
+    new MochaSpecReporter(runner);
+    new BenchmarkConsoleReporter(runner);
 
-  await page.goto(testUrl);
-
-  const userAgent = await page.evaluate('navigator.userAgent');
-  console.log('Testing on:', userAgent);
-
-  const interval = setInterval(async () => {
-    try {
-      const events = await page.evaluate('window.testEvents()');
-      runner.handleEvents(events);
-
-      if (runner.completed || (runner.failed && bail)) {
-        if (!runner.completed && runner.failed) {
-          try {
-            runner.bail();
-          } catch (e) {
-            // Temporary debugging of bailing failure
-            console.log('An error occurred while bailing:');
-            console.log(e);
-          }
-        }
-
-        clearInterval(interval);
-        await browser.close();
-        process.exit(!process.env.PERF && runner.failed ? 1 : 0);
+    if (process.env.JSON_REPORTER) {
+      if (process.env.TYPE !== 'performance') {
+        console.log('!!! JSON_REPORTER should only be set if TYPE is set to "performance".');
+        process.exit(1);
       }
-    } catch (e) {
-      console.error('Tests failed:', e);
-
-      clearInterval(interval);
-      await browser.close();
-      process.exit(3);
+      new BenchmarkJsonReporter(runner);
     }
-  }, 1000);
+
+    // Workaround: create a BrowserContext to handle init scripts.  In Chromium in
+    // Playwright v1.39.0, v1.40.1 and v1.41.1, page.addInitScript() did not appear to work.
+    const ctx = await browser.newContext();
+
+    // Playwright's Browser.on('close') event handler would be the more obvious
+    // choice here, but it does not seem to be triggered if the browser is closed
+    // by an external event (e.g. process is killed, user closes non-headless
+    // browser window).
+    ctx.on('close', () => {
+      if (!closeRequested) {
+        console.log('!!! Browser closed by external event.');
+        process.exit(1);
+      }
+    });
+
+    ctx.exposeFunction('handleMochaEvent', runner.handleEvent);
+    ctx.addInitScript(() => {
+      window.addEventListener('message', (e) => {
+        if (e.data.type === 'mocha') {
+          window.handleMochaEvent(e.data.details);
+        }
+      });
+    });
+
+    ctx.on('pageerror', err => {
+      if (browserName === 'webkit' && err.toString()
+          .match(/^Fetch API cannot load http.* due to access control checks.$/)) {
+        // This is an _uncatchable_, error seen in playwright v1.36.1 webkit. If
+        // it is ignored, fetch() will also throw a _catchable_:
+        // `TypeError: Load failed`
+        console.log('Ignoring error:', err);
+        return;
+      }
+
+      console.log('Unhandled error in test page:', err);
+      console.log('  stack:', err.stack);
+      console.log('  cause:', err.cause);
+      process.exit(1);
+    });
+
+    ctx.on('console', message => {
+      console.log(message.text());
+    });
+
+    const page = await ctx.newPage();
+    await page.goto(testUrl);
+
+    const userAgent = await page.evaluate('navigator.userAgent');
+    console.log('Testing on:', userAgent);
+  } catch (err) {
+    console.log('Error starting tests:', err);
+    process.exit(1);
+  }
 }
 
-devserver.start(function () {
+if (process.env.MANUAL_DEV_SERVER) {
   startTest();
-});
+} else {
+  // dev-server.js rebuilds bundles when required
+  const devserver = require('./dev-server.js');
+  devserver.start(startTest);
+}

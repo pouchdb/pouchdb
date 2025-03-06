@@ -5,7 +5,7 @@ if (!process.env.LEVEL_ADAPTER &&
     !process.env.ADAPTERS) {
   // these tests don't make sense for anything other than default leveldown
   var path = require('path');
-  var mkdirp = require('mkdirp');
+  const { mkdirSync } = require('fs');
   var rimraf = require('rimraf');
 
   describe('defaults', function () {
@@ -27,11 +27,11 @@ if (!process.env.LEVEL_ADAPTER &&
       var dir = path.join(prefix, '/tmp/');
       var dir2 = path.join('./tmp/_pouch_./', prefix);
       var dir3 = path.join(dir2, './tmp/_pouch_mydb');
-      mkdirp.sync(dir);
-      mkdirp.sync(dir2);
-      mkdirp.sync(dir3);
+      mkdirSync(dir, { recursive:true });
+      mkdirSync(dir2, { recursive:true });
+      mkdirSync(dir3, { recursive:true });
 
-      var db = new PouchDB('mydb', {prefix: prefix});
+      var db = new PouchDB('mydb', {prefix});
       return db.info().then(function (info1) {
         info1.db_name.should.equal('mydb');
         return db.destroy();
@@ -50,12 +50,12 @@ if (!process.env.LEVEL_ADAPTER &&
       var dir = path.join(prefix, '/tmp/');
       var dir2 = path.join('./tmp/_pouch_./', prefix);
       var dir3 = path.join(dir2, './tmp/_pouch_mydb');
-      mkdirp.sync(dir);
-      mkdirp.sync(dir2);
-      mkdirp.sync(dir3);
+      mkdirSync(dir, { recursive:true });
+      mkdirSync(dir2, { recursive:true });
+      mkdirSync(dir3, { recursive:true });
 
       var CustomPouch = PouchDB.defaults({
-        prefix: prefix
+        prefix
       });
       var db = CustomPouch({name: 'mydb'});
       return db.info().then(function (info1) {
@@ -129,7 +129,7 @@ if (!process.env.LEVEL_ADAPTER &&
       var CustomPouch = PouchDB.defaults({db: require('memdown')});
 
       var db = new CustomPouch('mydb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         CustomPouch.once('destroyed', function (name) {
           name.should.equal('mydb');
           resolve();
@@ -142,7 +142,7 @@ if (!process.env.LEVEL_ADAPTER &&
       var CustomPouch = PouchDB.defaults({db: require('memdown')});
 
       var db = new CustomPouch('mydb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         db.once('destroyed', resolve);
         db.destroy();
       });
@@ -164,7 +164,7 @@ if (!process.env.LEVEL_ADAPTER &&
       var CustomPouch = PouchDB.defaults({db: require('memdown')});
 
       var db = new CustomPouch('mydb');
-      return new testUtils.Promise(function (resolve) {
+      return new Promise(function (resolve) {
         PouchDB.once('destroyed', function (name) {
           name.should.equal('mydb');
           resolve();

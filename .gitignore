@@ -21,8 +21,8 @@ src_browser/
 tests/integration/utils-bundle.js
 *.heapsnapshot
 /pouchdb-server-install
-package-lock.json
 yarn.lock
 /.eslintcache
 release-todo.txt
 /perf-test-results/
+/dist-bundles/
