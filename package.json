@@ -75,7 +75,7 @@
     "glob-watcher": "^6.0.0",
     "http-server": "0.12.3",
     "istanbul": "0.4.5",
-    "less": "3.9.0",
+    "less": "3.13.1",
     "lodash": "4.17.21",
     "marky": "1.2.5",
     "median": "0.0.2",
