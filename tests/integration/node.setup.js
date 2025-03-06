@@ -1,14 +1,13 @@
-"use strict";
 // throw an error if any EventEmitter adds too many listeners
-require('throw-max-listeners-error');
+import 'throw-max-listeners-error';
 
-var seedrandom = require('seedrandom');
-var seed = (process.env.SEED || Date.now()) + "";
+import seedrandom from 'seedrandom';
+const seed = (process.env.SEED || Date.now()) + "";
 console.log('Seeded with: ' + seed);
 seedrandom(seed, { global: true });
 
-var testsDir = process.env.TESTS_DIR || './tmp';
-var exec = require('child_process').exec;
+const testsDir = process.env.TESTS_DIR || './tmp';
+import { exec } from 'node:child_process';
 function cleanup() {
   // Remove test databases
   exec('rm -r ' + testsDir);
@@ -17,11 +16,14 @@ exec('mkdir -p ' + testsDir, function () {
   process.on('SIGINT', cleanup);
   process.on('exit', cleanup);
 });
-global.testUtils = require('./utils.js');
+import utils from './utils.js';
+global.testUtils = utils;
 global.PouchDB = testUtils.loadPouchDB();
-var chai = require('chai');
-chai.use(require('chai-as-promised'));
+import chai from 'chai';
+import chaiAsPromised from "chai-as-promised";
+chai.use(chaiAsPromised);
 global.should = chai.should();
 global.assert = chai.assert;
-global.fs = require('fs');
+import fs from 'node:fs';
+global.fs = fs;
 global.fs.mkdirSync('./tmp', { recursive: true });
