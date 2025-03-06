@@ -25,7 +25,7 @@ async function checkJekyll() {
   }
 }
 
-function buildCSS() {
+async function buildCSS() {
   fs.mkdirSync(__dirname + '/../docs/static/css', { recursive:true });
   const cmd = [ resolvePath('node_modules/less/bin/lessc'), POUCHDB_LESS ].join(' ');
   const { stdout } = await exec(cmd);
