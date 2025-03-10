@@ -14,7 +14,7 @@ on:
     branches: [master]
 
 env:
-  NODE_VERSION: 20
+  NODE_VERSION: 22
   TEST_HOST: localhost
 
 permissions:
@@ -45,6 +45,19 @@ jobs:
           persist-credentials: false
       - run: sudo apt-get install shellcheck
       - run: git ls-files '*.sh' | xargs shellcheck
+
+  # Check package-lock.json is up-to-date
+
+  package-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: ./bin/verify-package-lock.sh
 
   # Run the integration, find and mapreduce tests against CouchDB on Node.js.
   # This should be run against every version of CouchDB and every version of
@@ -228,11 +241,10 @@ jobs:
         cmd:
           - CLIENT=firefox npm run test-webpack
           - AUTO_COMPACTION=true npm test
-          - PERF=1 npm test
+          - TYPE=performance npm test
           - npm run test-unit
           - npm run test-component
           - npm run test-fuzzy
-          # - SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find npm run report-coverage
           - npm run verify-build
     runs-on: ubuntu-latest
     steps:

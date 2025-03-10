@@ -25,7 +25,6 @@
     "build-site": "node ./bin/build-site.js",
     "test-coverage": "./bin/test-coverage.sh",
     "coverage": "COVERAGE=1 SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find ./bin/test-coverage.sh",
-    "report-coverage": "npm run test-coverage && istanbul-coveralls --no-rm",
     "build-test": "npm run build-test-utils && npm run build-perf",
     "build-test-utils": "browserify tests/integration/utils.js > tests/integration/utils-bundle.js",
     "build-perf": "browserify tests/performance/index.js > tests/performance-bundle.js",
@@ -64,7 +63,6 @@
     "chai": "3.5.0",
     "chai-as-promised": "5.3.0",
     "change-case": "4.0.1",
-    "child-process-promise": "2.2.1",
     "cssmin": "0.4.3",
     "denodeify": "1.2.1",
     "derequire": "2.1.1",
@@ -76,15 +74,13 @@
     "glob-watcher": "^6.0.0",
     "http-server": "0.12.3",
     "istanbul": "0.4.5",
-    "istanbul-coveralls": "1.0.3",
-    "less": "3.9.0",
+    "less": "3.13.1",
     "lodash": "4.17.21",
     "marky": "1.2.5",
     "median": "0.0.2",
-    "mkdirp": "0.5.1",
-    "mocha": "10.2.0",
+    "mocha": "10.8.2",
     "ncp": "2.0.0",
-    "playwright": "1.42.1",
+    "playwright": "1.49.1",
     "pouchdb-express-router": "0.0.11",
     "replace": "1.2.1",
     "rimraf": "2.7.1",
@@ -99,15 +95,5 @@
     "terser": "4.8.0",
     "throw-max-listeners-error": "1.0.1",
     "ua-parser-js": "0.7.24"
-  },
-  "// greenkeeper": [
-    "// chai-as-promised is pinned because of breaking changes in 6.0.0",
-    "// stream-to-promise is pinned because there's a breaking change in 2.0.0"
-  ],
-  "greenkeeper": {
-    "ignore": [
-      "chai-as-promised",
-      "stream-to-promise"
-    ]
   }
 }
