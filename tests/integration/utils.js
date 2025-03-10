@@ -1,6 +1,6 @@
-import commonUtils from "../common-utils";
+'use strict';
 
-const testUtils = Object.create(commonUtils);
+var testUtils = Object.create(require('../common-utils'));
 
 function uniq(list) {
   var map = {};
@@ -265,8 +265,8 @@ testUtils.promisify = function (fun, context) {
 // We need to use pouchdb-for-coverage here to ensure that e.g pouchdb-utils
 // and pouchdb-ajax don't get pulled in, because then our coverage tests
 // would complain that we're not using the "whole" thing.
-import PouchForCoverage from '../../packages/node_modules/pouchdb-for-coverage';
-const pouchUtils = PouchForCoverage.utils;
+var PouchForCoverage = require('../../packages/node_modules/pouchdb-for-coverage');
+var pouchUtils = PouchForCoverage.utils;
 testUtils.binaryStringToBlob = pouchUtils.binaryStringToBlobOrBuffer;
 testUtils.btoa = pouchUtils.btoa;
 testUtils.atob = pouchUtils.atob;
