@@ -281,6 +281,62 @@ describe('test.or.js', function () {
                 }
             });
         });
+        it('should handle correct merge of $gte', function () {
+            var db = context.db;
+            var index = {
+                "index": {
+                    "fields": ["field.a"]
+                }
+            };
+
+            var selector = {
+                $and: [
+                    {
+                        $or: [
+                            {a: 1},
+                            {b: {$gte: 3}}
+                        ]
+                    },
+                    {
+                        $or: [
+                            {a: 3},
+                            {b: {$gte: 4}}
+                        ]
+                    }
+                ]
+            };
+            return db.createIndex(index).then(function () {
+                return db.bulkDocs([
+                    {_id: '1', a: 1, b: 2},
+                    {_id: '2', a: 1, b: 4},
+                    {_id: '3', a: 3, b: 2},
+                    {_id: '4', a: 3, b: 4},
+                    {_id: '5', a: 5, b: 5}
+                ]);
+            }).then(function () {
+                return db.find({
+                    selector,
+                    fields: ["_id"]
+                }).then(function (resp) {
+                    resp.docs.should.deep.equal([{_id: '2'}, {_id: '4'}, {_id: '5'}]);
+                });
+            }).then(function () {
+                if (db.adapter === "local") {
+                    return db.explain({
+                        selector,
+                        fields: ["_id"]
+                    }).then(function (resp) {
+                        resp.selector.should.deep.equal({
+                        "$or": [
+                                {"a": {"$eq": 1}, "b": {"$gte": 4}},
+                                {"a": {"$eq": 3}, "b": {"$gte": 3}},
+                                {"b": {"$gte": 4}}
+                            ]
+                        });
+                    });
+                }
+            });
+        });
         it('should do complex queries', function () {
             var db = context.db;
             var index = {
