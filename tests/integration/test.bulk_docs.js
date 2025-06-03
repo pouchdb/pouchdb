@@ -1172,5 +1172,54 @@ adapters.forEach(function (adapter) {
         result.rows.length.should.equal(1);
       });
     });
+
+    it('8494 ensures metadata seq is refreshed before bulkDocs operations', async function () {
+      // This test specifically verifies the refreshMetadataSeq functionality
+      // by simulating multiple PouchDB instances operating on the same database
+
+      // 2 instances pointing to the same database
+      const db1 = new PouchDB(dbs.name);
+      const db2 = new PouchDB(dbs.name);
+
+      if (db1.adapter !== "indexeddb" || db2.adapter !== "indexeddb") {
+        this.skip();
+      }
+
+      // Track initial sequence
+      const initialInfo = await db1.info();
+      const initialSeq = initialInfo.update_seq;
+
+      // First, add docs with the first instance
+      await db1.bulkDocs([{_id: 'doc1', value: 'v1'}, {_id: 'doc2', value: 'v2'}]);
+
+      // Verify sequence increased
+      const infoAfterFirstBulk = await db1.info();
+      const afterFirstBulk = infoAfterFirstBulk.update_seq;
+      afterFirstBulk.should.be.above(initialSeq);
+
+      // Then add docs with the second instance
+      await db2.bulkDocs([{_id: 'doc3', value: 'v3'}, {_id: 'doc4', value: 'v4'}]);
+
+      // Now use the first instance again - this would have stale seq without refreshMetadataSeq
+      // if db1 and db2 were in two different tabs
+      await db1.bulkDocs([{_id: 'doc5', value: 'v5'}, {_id: 'doc6', value: 'v6'}]);
+
+      // Get all docs to verify they exist and have proper sequences
+      const result = await db1.changes({ include_docs: true, descending: false });
+
+      // Verify all 6 docs exist
+      result.results.should.have.length(6);
+
+      // Verify sequences are monotonically increasing
+      var sequences = result.results.map(function (change) {
+      return typeof change.seq === 'number' ?
+        change.seq : parseInt(change.seq.split('-')[0], 10);
+      });
+
+      // Check sequences are properly ordered
+      for (var i = 1; i < sequences.length; i++) {
+        sequences[i].should.be.at.least(sequences[i-1]);
+      }
+    });
   });
 });
