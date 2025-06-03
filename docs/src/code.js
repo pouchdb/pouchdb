@@ -111,3 +111,43 @@ function codeWrap(){
   }
 }
 codeWrap();
+
+function addCodeCopyButtons() {
+  if (!navigator.clipboard.writeText) return;
+
+  function copyCodeFor(codeElement) {
+    return () => {
+      navigator.clipboard.writeText(codeElement.textContent);
+
+      const success = addButton('✅', codeElement);
+      success.disabled = true;
+      success.style.transition = 'opacity 1.5s ease';
+      setTimeout(() => {
+        success.style.opacity = 0;
+        setTimeout(() => codeElement.removeChild(success), 1500);
+      }, 500);
+    };
+  }
+
+  function addButton(txt, parent) {
+    const btn = document.createElement('button');
+    btn.style.position = 'absolute';
+    btn.style.top   = '11.5px';
+    btn.style.right = '15px';
+    btn.textContent = txt;
+
+    parent.appendChild(btn);
+
+    return btn;
+  }
+
+  document
+    .querySelectorAll('code[data-lang]')
+    .forEach(codeElement => {
+      codeElement.parentElement.style.position = 'relative';
+
+      const btn = addButton('📎', codeElement);
+      btn.onclick = copyCodeFor(codeElement);
+    });
+}
+addCodeCopyButtons();

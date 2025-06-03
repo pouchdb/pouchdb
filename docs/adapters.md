@@ -118,6 +118,8 @@ If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, yo
 The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
 {% include alert/end.html %}
 
+{% include anchor.html title="PouchDB in Node.js" hash="pouchdb_in_node_js"%}
+
 #### In-memory
 
 Just as in the browser, you can also create a pure in-memory PouchDB:
