@@ -25,7 +25,7 @@ title: PouchDB, the JavaScript Database that Syncs!
       <div class='col-sm-6'>
 
 {% highlight js %}
-var db = new PouchDB('dbname');
+const db = new PouchDB('dbname');
 
 db.put({
   _id: 'dave@gmail.com',
@@ -37,7 +37,7 @@ db.changes().on('change', function() {
   console.log('Ch-Ch-Changes');
 });
 
-db.replicate.to('http://example.com/mydb');
+db.replicate.to('https://example.com/mydb');
 {% endhighlight %}
 
       </div>
