@@ -23,6 +23,7 @@
     "install-jekyll": "./bin/install-jekyll.sh",
     "publish-site": "./bin/publish-site.sh",
     "build-site": "node ./bin/build-site.js",
+    "dev-site-with-docker": "docker build --file docs-dev.Dockerfile --progress=plain . && docker run -it --rm --volume $PWD/docs:/pouchdb-docs/docs -p 4000:4000 $(docker build --quiet .)",
     "test-coverage": "./bin/test-coverage.sh",
     "coverage": "COVERAGE=1 SERVER=pouchdb-server POUCHDB_SERVER_FLAGS=--in-memory PLUGINS=pouchdb-find ./bin/test-coverage.sh",
     "build-test": "npm run build-test-utils && npm run build-perf",

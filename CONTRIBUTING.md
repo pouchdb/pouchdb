@@ -118,6 +118,10 @@ Now you can build the site and start the dev server with:
 
 You should now find the documentation at http://127.0.0.1:4000
 
+You can also build and run the documentation with docker:
+
+    $ npm run dev-site-with-docker
+
 Writing a PouchDB Blog Post
 --------------------------------------
 
