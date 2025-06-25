@@ -1,0 +1,8 @@
+**
+
+!/package.json
+!/bin/build-site.js
+!/bin/install-jekyll.sh
+!/package-lock.json
+!/docs/Gemfile
+!/docs/Gemfile.lock
