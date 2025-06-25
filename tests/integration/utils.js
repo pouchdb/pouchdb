@@ -156,12 +156,12 @@ testUtils.putTree = function (db, tree, callback) {
 };
 
 function parseHostWithCreds(host) {
-  var uriObj = testUtils.parseUri(host);
-  var url = `${uriObj.protocol}://${uriObj.host}:${uriObj.port}${uriObj.path}`;
+  var { origin, pathname, username, password } = new URL(host);
+  var url = `${origin}${pathname}`;
   var options = {};
-  if (uriObj.userInfo) {
+  if (username || password) {
     options.headers = {};
-    options.headers['Authorization'] = 'Basic: ' + testUtils.btoa(uriObj.userInfo);
+    options.headers['Authorization'] = 'Basic: ' + testUtils.btoa(`${username}:${password}`);
   }
   return { url, options };
 }
@@ -273,7 +273,6 @@ testUtils.atob = pouchUtils.atob;
 testUtils.ajax = PouchForCoverage.ajax;
 testUtils.uuid = pouchUtils.uuid;
 testUtils.rev = pouchUtils.rev;
-testUtils.parseUri = pouchUtils.parseUri;
 testUtils.errors = PouchForCoverage.Errors;
 testUtils.assign = pouchUtils.assign;
 testUtils.generateReplicationId = pouchUtils.generateReplicationId;
