@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        couchdb: ['2.3', '3.1']
+        couchdb: ['2.3', '3.1', '3.2', '3.3', '3.4']
         node: [20, 22]
         cmd:
           - npm test
@@ -112,7 +112,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        couchdb: ['2.3','3.1']
+        couchdb: ['2.3', '3.1', '3.2', '3.3', '3.4']
         client: ['firefox', 'chromium', 'webkit']
         cmd:
           - npm test
