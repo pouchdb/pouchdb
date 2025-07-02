@@ -30,7 +30,7 @@ Prior to PouchDB 7.0.0, the WebSQL adapter was used for Safari/iOS. The WebSQL a
 If you're ever curious which adapter is being used in a particular browser, you can use the following method:
 
 ```js
-var pouch = new PouchDB('myDB');
+const pouch = new PouchDB('myDB');
 console.log(pouch.adapter); // prints 'idb'
 ```
 
@@ -48,7 +48,7 @@ called [pouchdb-adapter-cordova-sqlite](https://github.com/nolanlawson/pouchdb-a
 that, you can use it via:
 
 ```js
-var db = new PouchDB('myDB.db', {adapter: 'cordova-sqlite'});
+const db = new PouchDB('myDB.db', {adapter: 'cordova-sqlite'});
 ```
 
 {% include alert/start.html variant="info"%}
@@ -86,7 +86,7 @@ If you want a quick database for your unit tests, you can use the `pouchdb.memor
 <script src="pouchdb.memory.js"></script>
 <script>
   // this pouch is ephemeral; it only exists in memory
-  var pouch = new PouchDB('mydb', {adapter: 'memory'});
+  const pouch = new PouchDB('mydb', {adapter: 'memory'});
 </script>
 ```
 
@@ -94,11 +94,11 @@ This pouch will act exactly like a normal one &ndash; replicating, storing attac
 
 ```js
 // pouch1 and pouch2 will share the same data
-var pouch1 = new PouchDB('myDB', {adapter: 'memory'});
-var pouch2 = new PouchDB('myDB', {adapter: 'memory'});
+const pouch1 = new PouchDB('myDB', {adapter: 'memory'});
+const pouch2 = new PouchDB('myDB', {adapter: 'memory'});
 
 // pouch3 will have its own data
-var pouch3 = new PouchDB('myOtherDB', {adapter: 'memory'});
+const pouch3 = new PouchDB('myOtherDB', {adapter: 'memory'});
 ```
 
 #### LocalStorage adapter
@@ -110,13 +110,15 @@ If you need to support very old browsers, such as IE &le; 9.0 and Opera Mini, yo
 <script src="pouchdb.localstorage.js"></script>
 <script>
   // this pouch is backed by LocalStorage
-  var pouch = new PouchDB('mydb', {adapter: 'localstorage'});
+  const pouch = new PouchDB('mydb', {adapter: 'localstorage'});
 </script>
 ```
 
 {% include alert/start.html variant="warning"%}
 The LocalStorage plugin should be considered highly experimental, and the underlying structure may change in the future.  Currently it stores all document IDs in memory, which works fine on small databases but may crash on larger databases.  You can follow <a href='https://github.com/No9/localstorage-down'>localstorage-down</a> to track our progress.
 {% include alert/end.html %}
+
+{% include anchor.html title="PouchDB in Node.js" hash="pouchdb_in_node_js"%}
 
 #### In-memory
 
@@ -130,7 +132,7 @@ then:
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-memory'));
-var pouch = new PouchDB('myDB', {adapter: 'memory'});
+const pouch = new PouchDB('myDB', {adapter: 'memory'});
 ```
 
 This implementation is based on [MemDOWN](https://github.com/level/memdown), and will not write any changes to disk.
@@ -141,15 +143,15 @@ You can also use PouchDB over [SQLite3](https://github.com/mapbox/node-sqlite3) 
 [node-websql](https://github.com/nolanlawson/node-websql):
 
 ```js
-var PouchDB = require('pouchdb');
+const PouchDB = require('pouchdb');
 PouchDB.plugin(require('pouchdb-adapter-node-websql'));
 
-var db = new PouchDB('mydatabase.db', {adapter: 'websql'});
+const db = new PouchDB('mydatabase.db', {adapter: 'websql'});
 ```
 
 In this case, PouchDB is directly using SQLite queries to build the database, exactly as the WebSQL adapter would.
 
-See ["Prebuilt databases with PouchDB"](https://pouchdb.com/2016/04/28/prebuilt-databases-with-pouchdb.html)
+See ["Prebuilt databases with PouchDB"]({{ site.baseurl }}/2016/04/28/prebuilt-databases-with-pouchdb.html)
 for a guide to how you might use this adapter to create prebuilt SQLite database files for adapters such as Cordova or Electron.
 
 #### Other LevelDOWN adapters
@@ -165,20 +167,21 @@ See [pouchdb-adapter-leveldb-core](https://www.npmjs.com/package/pouchdb-adapter
 In both the browser and in Node.js, PouchDB can also function as a straightforward API on top of any [CouchDB](https://couchdb.apache.org/)-compliant database:
 
 ```js
-var pouch = new PouchDB('http://my-site.com:5984/my-db');
-var securePouch = new PouchDB('https://my-secure-site.com:5984/my-secure-db');
+const pouch = new PouchDB('http://my-site.com:5984/my-db');
+const securePouch = new PouchDB('https://my-secure-site.com:5984/my-secure-db');
 ```
 
 You can also sync to and from these databases to your local PouchDB.
 
 Currently PouchDB has full support for:
 
-* CouchDB 1.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* CouchDB 1.x
 * [Smileupps](https://www.smileupps.com/) (same as 1.x)
-* CouchDB 2.x ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* CouchDB 2.x ([tested in CI](https://github.com/pouchdb/pouchdb/actions))
+* CouchDB 3.x ([tested in CI](https://github.com/pouchdb/pouchdb/actions))
 * [Cloudant](https://cloudant.com/) (roughly the same as 2.x)
-* [PouchDB Server](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
-* [PouchDB Server --in-memory mode](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://travis-ci.org/pouchdb/pouchdb))
+* [PouchDB Server](https://github.com/pouchdb/pouchdb-server) ([tested in CI](https://github.com/pouchdb/pouchdb/actions))
+* [PouchDB Server --in-memory mode](https://github.com/pouchdb/pouchdb-server)
 
 [Drupal 8](http://wearepropeople.com/blog/a-content-staging-solution-for-drupal-8-and-more) has also announced support for PouchDB, and there is [rcouch](https://github.com/rcouch/rcouch) as well, but these are both untested by PouchDB.
 

@@ -4,8 +4,6 @@ describe('test.persisted.js', function () {
   var dbType = testUtils.adapterType();
   var dbName = testUtils.adapterUrl(dbType, 'testdb');
 
-  var Promise = testUtils.Promise;
-
   function setTimeoutPromise(time) {
     return new Promise(function (resolve) {
       setTimeout(function () { resolve(true); }, time);
@@ -85,7 +83,7 @@ describe('test.persisted.js', function () {
       return db.viewCleanup();
     }).then(function () {
       var views = ['name', 'title'];
-      return testUtils.Promise.all(views.map(function (view) {
+      return Promise.all(views.map(function (view) {
         return db.query(view).then(function () {
           throw new Error('expected an error');
         }, function (err) {
@@ -399,7 +397,7 @@ describe('test.persisted.js', function () {
       );
     }
     var db = new PouchDB(dbName);
-    return db.bulkDocs({docs : docs}).then(function (responses) {
+    return db.bulkDocs({docs}).then(function (responses) {
       var tasks = [];
       for (var i = 0; i < docs.length; i++) {
         docs[i]._rev = responses[i].rev;
@@ -410,7 +408,7 @@ describe('test.persisted.js', function () {
       docs.forEach(function (doc) {
         doc._deleted = true;
       });
-      return db.bulkDocs({docs : docs});
+      return db.bulkDocs({docs});
     }).then(function () {
       return db.viewCleanup();
     });
@@ -712,7 +710,7 @@ describe('test.persisted.js', function () {
       });
 
       // make sure prefixed DBs are tied to regular DBs
-      require('mkdirp').sync('./myprefix_./tmp/'); // TODO: bit hacky
+      require('fs').mkdirSync('./myprefix_./tmp/', { recursive:true }); // TODO: bit hacky
       var db = new PouchDB(dbName, {prefix: './myprefix_'});
       return testUtils.fin(createView(db, {
         map: function (doc) {

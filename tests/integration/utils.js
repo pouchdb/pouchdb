@@ -15,13 +15,15 @@ testUtils.isCouchMaster = function () {
     testUtils.params().SERVER === 'couchdb-master';
 };
 
-testUtils.isIE = function () {
-  var ua = (typeof navigator !== 'undefined' && navigator.userAgent) ?
-      navigator.userAgent.toLowerCase() : '';
-  var isIE = ua.indexOf('msie') !== -1;
-  var isTrident = ua.indexOf('trident') !== -1;
-  var isEdge = ua.indexOf('edge') !== -1;
-  return (isIE || isTrident || isEdge);
+testUtils.isChrome = function () {
+  return (typeof window !== 'undefined') && window.navigator &&
+      /Google Inc/.test(window.navigator.vendor);
+};
+
+testUtils.isSafari = function () {
+  return (typeof process === 'undefined' || process.browser) &&
+      /Safari/.test(window.navigator.userAgent) &&
+      !/Chrome/.test(window.navigator.userAgent);
 };
 
 testUtils.adapterType = function () {
@@ -50,7 +52,7 @@ testUtils.readBlob = function (blob, callback) {
 };
 
 testUtils.readBlobPromise = function (blob) {
-  return new testUtils.Promise(function (resolve) {
+  return new Promise(function (resolve) {
     testUtils.readBlob(blob, resolve);
   });
 };
@@ -70,7 +72,7 @@ testUtils.base64Blob = function (blob, callback) {
 testUtils.adapterUrl = function (adapter, name) {
 
   // CouchDB master has problems with cycling databases rapidly
-  // so give tests seperate names
+  // so give tests separate names
   name += '_' + Date.now();
 
   if (adapter === 'http') {
@@ -154,12 +156,12 @@ testUtils.putTree = function (db, tree, callback) {
 };
 
 function parseHostWithCreds(host) {
-  var uriObj = testUtils.parseUri(host);
-  var url = `${uriObj.protocol}://${uriObj.host}:${uriObj.port}${uriObj.path}`;
+  var { origin, pathname, username, password } = new URL(host);
+  var url = `${origin}${pathname}`;
   var options = {};
-  if (uriObj.userInfo) {
+  if (username || password) {
     options.headers = {};
-    options.headers['Authorization'] = 'Basic: ' + testUtils.btoa(uriObj.userInfo);
+    options.headers['Authorization'] = 'Basic: ' + testUtils.btoa(`${username}:${password}`);
   }
   return { url, options };
 }
@@ -171,6 +173,26 @@ testUtils.isCouchDB = function (cb) {
   }).then(function (res) {
     cb('couchdb' in res || 'express-pouchdb' in res);
   });
+};
+
+testUtils.getServerType = async () => {
+  const knownServers = [
+    'couchdb',
+    'express-pouchdb',
+    'pouchdb-express-router',
+  ];
+
+  const { url, options } = parseHostWithCreds(testUtils.couchHost());
+  const res = await PouchDB.fetch(url, options);
+  const body = await res.json();
+
+  for (const known of knownServers) {
+    if (body[known]) {
+      return known;
+    }
+  }
+
+  throw new Error(`Could not find a known server type in response: ${JSON.stringify(res)}`);
 };
 
 testUtils.writeDocs = function (db, docs, callback, res) {
@@ -228,7 +250,7 @@ testUtils.promisify = function (fun, context) {
     for (var i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];
     }
-    return new testUtils.Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       args.push(function (err, res) {
         if (err) {
           return reject(err);
@@ -251,7 +273,6 @@ testUtils.atob = pouchUtils.atob;
 testUtils.ajax = PouchForCoverage.ajax;
 testUtils.uuid = pouchUtils.uuid;
 testUtils.rev = pouchUtils.rev;
-testUtils.parseUri = pouchUtils.parseUri;
 testUtils.errors = PouchForCoverage.Errors;
 testUtils.assign = pouchUtils.assign;
 testUtils.generateReplicationId = pouchUtils.generateReplicationId;

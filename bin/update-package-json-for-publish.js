@@ -5,15 +5,14 @@
 // and update the version numbers to reflect the version from the top-level
 // dependencies list. Also throw an error if a dep is not declared top-level.
 // Also add necessary "browser" switches to each package.json, as well as
-// other fields like "jsnext:main" and "files".
+// other fields like "module" and "files".
 
 var fs = require('fs');
 var path = require('path');
 var glob = require('glob');
 var findRequires = require('find-requires');
 var builtinModules = require('builtin-modules');
-var uniq = require('lodash.uniq');
-var flatten = require('lodash.flatten');
+const { uniq } = require('lodash');
 
 var topPkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 var modules = fs.readdirSync('./packages/node_modules');
@@ -25,14 +24,14 @@ modules.forEach(function (mod) {
 
   // for the dependencies, find all require() calls
   var srcFiles = glob.sync(path.join(pkgDir, 'lib/**/*.js'));
-  var uniqDeps = uniq(flatten(srcFiles.map(function (srcFile) {
+  var uniqDeps = uniq(srcFiles.map(function (srcFile) {
     var code = fs.readFileSync(srcFile, 'utf8');
     try {
       return findRequires(code);
     } catch (e) {
       return []; // happens if this is an es6 module, parsing fails
     }
-  }))).filter(function (dep) {
+  }).flat()).filter(function (dep) {
     // some modules require() themselves, e.g. for plugins
     return dep !== pkg.name &&
       // exclude built-ins like 'inherits', 'fs', etc.
@@ -57,10 +56,10 @@ modules.forEach(function (mod) {
       './lib/index.es.js': './lib/index-browser.es.js',
     };
   }
-  // Update "jsnext:main" to point to `lib/` rather than `src/`.
+  // Update "module" to point to `lib/` rather than `src/`.
   // `src/` is only used for building, not publishing.
   // Also add "module" member: https://github.com/rollup/rollup/wiki/pkg.module
-  pkg['jsnext:main'] = pkg.module = './lib/index.es.js';
+  pkg.module = './lib/index.es.js';
   // whitelist the files we'll actually publish
   pkg.files = ['lib', 'dist'];
 

@@ -33,7 +33,7 @@ db.createIndex({
 {% include code/start.html id="create_idx" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.createIndex({
+  const result = await db.createIndex({
     index: {
       fields: ['foo']
     }
@@ -90,7 +90,7 @@ db.createIndex({
 {% include code/start.html id="create_idx2" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.createIndex({
+  const result = await db.createIndex({
     index: {
       fields: ['foo', 'bar', 'baz']
     }
@@ -133,7 +133,7 @@ db.createIndex({
 {% include code/start.html id="create_idx3" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.createIndex({
+  const result = await db.createIndex({
     index: {
       fields: ['person.address.zipcode']
     }
@@ -179,7 +179,7 @@ db.createIndex({
 {% include code/start.html id="create_idx4" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.createIndex({
+  const result = await db.createIndex({
     index: {
       fields: ['foo', 'bar'],
       name: 'myindex',
@@ -242,7 +242,7 @@ db.createIndex({
 {% include code/start.html id="create_idx5" type="async" %}
 {% highlight js %}
 try {
-  var result = db.createIndex({
+  const result = db.createIndex({
     index: {
       fields: ['year', 'title'],
       partial_filter_selector: {
@@ -284,7 +284,7 @@ db.createIndex({
 When a PouchDB instance updates an index, it emits `indexing` events that include information about the progress of the index update task.
 
 {% highlight js %}
-var db = new PouchDB('my-docs');
+const db = new PouchDB('my-docs');
 
 db.on('indexing', function (event) {
   // called when indexes are updated

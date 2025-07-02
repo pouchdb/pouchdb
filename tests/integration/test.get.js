@@ -93,7 +93,7 @@ adapters.forEach(function (adapter) {
           _id: info.id,
           _rev: info.rev
         }, function () {
-          db.get(info.id, { rev: rev }, function (err) {
+          db.get(info.id, { rev }, function (err) {
             should.not.exist(err);
             done();
           });
@@ -326,7 +326,7 @@ adapters.forEach(function (adapter) {
         });
       }
 
-      return testUtils.Promise.all(tasks.map(function (task) {
+      return Promise.all(tasks.map(function (task) {
         return getDocWithDefault(db, task, {foo: 'bar'});
       }));
     });
@@ -365,7 +365,7 @@ adapters.forEach(function (adapter) {
         });
       }
 
-      return testUtils.Promise.all(tasks.map(function (task) {
+      return Promise.all(tasks.map(function (task) {
         return getDocWithDefault(db, task, {foo: 'bar'});
       }));
     });

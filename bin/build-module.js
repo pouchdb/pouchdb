@@ -14,7 +14,7 @@ var rollupPlugins = require('./rollupPlugins');
 
 var path = require('path');
 var denodeify = require('denodeify');
-var mkdirp = denodeify(require('mkdirp'));
+const { mkdir } = require('node:fs/promises');
 var rimraf = denodeify(require('rimraf'));
 var builtInModules = require('builtin-modules');
 var fs = require('fs');
@@ -67,7 +67,7 @@ function buildModule(filepath) {
   return Promise.resolve().then(function () {
     return rimraf(path.resolve(filepath, 'lib'));
   }).then(function () {
-    return mkdirp(path.resolve(filepath, 'lib'));
+    return mkdir(path.resolve(filepath, 'lib'), { recursive:true });
   }).then(function () {
     return all(versions.map(function (isBrowser) {
       return rollup({
@@ -83,7 +83,7 @@ function buildModule(filepath) {
           var file = (isBrowser ? 'lib/index-browser' : 'lib/index') +
             (format === 'es' ? '.es.js' : '.js');
           return bundle.write({
-            format: format,
+            format,
             file: path.resolve(filepath, file)
           }).then(function () {
             console.log('  \u2713' + ' wrote ' +

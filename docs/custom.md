@@ -53,7 +53,7 @@ API.
 Presets export a `PouchDB` object and contain a built-in set of PouchDB
 plugins. You are free to create your own presets, but PouchDB provides a few first-party presets to address common use cases.
 
-### pouchdb-browser
+### [pouchdb-browser](https://npmjs.org/package/pouchdb-browser)
 
 The `pouchdb-browser` preset contains the version of PouchDB that is designed
 for the browser. In particular, it ships with the IndexedDB adapter
@@ -69,21 +69,21 @@ npm install pouchdb-browser
 ```
 
 ```js
-var PouchDB = require('pouchdb-browser');
-var db = new PouchDB('mydb');
+const PouchDB = require('pouchdb-browser');
+const db = new PouchDB('mydb');
 ```
 
 #### Source code (simplified)
 
 ```js
-var PouchDB = require('pouchdb-core')
+const PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-idb'))
   .plugin(require('pouchdb-adapter-http'))
   .plugin(require('pouchdb-mapreduce'))
   .plugin(require('pouchdb-replication'));
 ```
 
-### pouchdb-node
+### [pouchdb-node](https://npmjs.org/package/pouchdb-node)
 
 The `pouchdb-node` preset contains the version of PouchDB that is designed for
 Node.js. In particular, it uses the LevelDB adapter and doesn't ship with the
@@ -98,21 +98,21 @@ npm install pouchdb-node
 ```
 
 ```js
-var PouchDB = require('pouchdb-node');
-var db = new PouchDB('mydb');
+const PouchDB = require('pouchdb-node');
+const db = new PouchDB('mydb');
 ```
 
 #### Source code (simplified)
 
 ```js
-var PouchDB = require('pouchdb-core')
+const PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-leveldb'))
   .plugin(require('pouchdb-adapter-http'))
   .plugin(require('pouchdb-mapreduce'))
   .plugin(require('pouchdb-replication'));
 ```
 
-### pouchdb-core
+### [pouchdb-core](https://npmjs.org/package/pouchdb-core)
 
 The `pouchdb-core` package is a special preset in that it exposes the minimum
 number of APIs. It contains zero plugins and is designed to be used in addition
@@ -125,7 +125,7 @@ npm install pouchdb-core
 ```
 
 ```js
-var PouchDB = require('pouchdb-core');
+const PouchDB = require('pouchdb-core');
 PouchDB.plugin(/* attach plugins to make me more interesting! */);
 ```
 
@@ -137,7 +137,7 @@ There is also a special type of plugin called an _adapter plugin_.  Adapter plug
 PouchDB uses. For the non-HTTP adapters, the plugin order matters, i.e. if you
 want IndexedDB to be preferred to WebSQL, then you should load it first.
 
-### pouchdb-adapter-idb
+### [pouchdb-adapter-idb](https://npmjs.org/package/pouchdb-adapter-idb)
 
 The primary adapter used by PouchDB in the browser, using IndexedDB. The adapter
 name is `'idb'`.
@@ -150,11 +150,11 @@ npm install pouchdb-adapter-idb
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-idb'));
-var db = new PouchDB('mydb', {adapter: 'idb'});
+const db = new PouchDB('mydb', {adapter: 'idb'});
 console.log(db.adapter); // 'idb'
 ```
 
-### pouchdb-adapter-websql
+### [pouchdb-adapter-websql](https://npmjs.org/package/pouchdb-adapter-websql)
 
 An adapter used by PouchDB in the browser, using WebSQL. The adapter
 name is `'websql'`.
@@ -169,11 +169,11 @@ npm install pouchdb-adapter-websql
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-websql'));
-var db = new PouchDB('mydb', {adapter: 'websql'});
+const db = new PouchDB('mydb', {adapter: 'websql'});
 console.log(db.adapter); // 'websql'
 ```
 
-### pouchdb-adapter-leveldb
+### [pouchdb-adapter-leveldb](https://npmjs.org/package/pouchdb-adapter-leveldb)
 
 The primary adapter used by PouchDB in Node.js, using LevelDB. The adapter name
 is `'leveldb'`.
@@ -186,11 +186,11 @@ npm install pouchdb-adapter-leveldb
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-leveldb'));
-var db = new PouchDB('mydb', {adapter: 'leveldb'});
+const db = new PouchDB('mydb', {adapter: 'leveldb'});
 console.log(db.adapter); // 'leveldb'
 ```
 
-### pouchdb-adapter-http
+### [pouchdb-adapter-http](https://npmjs.org/package/pouchdb-adapter-http)
 
 The primary adapter used by PouchDB in both Node.js and the browser for communicating
 with external CouchDB (or CouchDB-like) servers.
@@ -207,11 +207,11 @@ npm install pouchdb-adapter-http
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-http'));
-var db = new PouchDB('http://127.0.0.1:5984/mydb');
+const db = new PouchDB('http://127.0.0.1:5984/mydb');
 console.log(db.adapter); // 'http'
 ```
 
-### pouchdb-adapter-memory
+### [pouchdb-adapter-memory](https://npmjs.org/package/pouchdb-adapter-memory)
 
 An optional adapter that works in the browser and Node.js, fully in-memory. The adapter name
 is `'memory'`.
@@ -224,11 +224,11 @@ npm install pouchdb-adapter-memory
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-memory'));
-var db = new PouchDB('mydb', {adapter: 'memory'});
+const db = new PouchDB('mydb', {adapter: 'memory'});
 console.log(db.adapter); // 'memory'
 ```
 
-### pouchdb-adapter-localstorage
+### [pouchdb-adapter-localstorage](https://npmjs.org/package/pouchdb-adapter-localstorage)
 
 An optional adapter that works in the browser using LocalStorage. The adapter name
 is `'localstorage'`.
@@ -241,11 +241,11 @@ npm install pouchdb-adapter-localstorage
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-localstorage'));
-var db = new PouchDB('mydb', {adapter: 'localstorage'});
+const db = new PouchDB('mydb', {adapter: 'localstorage'});
 console.log(db.adapter); // 'localstorage'
 ```
 
-### pouchdb-adapter-fruitdown
+### [pouchdb-adapter-fruitdown](https://npmjs.org/package/pouchdb-adapter-fruitdown)
 
 An optional adapter that works in the browser using IndexedDB via [fruitdown](https://github.com/nolanlawson/fruitdown). The adapter name
 is `'fruitdown'`.
@@ -258,11 +258,11 @@ npm install pouchdb-adapter-fruitdown
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-fruitdown'));
-var db = new PouchDB('mydb', {adapter: 'fruitdown'});
+const db = new PouchDB('mydb', {adapter: 'fruitdown'});
 console.log(db.adapter); // 'fruitdown'
 ```
 
-### pouchdb-adapter-node-websql
+### [pouchdb-adapter-node-websql](https://npmjs.org/package/pouchdb-adapter-node-websql)
 
 An optional adapter that works in Node.js using SQLite via [node-websql](https://github.com/nolanlawson/node-websql). The adapter name
 is `'websql'`.
@@ -275,11 +275,11 @@ npm install pouchdb-adapter-node-websql
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-node-websql'));
-var db = new PouchDB('mydb', {adapter: 'websql'});
+const db = new PouchDB('mydb', {adapter: 'websql'});
 console.log(db.adapter); // 'websql'
 ```
 
-### pouchdb-adapter-indexeddb
+### [pouchdb-adapter-indexeddb](https://npmjs.org/package/pouchdb-adapter-indexeddb)
 
 {% include alert/start.html variant="warning"%}
 {% markdown %}
@@ -299,11 +299,11 @@ npm install pouchdb-adapter-indexeddb
 
 ```js
 PouchDB.plugin(require('pouchdb-adapter-indexeddb'));
-var db = new PouchDB('mydb', {adapter: 'indexeddb'});
+const db = new PouchDB('mydb', {adapter: 'indexeddb'});
 console.log(db.adapter); // 'indexeddb'
 ```
 
-### pouchdb-find
+### [pouchdb-find](https://npmjs.org/package/pouchdb-find)
 
 PouchDB's "Mango" query API, exposed via the `find()`, `listIndexes(), `createIndex()`, and `deleteIndex()` methods. Not shipped by default in PouchDB.
 
@@ -315,11 +315,11 @@ npm install pouchdb-find
 
 ```js
 PouchDB.plugin(require('pouchdb-find'));
-var db = new PouchDB('mydb');
+const db = new PouchDB('mydb');
 db.find(/* see API docs for full info */);
 ```
 
-### pouchdb-mapreduce
+### [pouchdb-mapreduce](https://npmjs.org/package/pouchdb-mapreduce)
 
 PouchDB's map/reduce API, exposed via the `query()` and `viewCleanup()` methods. Ships by default in PouchDB.
 
@@ -331,11 +331,11 @@ npm install pouchdb-mapreduce
 
 ```js
 PouchDB.plugin(require('pouchdb-mapreduce'));
-var db = new PouchDB('mydb');
+const db = new PouchDB('mydb');
 db.query(/* see query API docs for full info */);
 ```
 
-### pouchdb-replication
+### [pouchdb-replication](https://npmjs.org/package/pouchdb-replication)
 
 PouchDB's replication API, exposed via the `replicate()` and `sync()` methods. Ships by default in PouchDB.
 
@@ -347,7 +347,7 @@ npm install pouchdb-replication
 
 ```js
 PouchDB.plugin(require('pouchdb-replication'));
-var db = new PouchDB('mydb');
+const db = new PouchDB('mydb');
 db.replicate(/* see replicate/sync API docs for full info */);
 ```
 
@@ -372,7 +372,7 @@ without warning. You are strongly recommended to **use exact versions** when ins
 {% endmarkdown %}
 {% include alert/end.html%}
 
-### pouchdb-abstract-mapreduce
+### [pouchdb-abstract-mapreduce](https://npmjs.org/package/pouchdb-abstract-mapreduce)
 
 The underlying logic for secondary indexes, as expressed in both `pouchdb-mapreduce` and `pouchdb-find`. Both packages use this package under the hood.
 
@@ -382,7 +382,7 @@ The underlying logic for secondary indexes, as expressed in both `pouchdb-mapred
 npm install --save-exact pouchdb-abstract-mapreduce
 ```
 
-### pouchdb-adapter-utils
+### [pouchdb-adapter-utils](https://npmjs.org/package/pouchdb-adapter-utils)
 
 Utilities for PouchDB adapters.
 
@@ -392,7 +392,7 @@ Utilities for PouchDB adapters.
 npm install --save-exact pouchdb-adapter-utils
 ```
 
-### pouchdb-ajax
+### [pouchdb-ajax](https://npmjs.org/package/pouchdb-ajax)
 
 PouchDB's `ajax()` function.
 
@@ -402,7 +402,7 @@ PouchDB's `ajax()` function.
 npm install --save-exact pouchdb-ajax
 ```
 
-### pouchdb-binary-utils
+### [pouchdb-binary-utils](https://npmjs.org/package/pouchdb-binary-utils)
 
 Utilities for operating on binary strings and Buffers/Blobs.
 
@@ -412,7 +412,7 @@ Utilities for operating on binary strings and Buffers/Blobs.
 npm install --save-exact pouchdb-binary-utils
 ```
 
-### pouchdb-checkpointer
+### [pouchdb-checkpointer](https://npmjs.org/package/pouchdb-checkpointer)
 
 Tool to write a checkpoint, e.g. during replication.
 
@@ -422,7 +422,7 @@ Tool to write a checkpoint, e.g. during replication.
 npm install --save-exact pouchdb-checkpointer
 ```
 
-### pouchdb-collate
+### [pouchdb-collate](https://npmjs.org/package/pouchdb-collate)
 
 Collation functions for PouchDB map/reduce.
 
@@ -432,7 +432,7 @@ Collation functions for PouchDB map/reduce.
 npm install --save-exact pouchdb-collate
 ```
 
-### pouchdb-collections
+### [pouchdb-collections](https://npmjs.org/package/pouchdb-collections)
 
 ES6 shims for Map and Set as used in PouchDB.
 
@@ -442,7 +442,7 @@ ES6 shims for Map and Set as used in PouchDB.
 npm install --save-exact pouchdb-collections
 ```
 
-### pouchdb-errors
+### [pouchdb-errors](https://npmjs.org/package/pouchdb-errors)
 
 Errors exposed by PouchDB.
 
@@ -452,7 +452,7 @@ Errors exposed by PouchDB.
 npm install --save-exact pouchdb-errors
 ```
 
-### pouchdb-generate-replication-id
+### [pouchdb-generate-replication-id](https://npmjs.org/package/pouchdb-generate-replication-id)
 
 Function to generate a replication ID to mark progress during replications.
 
@@ -462,7 +462,7 @@ Function to generate a replication ID to mark progress during replications.
 npm install --save-exact pouchdb-generate-replication-id
 ```
 
-### pouchdb-json
+### [pouchdb-json](https://npmjs.org/package/pouchdb-json)
 
 Utilities for safely stringifying and parsing JSON.
 
@@ -472,7 +472,7 @@ Utilities for safely stringifying and parsing JSON.
 npm install --save-exact pouchdb-json
 ```
 
-### pouchdb-mapreduce-utils
+### [pouchdb-mapreduce-utils](https://npmjs.org/package/pouchdb-mapreduce-utils)
 
 Utilities used by `pouchdb-mapreduce`.
 
@@ -482,7 +482,7 @@ Utilities used by `pouchdb-mapreduce`.
 npm install --save-exact pouchdb-mapreduce-utils
 ```
 
-### pouchdb-md5
+### [pouchdb-md5](https://npmjs.org/package/pouchdb-md5)
 
 Utilities for calculating MD5 checksums.
 
@@ -492,7 +492,7 @@ Utilities for calculating MD5 checksums.
 npm install --save-exact pouchdb-md5
 ```
 
-### pouchdb-merge
+### [pouchdb-merge](https://npmjs.org/package/pouchdb-merge)
 
 PouchDB's CouchDB-style document merge algorithm.
 
@@ -502,7 +502,7 @@ PouchDB's CouchDB-style document merge algorithm.
 npm install --save-exact pouchdb-merge
 ```
 
-### pouchdb-promise
+### [pouchdb-promise](https://npmjs.org/package/pouchdb-promise)
 
 A `Promise` object, polyfilled using `lie` if Promises aren't available globally.
 
@@ -512,7 +512,7 @@ A `Promise` object, polyfilled using `lie` if Promises aren't available globally
 npm install --save-exact pouchdb-promise
 ```
 
-### pouchdb-selector-core
+### [pouchdb-selector-core](https://npmjs.org/package/pouchdb-selector-core)
 
 The core Mango selector logic, which allows the selector to be used both by `pouchdb-find` and for filtering/replication.
 
@@ -522,7 +522,7 @@ The core Mango selector logic, which allows the selector to be used both by `pou
 npm install --save-exact pouchdb-selector-core
 ```
 
-### pouchdb-utils
+### [pouchdb-utils](https://npmjs.org/package/pouchdb-utils)
 
 A potpourri of miscellaneous utilities used by PouchDB and its sub-packages.
 
@@ -532,10 +532,10 @@ A potpourri of miscellaneous utilities used by PouchDB and its sub-packages.
 npm install --save-exact pouchdb-utils
 ```
 
-### sublevel-pouchdb
+### [sublevel-pouchdb](https://npmjs.org/package/sublevel-pouchdb)
 
 Fork of [level-sublevel](https://github.com/dominictarr/level-sublevel)
-with ony the subset of the API that PouchDB uses.
+with only the subset of the API that PouchDB uses.
 
 #### Example usage
 

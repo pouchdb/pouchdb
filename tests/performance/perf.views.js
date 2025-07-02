@@ -26,7 +26,7 @@ module.exports = function (PouchDB, callback) {
       name: 'temp-views',
       assertions: 1,
       iterations: 1,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var tasks = [];
         for (var i = 0; i < 100; i++) {
           tasks.push(i);
@@ -58,7 +58,7 @@ module.exports = function (PouchDB, callback) {
       name: 'build-secondary-index',
       assertions: 1,
       iterations: 1,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var docs = [];
         for (var i = 0; i < 1000; i++) {
           docs.push({});
@@ -88,7 +88,7 @@ module.exports = function (PouchDB, callback) {
       name: 'persisted-views',
       assertions: 1,
       iterations: 10,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var tasks = [];
         for (var i = 0; i < 100; i++) {
           tasks.push(i);
@@ -131,7 +131,7 @@ module.exports = function (PouchDB, callback) {
       name: 'persisted-views-stale-ok',
       assertions: 1,
       iterations: 10,
-      setup: function (db, callback) {
+      setup: function (db, _, callback) {
         var tasks = [];
         for (var i = 0; i < 100; i++) {
           tasks.push(i);

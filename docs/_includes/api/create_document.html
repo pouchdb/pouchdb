@@ -9,7 +9,7 @@ Create a new document or update an existing document. If the document already ex
 
 If you want to update an existing document even if there's conflict, you should specify the base revision `_rev` and use `force=true` option, then a new conflict revision will be created.
 
-`doc` must be a "pure JSON object", i.e. a collection of name/value pairs. If you try to store non-JSON data (for instance `Date` objects) you may see [inconsistent results](http://pouchdb.com/errors.html#could_not_be_cloned).
+`doc` must be a "pure JSON object", i.e. a collection of name/value pairs. If you try to store non-JSON data (for instance `Date` objects) you may see [inconsistent results]({{ site.baseurl }}/errors.html#could_not_be_cloned).
 
 #### Example Usage:
 
@@ -30,7 +30,7 @@ db.put({
 {% include code/start.html id="newDoc" type="async" %}
 {% highlight js %}
 try {
-  var response = await db.put({
+  const response = await db.put({
     _id: 'mydoc',
     title: 'Heroes'
   });
@@ -74,8 +74,8 @@ db.get('mydoc', function(err, doc) {
 {% include code/start.html id="updateDoc" type="async" %}
 {% highlight js %}
 try {
-  var doc = await db.get('mydoc');
-  var response = await db.put({
+  const doc = await db.get('mydoc');
+  const response = await db.put({
     _id: 'mydoc',
     _rev: doc._rev,
     title: "Let's Dance"
@@ -139,7 +139,7 @@ db.post({
 {% include code/start.html id="post_doc" type="async" %}
 {% highlight js %}
 try {
-  var response = await db.post({
+  const response = await db.post({
     title: 'Ziggy Stardust'
   });
 } catch (err) {

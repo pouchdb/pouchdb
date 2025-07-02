@@ -28,7 +28,7 @@ All options default to `false` unless otherwise specified.
     - For details, see the [CouchDB query options documentation](https://docs.couchdb.org/en/stable/api/ddoc/views.html#db-design-design-doc-view-view-name).
 * `options.update_seq`: Include an `update_seq` value indicating which sequence id of the underlying database the view reflects.
 
-**Notes:** For pagination, `options.limit` and `options.skip` are also available, but the same performance concerns as in CouchDB apply. Use the [startkey/endkey pattern](http://docs.couchdb.org/en/latest/couchapp/views/pagination.html) instead.
+**Notes:** For pagination, `options.limit` and `options.skip` are also available, but the same performance concerns as in CouchDB apply. Use the [startkey/endkey pattern](https://docs.couchdb.org/en/stable/couchapp/views/pagination.html) instead.
 
 #### Example Usage:
 
@@ -47,7 +47,7 @@ db.allDocs({
 {% include code/start.html id="all_docs" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.allDocs({
+  const result = await db.allDocs({
     include_docs: true,
     attachments: true
   });
@@ -125,7 +125,7 @@ db.allDocs({
 {% include code/start.html id="all_docs_2" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.allDocs({
+  const result = await db.allDocs({
     include_docs: true,
     attachments: true,
     startkey: 'bar',
@@ -175,7 +175,7 @@ db.allDocs({
 {% include code/start.html id="all_docs_3" type="async" %}
 {% highlight js %}
 try {
-  var result = await db.allDocs({
+  const result = await db.allDocs({
     include_docs: true,
     attachments: true,
     startkey: 'foo',
@@ -202,4 +202,4 @@ db.allDocs({
 {% endhighlight %}
 {% include code/end.html %}
 
-This works because CouchDB/PouchDB `_id`s are sorted [lexicographically](http://docs.couchdb.org/en/latest/couchapp/views/collation.html).
+This works because CouchDB/PouchDB `_id`s are sorted [lexicographically](https://docs.couchdb.org/en/stable/couchapp/views/collation.html).

@@ -15,7 +15,7 @@ module.exports = function (PouchDB, Promise) {
 
   PullRequestTestObject.prototype.setup = function (itr, gens) {
     var self = this;
-    return function (localDB, callback) {
+    return function (localDB, _, callback) {
       var remoteDBOpts = {ajax: {pool: {maxSockets: MAX_SOCKETS}}};
       var remoteCouchUrl = commonUtils.couchHost() + "/" +
         commonUtils.safeRandomDBName();
@@ -39,7 +39,7 @@ module.exports = function (PouchDB, Promise) {
       }
 
       var addGeneration = function (generationCount, docs) {
-        return self.remoteDB.bulkDocs({docs: docs}, localOpts)
+        return self.remoteDB.bulkDocs({docs}, localOpts)
           .then(function (bulkDocsResponse) {
             --generationCount;
             if (generationCount <= 0) {

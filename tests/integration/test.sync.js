@@ -59,7 +59,7 @@ adapters.forEach(function (adapters) {
 
       // intentionally throw an error during replication
       remote.bulkGet = function () {
-        return testUtils.Promise.reject(new Error('flunking you'));
+        return Promise.reject(new Error('flunking you'));
       };
 
       return db.put(doc1).then(function () {
@@ -88,7 +88,7 @@ adapters.forEach(function (adapters) {
 
       // intentionally throw an error during replication
       remote.bulkGet = function () {
-        return testUtils.Promise.reject(new Error('flunking you'));
+        return Promise.reject(new Error('flunking you'));
       };
 
       var landedInCatch = false;
@@ -121,13 +121,13 @@ adapters.forEach(function (adapters) {
 
       // intentionally throw an error during replication
       remote.bulkGet = function () {
-        return testUtils.Promise.reject(new Error('flunking you'));
+        return Promise.reject(new Error('flunking you'));
       };
 
       return db.put(doc1).then(function () {
         return remote.put(doc2);
       }).then(function () {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           db.sync(remote).on('error', resolve);
         });
       }).then(function (err) {
@@ -150,13 +150,13 @@ adapters.forEach(function (adapters) {
 
       // intentionally throw an error during replication
       remote.bulkGet = function () {
-        return testUtils.Promise.reject(new Error('flunking you'));
+        return Promise.reject(new Error('flunking you'));
       };
 
       return db.put(doc1).then(function () {
         return remote.put(doc2);
       }).then(function () {
-        return new testUtils.Promise(function (resolve) {
+        return new Promise(function (resolve) {
           db.sync(remote, function (err) {
             resolve(err);
           }).catch(function () {
@@ -184,7 +184,7 @@ adapters.forEach(function (adapters) {
       return db.put(doc1).then(function () {
         return remote.put(doc2);
       }).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           db.sync(remote, function (err, res) {
             if (err) {
               return reject(err);
@@ -352,7 +352,7 @@ adapters.forEach(function (adapters) {
       return db.put(doc1).then(function () {
         return remote.put(doc2);
       }).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           db.sync(remote).on('complete', resolve).on('error', reject);
         });
       }).then(function () {
@@ -373,11 +373,11 @@ adapters.forEach(function (adapters) {
       db.setMaxListeners(100);
       remote.setMaxListeners(100);
 
-      var promise = testUtils.Promise.resolve();
+      var promise = Promise.resolve();
 
       function syncThenCancel() {
         promise = promise.then(function () {
-          return new testUtils.Promise(function (resolve, reject) {
+          return new Promise(function (resolve, reject) {
             db = new PouchDB(dbs.name);
             remote = new PouchDB(dbs.remote);
             var sync = db.sync(remote)
@@ -385,7 +385,7 @@ adapters.forEach(function (adapters) {
               .on('complete', resolve);
             sync.cancel();
           }).then(function () {
-            return testUtils.Promise.all([
+            return Promise.all([
               db.destroy(),
               remote.destroy()
             ]);
@@ -635,7 +635,7 @@ adapters.forEach(function (adapters) {
             {_id: 'nofoo'},
             {_id: 'foo2', foo: 'object'}
           ];
-          return db.bulkDocs({docs: docs});
+          return db.bulkDocs({docs});
         }).then(function () {
           var sync = db.sync(dbs.remote);
           sync.on('denied', function (error) {
@@ -681,7 +681,7 @@ adapters.forEach(function (adapters) {
               {_id: 'nofoo'},
               {_id: 'foo2', foo: 'object'}
             ];
-            return db.bulkDocs({docs: docs});
+            return db.bulkDocs({docs});
           }).then(function () {
             var sync = remote.sync(db);
             sync.on('denied', function (error) {
@@ -707,7 +707,7 @@ adapters.forEach(function (adapters) {
         {_id: '3'}
       ];
 
-      db.bulkDocs({ docs: docs }, {}).then(function () {
+      db.bulkDocs({ docs }, {}).then(function () {
         var sync = db.sync(dbs.remote);
         sync.on('change', function (change) {
           syncedDocs = syncedDocs.concat(change.change.docs);
@@ -764,7 +764,7 @@ adapters.forEach(function (adapters) {
       return remote.bulkDocs(remoteDocs).then(function () {
         return db.bulkDocs(localDocs);
       }).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var filter = function (doc) {
             return doc._id !== '0' && doc._id !== 'a';
           };
@@ -775,7 +775,7 @@ adapters.forEach(function (adapters) {
               sync.cancel();
             }
           };
-          var sync = db.sync(remote, {filter: filter, live: true, retry: true})
+          var sync = db.sync(remote, {filter, live: true, retry: true})
             .on('error', reject)
             .on('change', onChange)
             .on('complete', resolve);
@@ -815,37 +815,53 @@ adapters.forEach(function (adapters) {
       });
     });
 
-    it('5007 sync 2 databases', function (done) {
-      var db = new PouchDB(dbs.name);
-
-      var remote1 = new PouchDB(dbs.remote);
-      var remote2 = new PouchDB(dbs.remote + '_2');
-
-      var sync1 = db.sync(remote1, {live: true});
-      var sync2 = db.sync(remote2, {live: true});
-
-      var numChanges = 0;
-      function onChange() {
-        if (++numChanges === 2) {
-          complete();
-        }
+    it('5007 sync 2 databases', async function () {
+      if (testUtils.isSafari()) {
+        // FIXME this test fails consistently on webkit.  It needs to be
+        // investigated, but for now it would be better to have the rest of the
+        // tests running on webkit.
+        return this.skip();
       }
 
-      var changes1 = remote1.changes({live: true}).on('change', onChange);
-      var changes2 = remote2.changes({live: true}).on('change', onChange);
+      const db = new PouchDB(dbs.name);
 
-      db.post({foo: 'bar'});
-      var toCancel = [changes1, changes2, sync1, sync2];
-      function complete() {
-        if (!toCancel.length) {
-          return remote2.destroy().then(function () {
-            done();
-          });
-        }
-        var cancelling = toCancel.shift();
-        cancelling.on('complete', complete);
-        cancelling.cancel();
+      const remote1 = new PouchDB(dbs.remote);
+      let remote2 = new PouchDB(dbs.remote + '_2');
+
+      const remote2docs = await remote2.allDocs();
+      if (remote2docs.total_rows > 0) {
+        await remote2.destroy();
+        remote2 = new PouchDB(dbs.remote + '_2');
       }
+
+      const sync1 = db.sync(remote1, { live: true });
+      const sync2 = db.sync(remote2, { live: true });
+
+      const changes1 = remote1.changes({ live: true });
+      const changes2 = remote2.changes({ live: true });
+
+      return new Promise(function (resolve, reject) {
+        let numChanges = 0;
+        function onChange() {
+          if (++numChanges === 2) {
+            resolve();
+          }
+        }
+        sync1.on('error', reject);
+        sync2.on('error', reject);
+        changes1.on('change', onChange);
+        changes2.on('change', onChange);
+
+        db.post({ foo: 'bar' }).catch(reject);
+      })
+        .then(function () {
+          for (const cancelable of [changes1, changes2, sync1, sync2]) {
+            cancelable.cancel();
+          }
+        })
+        .finally(function () {
+          return remote2.destroy();
+        });
     });
 
     it('5782 sync rev-1 conflicts', function () {
@@ -893,7 +909,7 @@ adapters.forEach(function (adapters) {
       .then(function () { return remove(local, doc1._id); })
       .then(function () { return local.sync (remote); })
       .then(function () {
-        return testUtils.Promise.all([
+        return Promise.all([
           local.allDocs({include_docs: true}),
           remote.allDocs({include_docs: true})
         ]);

@@ -34,7 +34,7 @@ pouch.bulkDocs({docs : docs}, function (err, response) {
 });
 ```
 
-Now, the simplest kind of Pouch query, called [`allDocs()`](http://pouchdb.com/api.html#batch_fetch), doesn't do any pagination by default.  As the name implies, it just returns all the docs:
+Now, the simplest kind of Pouch query, called [`allDocs()`]({{ site.baseurl }}/api.html#batch_fetch), doesn't do any pagination by default.  As the name implies, it just returns all the docs:
 
 ```javascript
 pouch.allDocs(function (err, response) {
@@ -421,6 +421,6 @@ So congratulations, you're now a [Page Master]!  Try to use your newfound powers
   [couch-query-api]: https://wiki.apache.org/couchdb/HTTP_view_API#Querying_Options
   [js-string-ordering]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#Comparing_strings
   [collation-specification]: http://docs.couchdb.org/en/latest/couchapp/views/collation.html#collation-specification
-  [query-api]: http://pouchdb.com/api.html#query_database
+  [query-api]: {{ site.baseurl }}/api.html#query_database
   [page master]: https://en.wikipedia.org/wiki/Pagemaster
-  [remove]: http://pouchdb.com/api.html#delete_document
+  [remove]: {{ site.baseurl }}/api.html#delete_document

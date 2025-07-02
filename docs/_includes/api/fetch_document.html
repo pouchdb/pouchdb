@@ -34,7 +34,7 @@ db.get('mydoc', function(err, doc) {
 {% include code/start.html id="get1" type="async" %}
 {% highlight js %}
 try {
-  var doc = await db.get('mydoc');
+  const doc = await db.get('mydoc');
 } catch (err) {
   console.log(err);
 }

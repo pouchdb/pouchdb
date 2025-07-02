@@ -1,0 +1,38 @@
+name: PouchDB Docs
+
+on:
+  push:
+    paths:
+      - '.github/actions/**'
+      - '.github/workflows/docs.yml'
+      - 'package.json'
+      - 'bin/**'
+      - 'docs/**'
+  pull_request:
+    branches: [master]
+    paths:
+      - '.github/actions/**'
+      - '.github/workflows/docs.yml'
+      - 'package.json'
+      - 'bin/**'
+      - 'docs/**'
+
+jobs:
+
+  test-docs:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/install-node-package
+        with:
+          node-version: 22
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+          bundler-cache: true
+      - run: sudo gem install bundler -v 2.1.4
+      - run: npm run install-jekyll
+      - run: BUILD=1 npm run build-site

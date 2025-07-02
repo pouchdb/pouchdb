@@ -72,7 +72,7 @@ adapters.forEach(function (adapter) {
         {_id: '10', integer: 10}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         var changeCount = 0;
         var promise = db.changes().on('change', function handler() {
           changeCount++;
@@ -109,7 +109,7 @@ adapters.forEach(function (adapter) {
         return;
       }
 
-      return new testUtils.Promise(function (resolve, reject) {
+      return new Promise(function (resolve, reject) {
         // Capture logs
         var logs = [];
         var oldLog = console.error;
@@ -309,32 +309,42 @@ adapters.forEach(function (adapter) {
       });
     });
 
-    it('Changes with filter not present in ddoc', function (done) {
-      this.timeout(15000);
-      var docs = [
+    it('Changes with filter not present in ddoc', async function () {
+      const docs = [
         {_id: '1', integer: 1},
         { _id: '_design/foo',
           integer: 4,
           filters: { even: 'function (doc) { return doc.integer % 2 === 1; }' }
         }
       ];
-      var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function () {
-        db.changes({
-          filter: 'foo/odd',
-          limit: 2,
-          include_docs: true
-        }).on('error', function (err) {
-          err.name.should.equal('not_found');
-          err.status.should.equal(testUtils.errors.MISSING_DOC.status,
-                                  'correct error status returned');
-          done();
-        });
+      const db = new PouchDB(dbs.name);
+
+      await testUtils.promisify(testUtils.writeDocs)(db, docs);
+
+      const caughtErrors = [];
+      const changes = db.changes({
+        filter: 'foo/odd',
+        limit: 2,
+        include_docs: true
       });
+
+      changes.on('error', (err) => {
+        caughtErrors.push(err);
+      });
+
+      await assert.isRejected(changes, 'completes with an exception');
+      assert.lengthOf(caughtErrors, 1, 'changes emitted the expected error');
+      const caughtError = caughtErrors[0];
+      assert.equal(
+        caughtError.status,
+        testUtils.errors.MISSING_DOC.status,
+        'correct error status returned'
+      );
+      assert.equal(caughtError.name, 'not_found');
     });
 
-    it('Changes with `filters` key not present in ddoc', function (done) {
-      var docs = [
+    it('Changes with `filters` key not present in ddoc', async function () {
+      const docs = [
         {_id: '0', integer: 0},
         {_id: '1', integer: 1},
         {
@@ -343,24 +353,35 @@ adapters.forEach(function (adapter) {
           views: {
             even: {
               map: 'function (doc) { if (doc.integer % 2 === 1)' +
-               ' { emit(doc._id, null) }; }'
+                ' { emit(doc._id, null) }; }'
             }
           }
         }
       ];
-      var db = new PouchDB(dbs.name);
-      testUtils.writeDocs(db, docs, function () {
-        db.changes({
-          filter: 'foo/even',
-          limit: 2,
-          include_docs: true
-        }).on('error', function (err) {
-          err.status.should.equal(testUtils.errors.MISSING_DOC.status,
-                                  'correct error status returned');
-          err.name.should.equal('not_found');
-          done();
-        });
+      const db = new PouchDB(dbs.name);
+
+      await testUtils.promisify(testUtils.writeDocs)(db, docs);
+
+      const changes = db.changes({
+        filter: 'foo/even',
+        limit: 2,
+        include_docs: true
       });
+
+      const caughtErrors = [];
+      changes.on('error', function (err) {
+        caughtErrors.push(err);
+      });
+
+      await assert.isRejected(changes, 'completes with an exception');
+      assert.equal(caughtErrors.length, 1);
+      const caughtError = caughtErrors[0];
+      assert.equal(
+        caughtError.status,
+        testUtils.errors.MISSING_DOC.status,
+        'correct error status returned'
+      );
+      assert.equal(caughtError.name, 'not_found');
     });
 
     it('Changes limit and filter', function (done) {
@@ -421,7 +442,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         var promise = db.changes({
           return_docs: true,
           filter: 'even',
@@ -644,7 +665,7 @@ adapters.forEach(function (adapter) {
       // fixes code coverage by ensuring the changes() listener
       // emits 'complete' even if the db's task queue isn't
       // ready yet
-      return new testUtils.Promise(function (resolve, reject) {
+      return new Promise(function (resolve, reject) {
         var db = new PouchDB(dbs.name);
         var changes = db.changes({live: true});
         changes.on('error', reject);
@@ -654,7 +675,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('Changes with invalid ddoc view name', function () {
-      return new testUtils.Promise(function (resolve, reject) {
+      return new Promise(function (resolve, reject) {
         var db = new PouchDB(dbs.name);
         db.post({});
         var changes = db.changes({live: true, filter: '_view', view: ''});
@@ -664,7 +685,7 @@ adapters.forEach(function (adapter) {
     });
 
     it('Changes with invalid ddoc view name 2', function () {
-      return new testUtils.Promise(function (resolve, reject) {
+      return new Promise(function (resolve, reject) {
         var db = new PouchDB(dbs.name);
         db.post({});
         var changes = db.changes({live: true, filter: '_view', view: 'a/b/c'});
@@ -753,7 +774,7 @@ adapters.forEach(function (adapter) {
         {_id: '3', integer: 3}
       ];
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           limit: 0
@@ -781,9 +802,6 @@ adapters.forEach(function (adapter) {
     // Note for the following test that CouchDB's implementation of /_changes
     // with `descending=true` ignores any `since` parameter.
     it.skip('Descending many changes', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var docs = [];
       var num = 100;
@@ -794,7 +812,7 @@ adapters.forEach(function (adapter) {
         });
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err) {
+      db.bulkDocs({ docs }, function (err) {
         if (err) {
           return done(err);
         }
@@ -923,7 +941,6 @@ adapters.forEach(function (adapter) {
 
     it("#3579 changes firing 1 too many times", function () {
       var db = new PouchDB(dbs.name);
-      var Promise = testUtils.Promise;
       return db.bulkDocs([{}, {}, {}]).then(function () {
         var changes = db.changes({
           since: 'now',
@@ -966,7 +983,7 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
 
-      var chain = testUtils.Promise.resolve();
+      var chain = Promise.resolve();
 
       var docIds = ['b', 'c', 'a', 'z', 'd', 'e'];
 
@@ -1024,7 +1041,7 @@ adapters.forEach(function (adapter) {
 
       var db = new PouchDB(dbs.name);
 
-      var chain = testUtils.Promise.resolve();
+      var chain = Promise.resolve();
 
       var docIds = ['b', 'c', 'a', 'z', 'd', 'e'];
 
@@ -1196,7 +1213,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var retChanges = [];
           var changes = db.changes({
             doc_ids: ['1', '3'],
@@ -1230,7 +1247,7 @@ adapters.forEach(function (adapter) {
       }
       var db = new PouchDB(dbs.name);
       return db.bulkDocs(docs).then(function () {
-        return new testUtils.Promise(function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
           var retChanges = [];
           var changes = db.changes({
             doc_ids: [docs[1]._id, docs[3]._id],
@@ -1443,7 +1460,7 @@ adapters.forEach(function (adapter) {
         });
       }
       var db = new PouchDB(dbs.name);
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({return_docs: true}).on('complete', function (res) {
           res.results.length.should.equal(num);
           done();
@@ -1550,9 +1567,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('supports return_docs=false', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var docs = [];
       var num = 10;
@@ -1560,7 +1574,7 @@ adapters.forEach(function (adapter) {
         docs.push({ _id: 'doc_' + i});
       }
       var changes = 0;
-      db.bulkDocs({ docs: docs }, function (err) {
+      db.bulkDocs({ docs }, function (err) {
         if (err) {
           return done(err);
         }
@@ -1614,9 +1628,6 @@ adapters.forEach(function (adapter) {
     });
 
     it('handle individual changes in live replication', function (done) {
-      if (testUtils.isIE()) {
-        return done();
-      }
       var db = new PouchDB(dbs.name);
       var len = 80;
       var called = 0;
@@ -1725,7 +1736,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           selector: {"user": "foo"},
@@ -1753,7 +1764,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         db.changes({
           return_docs: true,
           selector: {"user": "foo"},
@@ -1796,7 +1807,7 @@ adapters.forEach(function (adapter) {
       ];
       var db = new PouchDB(dbs.name);
 
-      db.bulkDocs({ docs: docs }, function () {
+      db.bulkDocs({ docs }, function () {
         return db.changes({
           return_docs: true,
           limit: 1,
