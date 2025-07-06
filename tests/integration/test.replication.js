@@ -4218,10 +4218,7 @@ describe('suite2 test.replication.js-down-test', function () {
     try {
       await source.replicate.to(target);
     } catch (error) {
-      should.deep.equal({
-        name: 'TypeError',
-        message: 'NetworkError when attempting to fetch resource.',
-      });
+      should.match(error.message, /(^(Failed to fetch|NetworkError when attempting to fetch resource\.)$)|ECONNREFUSED|EHOSTUNREACH|ETIMEDOUT/);
     }
   });
 });
