@@ -4218,7 +4218,7 @@ describe('suite2 test.replication.js-down-test', function () {
     try {
       await source.replicate.to(target);
     } catch (error) {
-      error.message.should.match(/(^(Failed to fetch|NetworkError when attempting to fetch resource\.)$)|ECONNREFUSED|EHOSTUNREACH|ETIMEDOUT/);
+      error.message.should.match(/(^(Failed to fetch|NetworkError when attempting to fetch resource\.|Load failed)$)|ECONNREFUSED|EHOSTUNREACH|ETIMEDOUT/);
     }
   });
 });
