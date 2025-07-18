@@ -104,6 +104,14 @@ describe('test.http.js', function () {
     });
   });
 
+  it('communicates over IPv6', function () {
+    const name = dbs.name.replace(/^http:\/\/localhost:/, 'http://[::1]:');
+    const db = new PouchDB(name);
+    return db.info().then((res) => {
+      should.exist(res.db_name);
+    });
+  });
+
   it('4358 db.info rejects when server is down', function () {
     var db = new PouchDB('http://example.com/foo');
     return db.info().then(function () {
