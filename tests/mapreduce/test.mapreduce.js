@@ -1065,6 +1065,33 @@ function tests(suiteName, dbName, dbType, viewType) {
       });
     });
 
+		it("Built in _stats reduce function can be used with lists of numbers", function () {
+      var db = new PouchDB(dbName);
+      return createView(db, {
+        map: "function(doc){emit(null, doc.val);}",
+        reduce: "_stats"
+      }).then(function (queryFun) {
+        return db.bulkDocs({
+          docs: [
+            { _id: '1', val: 1 },
+            { _id: '2', val: [2, 3, 4, 5] },
+            { _id: '3', val: [6, 7] },
+            { _id: '4', val: 8 }
+          ]
+        }).then(function () {
+          return db.query(queryFun, {reduce: true, group_level: 999});
+        }).then(function (res) {
+          return res.rows[0].value;
+        });
+      }).should.become({
+        sum: [17, 10, 4, 5],
+        count: 4,
+        min: [1, 3, 4, 5],
+        max: [8, 7, 4, 5],
+        sumsqr: [105, 58, 16, 25]
+      });
+    });
+
     it("Built in _stats reduce function should throw an error with a promise",
       function () {
       var db = new PouchDB(dbName);
