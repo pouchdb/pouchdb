@@ -1065,9 +1065,33 @@ function tests(suiteName, dbName, dbType, viewType) {
       });
     });
 
-    it("Built in _stats reduce function should throw an error with a promise",
+    it("Built in _stats reduce function can be used with lists of numbers", function () {
+      const db = new PouchDB(dbName);
+      return createView(db, {
+        map: "function(doc){emit(null, doc.val);}",
+        reduce: "_stats"
+      }).then(function (queryFun) {
+        return db.bulkDocs({
+          docs: [
+            { _id: '1', val: [1, 2, 3] },
+            { _id: '2', val: [4, 5, 6] },
+            { _id: '3', val: [7, 8, 9] },
+          ]
+        }).then(function () {
+          return db.query(queryFun, {reduce: true, group_level: 999});
+        }).then(function (res) {
+          return res.rows[0].value;
+        });
+      }).should.become([
+        { sum: 12, count: 3, min: 1, max: 7, sumsqr: 66  },
+        { sum: 15, count: 3, min: 2, max: 8, sumsqr: 93  },
+        { sum: 18, count: 3, min: 3, max: 9, sumsqr: 126 }
+      ]);
+    });
+
+    it("Built in _stats reduce function should throw an error when confronted with strings",
       function () {
-      var db = new PouchDB(dbName);
+      const db = new PouchDB(dbName);
       return createView(db, {
         map: "function(doc){emit(doc.val, 'lala');}",
         reduce: "_stats"
@@ -1075,8 +1099,44 @@ function tests(suiteName, dbName, dbType, viewType) {
         return db.bulkDocs({
           docs: [
             { val: 'bar' },
-              { val: 'bar' },
+            { val: 'bar' },
             { val: 'baz' }
+          ]
+        }).then(function () {
+          return db.query(queryFun, {reduce: true, group_level: 999});
+        });
+      }).should.be.rejected;
+    });
+
+    it("Built in _stats reduce function should throw an error when confronted with a mix of numbers and arrays",
+      function () {
+      const db = new PouchDB(dbName);
+      return createView(db, {
+        map: "function(doc){emit(null, doc.val);}",
+        reduce: "_stats"
+      }).then(function (queryFun) {
+        return db.bulkDocs({
+          docs: [
+            { _id: '1', val: [1, 2, 3] },
+            { _id: '2', val: 4 }
+          ]
+        }).then(function () {
+          return db.query(queryFun, {reduce: true, group_level: 999});
+        });
+      }).should.be.rejected;
+    });
+
+    it("Built in _stats reduce function should throw an error when confronted with arrays of inconsistent length",
+      function () {
+      const db = new PouchDB(dbName);
+      return createView(db, {
+        map: "function(doc){emit(null, doc.val);}",
+        reduce: "_stats"
+      }).then(function (queryFun) {
+        return db.bulkDocs({
+          docs: [
+            { _id: '1', val: [1, 2, 3] },
+            { _id: '2', val: [1, 2] }
           ]
         }).then(function () {
           return db.query(queryFun, {reduce: true, group_level: 999});
