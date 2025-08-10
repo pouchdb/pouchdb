@@ -12,7 +12,7 @@ function codeWrap(){
       })
       .filter(function(item, index, inputArray){
           // Each code block has multiple versions so let's only grab one.
-          return inputArray.indexOf(item) == index;
+          return inputArray.indexOf(item) === index;
       });
 
   wrap();
@@ -41,7 +41,7 @@ function codeWrap(){
             '<a href="#callback">Callbacks</a>' +
         '</li>' +
       '</ul>' +
-      '<div class="tab-content">{{tapPanes}}</div>';
+      '<div class="tab-content">{{tabPanes}}</div>';
     codeIds
       .forEach(function(id){
         var $code = $("[data-code-id='" + id + "']");
@@ -51,7 +51,7 @@ function codeWrap(){
         }).join('');
 
         var codeHtml = codeTpl
-                          .replace(/{{tapPanes}}/g, paneHtml)
+                          .replace(/{{tabPanes}}/g, paneHtml)
                           .replace(/{{codeId}}/g, id);
         $code
           .first()
