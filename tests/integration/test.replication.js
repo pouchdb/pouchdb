@@ -4196,6 +4196,8 @@ adapters.forEach(function (adapters) {
 // This test only needs to run for one configuration, and it slows stuff
 // down
 describe('suite2 test.replication.js-down-test', function () {
+  this.timeout(360000);
+
   let dbs = {};
 
   beforeEach(function (done) {
@@ -4208,14 +4210,15 @@ describe('suite2 test.replication.js-down-test', function () {
   });
 
   it('replicate from down server test', async () => {
-    const source = new PouchDB('http://127.0.0.1:3010', {
-      ajax: {timeout: 10}
+    const source = new PouchDB('http://10.1.1.1:1234/store', {
+      ajax: {timeout: 10},
+      timeout: 10,
     });
     const target = new PouchDB(dbs.name);
     try {
       await source.replicate.to(target);
     } catch (error) {
-      should.exist(error);
+      error.message.should.match(/(^(Failed to fetch|NetworkError when attempting to fetch resource\.|Load failed)$)|ECONNREFUSED|EHOSTUNREACH|ETIMEDOUT/);
     }
   });
 });

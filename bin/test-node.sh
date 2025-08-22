@@ -12,12 +12,6 @@ else
 fi
 
 if [ "$TYPE" = "integration" ]; then
-    if  (: < /dev/tcp/127.0.0.1/3010) 2>/dev/null; then
-        echo "down-server port already in use"
-    else
-        node bin/down-server.js 3010 & export DOWN_SERVER_PID=$!
-    fi
-
     TESTS_PATH="tests/integration/test.*.js"
 fi
 if [ "$TYPE" = "fuzzy" ]; then
