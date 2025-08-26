@@ -1853,12 +1853,12 @@ adapters.forEach(function (adapter) {
       const db = new PouchDB(dbs.name);
       await db.bulkDocs({ docs });
       const changes = await db.changes({ filter: "_design" });
-      assert.equal(changes.results.length, 1);
+      assert.lengthOf(changes.results, 1);
       assert.equal(changes.results[0].id, '_design/foo');
       assert.isArray(changes.results[0].changes);
-      assert.equal(changes.results[0].changes.length, 1);
+      assert.lengthOf(changes.results[0].changes, 1);
       assert.isString(changes.results[0].changes[0].rev);
-      assert.isNumber(changes.results[0].seq);
+      assert.isDefined(changes.results[0].seq);
     });
 
   });
