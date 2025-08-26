@@ -1838,7 +1838,7 @@ adapters.forEach(function (adapter) {
       }).catch(done);
     });
 
-    it('filters for _design docs', async function () {
+    it('Changes accepts "_design" as filter property', async function () {
       const docs = [
         { _id: '0' },
         { _id: '1' },
