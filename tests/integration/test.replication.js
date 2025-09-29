@@ -1513,6 +1513,40 @@ adapters.forEach(function (adapters) {
       });
     });
 
+    it('Replication filter_id_only', function (done) {
+      var db = new PouchDB(dbs.name);
+      var remote = new PouchDB(dbs.remote);
+      var docs1 = [
+        {_id: '0', integer: 0},
+        {_id: '1', integer: 1},
+        {_id: '2', integer: 2},
+        {_id: '3', integer: 3}
+      ];
+      remote.bulkDocs({ docs: docs1 }, function () {
+        db.replicate.from(remote, {
+          filter_id_only: true,
+          filter: function (doc) {
+            if (Object.keys(doc).length !== 1 || !doc._id) {
+              throw new Error("test fail");
+            }
+            return doc._id === '0' || doc._id === '1';
+          }
+        }).on('error', done).on('complete', function () {
+          db.allDocs(function (err, docs) {
+            if (err) { done(err); }
+            docs.rows.length.should.equal(2);
+            db.info(function (err, info) {
+              verifyInfo(info, {
+                update_seq: 2,
+                doc_count: 2
+              });
+              done();
+            });
+          });
+        });
+      });
+    });
+    
     it('Replication with different filters', function (done) {
       var db = new PouchDB(dbs.name);
       var remote = new PouchDB(dbs.remote);
