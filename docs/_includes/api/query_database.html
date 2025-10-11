@@ -56,6 +56,7 @@ All options default to `false` unless otherwise specified.
     * `'ok'`: Returns results immediately, even if they're out-of-date.
     * `'update_after'`: Returns results immediately, but kicks off a build afterwards.
 * `options.update_seq`: Include an `update_seq` value indicating which sequence id of the underlying database the view reflects.
+* `options.partition`: If you query a couchdb database with the http adapter and a partitioned index, you need to add the partition key.
 
 For details, see the [CouchDB query options documentation](https://docs.couchdb.org/en/stable/api/ddoc/views.html#get--db-_design-ddoc-_view-view).
 
