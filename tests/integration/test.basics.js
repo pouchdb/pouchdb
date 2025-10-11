@@ -1332,6 +1332,12 @@ adapters.forEach(function (adapter) {
        });
     }
 
+    it('#8594 Plugins can override core methods', function () {
+      PouchDB.plugin({bulkDocs: function () {return true;}});
+      var db = new PouchDB("test");
+      db.bulkDocs().should.equal(true);
+    });
+
     if (typeof process !== 'undefined' && !process.browser) {
       it('#5471 PouchDB.plugin() should throw error if passed wrong type or empty object', function () {
         (function () {
