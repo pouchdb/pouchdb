@@ -82,7 +82,7 @@
     "median": "0.0.2",
     "mocha": "10.8.2",
     "ncp": "2.0.0",
-    "playwright": "1.49.1",
+    "playwright": "1.55.1",
     "pouchdb-express-router": "0.0.11",
     "replace": "1.2.1",
     "rimraf": "2.7.1",
