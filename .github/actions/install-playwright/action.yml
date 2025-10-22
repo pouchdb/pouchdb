@@ -5,5 +5,8 @@ runs:
   using: composite
 
   steps:
+    # workaround for #9127
+    - run: sudo apt-get remove --purge man-db
+      shell: bash
     - run: sudo npx playwright install-deps
       shell: bash
